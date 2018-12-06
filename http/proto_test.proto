@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package http.test;
+
+option go_package = "github.com/go-ocf/kit/http;http";
+
+message TestRequest {
+    string stringVal = 1;
+}
+
+message TestResponse{
+    string stringVal = 1;
+}
