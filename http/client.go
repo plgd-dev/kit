@@ -28,6 +28,11 @@ func ReleaseRequestCtx(ctx *RequestCtx) {
 	fasthttp.ReleaseResponse(ctx.resp)
 }
 
+// SetHeader to set http header for RequestCtx
+func SetHeader(ctx *RequestCtx, key string, value string) {
+	ctx.req.Header.Set(key, value)
+}
+
 // PostProto posts a protobuf message to an HTTP server and
 // receives a protobuf response on fasthttp.StatusOK.
 func (ctx *RequestCtx) PostProto(client *fasthttp.Client, uri string, in ProtoMarshaler, out ProtoUnmarshaler) (int, error) {
