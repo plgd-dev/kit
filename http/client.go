@@ -7,16 +7,16 @@ import (
 // RequestCtx provides http methods: POST.
 // It is used to send a single request and obtain the response.
 type RequestCtx struct {
-	req  *fasthttp.Request
-	resp *fasthttp.Response
+	Req  *fasthttp.Request
+	Resp *fasthttp.Response
 }
 
 // AcquireRequestCtx along with ReleaseRequestCtx are used to
 // manage the lifetime of the enclosed pooled data structures.
 func AcquireRequestCtx() *RequestCtx {
 	return &RequestCtx{
-		req:  fasthttp.AcquireRequest(),
-		resp: fasthttp.AcquireResponse(),
+		Req:  fasthttp.AcquireRequest(),
+		Resp: fasthttp.AcquireResponse(),
 	}
 }
 
@@ -24,26 +24,26 @@ func AcquireRequestCtx() *RequestCtx {
 // like body/headers that you want to use after ReleaseRequestCtx. Because
 // they will be overridden by next AcquireRequestCtx.
 func ReleaseRequestCtx(ctx *RequestCtx) {
-	fasthttp.ReleaseRequest(ctx.req)
-	fasthttp.ReleaseResponse(ctx.resp)
+	fasthttp.ReleaseRequest(ctx.Req)
+	fasthttp.ReleaseResponse(ctx.Resp)
 }
 
 // PostProto posts a protobuf message to an HTTP server and
 // receives a protobuf response on fasthttp.StatusOK.
 func (ctx *RequestCtx) PostProto(client *fasthttp.Client, uri string, in ProtoMarshaler, out ProtoUnmarshaler) (int, error) {
-	ctx.req.SetRequestURI(uri)
-	ctx.req.Header.SetMethod("POST")
-	if err := WriteRequest(in, ctx.req); err != nil {
+	ctx.Req.SetRequestURI(uri)
+	ctx.Req.Header.SetMethod("POST")
+	if err := WriteRequest(in, ctx.Req); err != nil {
 		return -1, err
 	}
-	if err := client.Do(ctx.req, ctx.resp); err != nil {
+	if err := client.Do(ctx.Req, ctx.Resp); err != nil {
 		return -1, err
 	}
-	code := ctx.resp.StatusCode()
+	code := ctx.Resp.StatusCode()
 	if code != fasthttp.StatusOK {
 		return code, nil
 	}
-	if err := ReadResponse(out, ctx.resp); err != nil {
+	if err := ReadResponse(out, ctx.Resp); err != nil {
 		return code, err
 	}
 	return code, nil

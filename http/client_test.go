@@ -19,7 +19,7 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	var req TestRequest
 	ct := string(ctx.Request.Header.ContentType())
 	if ct != ProtobufContentType(&req) {
-		t.Fatalf("Unexpected content-type(%v) in req, expected %v", ct, ProtobufContentType(&req))
+		t.Fatalf("Unexpected content-type(%v) in Req, expected %v", ct, ProtobufContentType(&req))
 	}
 
 	if err := req.Unmarshal(ctx.Request.Body()); err != nil {
@@ -27,7 +27,7 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	}
 
 	if req.StringVal != strReq {
-		t.Fatalf("Unexpected value(%v) in proto req, expected %v", req.StringVal, strReq)
+		t.Fatalf("Unexpected value(%v) in proto Req, expected %v", req.StringVal, strReq)
 	}
 
 	resp := TestResponse{
