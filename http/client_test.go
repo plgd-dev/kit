@@ -1,19 +1,35 @@
 package http
 
 import (
+	"errors"
 	"net"
-	"strconv"
-	"sync"
 	"testing"
 
-	"github.com/buaazp/fasthttprouter"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttputil"
 )
 
 const (
-	strResp = "strResp"
-	strReq  = "strReq"
+	strResp   = "strResp"
+	strReq    = "strReq"
+	badReqStr = "badReqStr"
 )
+
+func startTestHTTPServer(h fasthttp.RequestHandler) *fasthttputil.InmemoryListener {
+
+	listener := fasthttputil.NewInmemoryListener()
+	go fasthttp.Serve(listener, h)
+	return listener
+}
+
+func createTestHTTPClient(ln *fasthttputil.InmemoryListener) *fasthttp.Client {
+	c := fasthttp.Client{
+		Dial: func(addr string) (net.Conn, error) {
+			return ln.Dial()
+		},
+	}
+	return &c
+}
 
 func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	var req TestRequest
@@ -27,7 +43,9 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	}
 
 	if req.StringVal != strReq {
-		t.Fatalf("Unexpected value(%v) in proto Req, expected %v", req.StringVal, strReq)
+		WriteErrorResponse(errors.New(badReqStr), &ctx.Response)
+		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+		return
 	}
 
 	resp := TestResponse{
@@ -52,57 +70,63 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	ctx.Response.SetBody(out)
 }
 
-func testCreateHTTPServer(t *testing.T) (*fasthttp.Server, string, chan error) {
-	router := fasthttprouter.New()
-	router.POST("/test", func(ctx *fasthttp.RequestCtx) {
+func testCreateHTTPServer(t *testing.T) (*fasthttputil.InmemoryListener, *fasthttp.Client) {
+	server := startTestHTTPServer(func(ctx *fasthttp.RequestCtx) {
 		testHandler(t, ctx)
 	})
-
-	s := fasthttp.Server{
-		Handler: router.Handler,
-	}
-	ln, err := net.Listen("tcp", ":")
-	if err != nil {
-		t.Fatalf("Cannot listen on server: %v", err)
-	}
-
-	fin := make(chan error)
-	var wk sync.WaitGroup
-	wk.Add(1)
-	go func() {
-		wk.Done()
-		fin <- s.Serve(ln)
-	}()
-	wk.Wait()
-
-	return &s, "127.0.0.1:" + strconv.Itoa(ln.Addr().(*net.TCPAddr).Port), fin
+	client := createTestHTTPClient(server)
+	return server, client
 }
 
-func TestClientPost(t *testing.T) {
+func TestRequestCtx_PostProto(t *testing.T) {
+	server, client := testCreateHTTPServer(t)
+	defer server.Close()
 
-	s, addrstr, fin := testCreateHTTPServer(t)
-	defer func() {
-		s.Shutdown()
-		if err := <-fin; err != nil {
-			t.Fatalf("server unexcpected shutdown: %v", err)
-		}
-	}()
+	type args struct {
+		in  ProtoMarshaler
+		out ProtoUnmarshaler
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "valid",
+			args: args{
+				in: &TestRequest{
+					StringVal: strReq,
+				},
+				out: &TestResponse{},
+			},
+			want: fasthttp.StatusOK,
+		},
+		{
+			name: "invalid",
+			args: args{
+				in: &TestRequest{
+					StringVal: badReqStr,
+				},
+				out: &TestResponse{},
+			},
+			want:    fasthttp.StatusBadRequest,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := AcquireRequestCtx()
+			defer ReleaseRequestCtx(ctx)
 
-	ctx := AcquireRequestCtx()
-	defer ReleaseRequestCtx(ctx)
-
-	req := TestRequest{
-		StringVal: strReq,
-	}
-	var resp TestResponse
-	code, err := ctx.PostProto(&fasthttp.Client{}, "http://"+addrstr+"/test", &req, &resp)
-	if err != nil {
-		t.Fatalf("Cannot post proto: %v", err)
-	}
-	if code != fasthttp.StatusOK {
-		t.Fatalf("Returns unexpected status code %v", code)
-	}
-	if resp.StringVal != strResp {
-		t.Fatalf("Returns unexpected value(%v) in proto, expected %v", resp.StringVal, strResp)
+			got, err := ctx.PostProto(client, "http://localhost", tt.args.in, tt.args.out)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("RequestCtx.PostProto() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("RequestCtx.PostProto() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

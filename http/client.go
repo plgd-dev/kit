@@ -41,7 +41,7 @@ func (ctx *RequestCtx) PostProto(client *fasthttp.Client, uri string, in ProtoMa
 	}
 	code := ctx.Resp.StatusCode()
 	if code != fasthttp.StatusOK {
-		return code, nil
+		return code, ReadErrorResponse(ctx.Resp)
 	}
 	if err := ReadResponse(out, ctx.Resp); err != nil {
 		return code, err
