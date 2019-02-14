@@ -8,6 +8,16 @@ var logger zap.Logger
 var log *zap.SugaredLogger
 
 func init() {
+	config := zap.NewProductionConfig()
+	logger, err := config.Build()
+	if err != nil {
+		panic("Unable to create logger")
+	}
+	log = logger.Sugar()
+}
+
+// SetDebug set level logging to debug env
+func SetDebug() {
 	config := zap.NewDevelopmentConfig()
 	logger, err := config.Build()
 	if err != nil {
