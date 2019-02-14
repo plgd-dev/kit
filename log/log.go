@@ -4,8 +4,12 @@ import (
 	"go.uber.org/zap"
 )
 
-var logger zap.Logger
 var log *zap.SugaredLogger
+
+// Config configuration for setup logging.
+type Config struct {
+	Debug bool
+}
 
 func init() {
 	config := zap.NewProductionConfig()
@@ -16,10 +20,15 @@ func init() {
 	log = logger.Sugar()
 }
 
-// SetDebug set level logging to debug env
-func SetDebug() {
-	config := zap.NewDevelopmentConfig()
-	logger, err := config.Build()
+// Setup change configuration on application - call ASAP in main after parse args/env.
+func Setup(config Config) {
+	var cfg zap.Config
+	if config.Debug {
+		cfg = zap.NewDevelopmentConfig()
+	} else {
+		cfg = zap.NewProductionConfig()
+	}
+	logger, err := cfg.Build()
 	if err != nil {
 		panic("Unable to create logger")
 	}
