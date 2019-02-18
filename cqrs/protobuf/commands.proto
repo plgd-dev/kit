@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package ocf.cloud;
+
+option go_package = "github.com/go-ocf/kit/cqrs/protobuf;protobuf";
+
+message AuthorizationContext {
+    string user_id = 1;
+    string device_id = 2;
+    string access_token = 3;
+}
