@@ -14,7 +14,7 @@ func TimeNowMs() uint64 {
 	return uint64(unix / int64(time.Millisecond))
 }
 
-//CreateEventMeta for creating EventMetadata from ResourcefModel
+//CreateEventMeta for creating EventMetadata for event.
 func MakeEventMeta(newVersion uint64) protobuf.EventMetadata {
 	return protobuf.EventMetadata{
 		Version:     newVersion,

@@ -28,8 +28,8 @@ import (
 	"github.com/go-ocf/cqrs/event"
 	"github.com/go-ocf/cqrs/eventstore"
 	cqrsMongodb "github.com/go-ocf/cqrs/eventstore/mongodb"
+	cqrsUtils "github.com/go-ocf/kit/cqrs"
 	"github.com/go-ocf/kit/log"
-	cqrsUtils "github.com/go-ocf/resource-aggregate/cqrs"
 )
 
 const instanceIdsCollection = "instanceIds"
@@ -112,13 +112,13 @@ func (s *EventStore) Clear(ctx context.Context) error {
 }
 
 type seqRecord struct {
-	DeviceId   string `bson:"deviceId"`
-	ResourceId string `bson:"resourceId"`
-	InstanceId int64  `bson:"_id"`
+	GroupId     string `bson:"groupid"`
+	AggregateId string `bson:"aggregateid"`
+	InstanceId  int64  `bson:"_id"`
 }
 
 // GetInstanceId returns int64 that is unique
-func (s *EventStore) GetInstanceId(ctx context.Context, deviceId, resourceId string) (int64, error) {
+func (s *EventStore) GetInstanceId(ctx context.Context, groupId, aggregateId string) (int64, error) {
 	sess := s.session.Copy()
 	defer sess.Close()
 	var newInstanceId uint32
@@ -126,9 +126,9 @@ func (s *EventStore) GetInstanceId(ctx context.Context, deviceId, resourceId str
 		newInstanceId = rand.Uint32()
 
 		r := seqRecord{
-			DeviceId:   deviceId,
-			ResourceId: resourceId,
-			InstanceId: int64(newInstanceId),
+			GroupId:     groupId,
+			AggregateId: aggregateId,
+			InstanceId:  int64(newInstanceId),
 		}
 
 		if err := sess.DB(s.es.DBName()).C(instanceIdsCollection).Insert(r); err != nil {

@@ -13,3 +13,5 @@
 
 #golang
 .idea/
+
+vendor/
