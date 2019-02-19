@@ -6,7 +6,7 @@ import (
 
 	"github.com/Shopify/sarama"
 	cqrsKafka "github.com/go-ocf/cqrs/eventbus/kafka"
-	cqrsUtils "github.com/go-ocf/resource-aggregate/cqrs"
+	cqrsUtils "github.com/go-ocf/kit/cqrs"
 )
 
 type Config struct {
