@@ -1,6 +1,8 @@
 package log
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 )
 
@@ -20,8 +22,17 @@ func init() {
 	log = logger.Sugar()
 }
 
-// Setup change configuration on application - call ASAP in main after parse args/env.
+// Setup changes log configuration for the application.
+// Call ASAP in main after parse args/env.
+// Unsafe for concurent use.
 func Setup(config Config) {
+	if err := Build(config); err != nil {
+		panic(err)
+	}
+}
+
+// Build is a panic-free version of Setup.
+func Build(config Config) error {
 	var cfg zap.Config
 	if config.Debug {
 		cfg = zap.NewDevelopmentConfig()
@@ -30,9 +41,10 @@ func Setup(config Config) {
 	}
 	logger, err := cfg.Build()
 	if err != nil {
-		panic("Unable to create logger")
+		return fmt.Errorf("logger creation failed: %v", err)
 	}
 	log = logger.Sugar()
+	return nil
 }
 
 // Debug uses fmt.Sprint to construct and log a message.
