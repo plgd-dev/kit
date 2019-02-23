@@ -74,7 +74,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3fc7df736665fd1b47aedd0d26248a2a2f629cde9e44e2ef756882000b72500d"
+  digest = "1:8b9d578b021429a73c1e5d61857c8a5c319688ffde0d9aae165cd1741534fb37"
   name = "github.com/go-ocf/cqrs"
   packages = [
     "event",
@@ -85,7 +85,7 @@
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "b7ffdf684f2ca9f0176ac13be60a075c6bb94074"
+  revision = "d5323176978f0b184c8490c93788cba8ddc0dc1f"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
@@ -128,23 +128,23 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:866293801cc31b1feb9d2afa9a33cc4506caf74ecb76f481c23a325f2ca50977"
+  digest = "1:ce33c87d3c813074190a3551912c446a05048dafa436429ba9e467532bc9cdd1"
   name = "github.com/panjf2000/ants"
   packages = ["."]
   pruneopts = "UT"
-  revision = "6cf3ef96e66993822a7f62e555bee5a74ca29c16"
-  version = "v4.0.1"
+  revision = "8bb0cde224fdf3a1c6915b4dbd943bc506b42257"
+  version = "v4.1"
 
 [[projects]]
-  digest = "1:c7a5e79396b6eb570159df7a1d487ce5775bf43b7907976fbef6de544ea160ad"
+  digest = "1:d4c88b5ad20151a96c1e5a55547a944b6af623aa315f69ee0d172b00f95d27fb"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "473cd7ce01a1113208073166464b98819526150e"
-  version = "v2.0.8"
+  revision = "062282ea0dcff40c9fb8525789eef9644b1fbd6e"
+  version = "v2.1.0"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"

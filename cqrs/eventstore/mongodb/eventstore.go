@@ -88,11 +88,11 @@ func (s *EventStore) SaveSnapshot(ctx context.Context, groupId, aggregateId stri
 	return s.es.SaveSnapshot(ctx, groupId, aggregateId, event)
 }
 
-func (s *EventStore) LoadFromVersion(ctx context.Context, queries []eventstore.QueryFromVersion, eventHandler event.Handler) error {
+func (s *EventStore) LoadFromVersion(ctx context.Context, queries []eventstore.VersionQuery, eventHandler event.Handler) error {
 	return s.es.LoadFromVersion(ctx, queries, eventHandler)
 }
 
-func (s *EventStore) LoadFromSnapshot(ctx context.Context, queries []eventstore.QueryFromSnapshot, eventHandler event.Handler) error {
+func (s *EventStore) LoadFromSnapshot(ctx context.Context, queries []eventstore.SnapshotQuery, eventHandler event.Handler) error {
 	return s.es.LoadFromSnapshot(ctx, queries, eventHandler)
 }
 
