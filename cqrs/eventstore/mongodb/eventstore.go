@@ -112,13 +112,12 @@ func (s *EventStore) Clear(ctx context.Context) error {
 }
 
 type seqRecord struct {
-	GroupId     string `bson:"groupid"`
 	AggregateId string `bson:"aggregateid"`
 	InstanceId  int64  `bson:"_id"`
 }
 
 // GetInstanceId returns int64 that is unique
-func (s *EventStore) GetInstanceId(ctx context.Context, groupId, aggregateId string) (int64, error) {
+func (s *EventStore) GetInstanceId(ctx context.Context, aggregateId string) (int64, error) {
 	sess := s.session.Copy()
 	defer sess.Close()
 	var newInstanceId uint32
@@ -126,7 +125,6 @@ func (s *EventStore) GetInstanceId(ctx context.Context, groupId, aggregateId str
 		newInstanceId = rand.Uint32()
 
 		r := seqRecord{
-			GroupId:     groupId,
 			AggregateId: aggregateId,
 			InstanceId:  int64(newInstanceId),
 		}

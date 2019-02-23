@@ -42,7 +42,7 @@ func TestInstanceId(t *testing.T) {
 	assert.NoError(t, err)
 
 	for i := int64(1); i < 10; i++ {
-		instanceId, err := store.GetInstanceId(ctx, "a", "b")
+		instanceId, err := store.GetInstanceId(ctx, "b")
 		assert.NoError(t, err)
 		err = store.RemoveInstanceId(ctx, instanceId)
 		assert.NoError(t, err)

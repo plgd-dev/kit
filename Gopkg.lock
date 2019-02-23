@@ -85,7 +85,7 @@
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "d5323176978f0b184c8490c93788cba8ddc0dc1f"
+  revision = "d3f03e776f8706a13b8c828e780cc427f8af1ae2"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
