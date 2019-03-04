@@ -1,0 +1,75 @@
+package net
+
+import (
+	"context"
+	"fmt"
+	"net"
+	"time"
+)
+
+type TCPListener struct {
+	listener  *net.TCPListener
+	heartBeat time.Duration
+}
+
+func newNetTCPListen(network string, addr string) (*net.TCPListener, error) {
+	a, err := net.ResolveTCPAddr(network, addr)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create new net tcp listener: %v", err)
+	}
+
+	tcp, err := net.ListenTCP(network, a)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create new net tcp listener: %v", err)
+	}
+	return tcp, nil
+}
+
+func NewTCPListen(network string, addr string, heartBeat time.Duration) (*TCPListener, error) {
+	tcp, err := newNetTCPListen(network, addr)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create new tcp listener: %v", err)
+	}
+	return &TCPListener{listener: tcp, heartBeat: heartBeat}, nil
+}
+
+func (l *TCPListener) AcceptContext(ctx context.Context) (net.Conn, error) {
+	for {
+		select {
+		case <-ctx.Done():
+			if ctx.Err() != nil {
+				return nil, fmt.Errorf("cannot accept connections: %v", ctx.Err())
+			}
+			return nil, nil
+		default:
+		}
+		err := l.listener.SetDeadline(time.Now().Add(l.heartBeat))
+		if err != nil {
+			return nil, fmt.Errorf("cannot accept connections: %v", err)
+		}
+		rw, err := l.listener.Accept()
+		if err != nil {
+			if passError(err) {
+				continue
+			}
+			return nil, fmt.Errorf("cannot accept connections: %v", err)
+		}
+		return rw, nil
+	}
+}
+
+func (l *TCPListener) SetDeadline(t time.Time) error {
+	return l.listener.SetDeadline(t)
+}
+
+func (l *TCPListener) Accept() (net.Conn, error) {
+	return l.AcceptContext(context.Background())
+}
+
+func (l *TCPListener) Close() error {
+	return l.listener.Close()
+}
+
+func (l *TCPListener) Addr() net.Addr {
+	return l.listener.Addr()
+}
