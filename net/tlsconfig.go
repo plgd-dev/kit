@@ -22,7 +22,7 @@ type TLSConfig struct {
 	CAPool         string `envconfig:"TLS_CA_POOL"`
 }
 
-// VerifyCertificateFunc checks EKU, revocations and other staff of certificate.
+// VerifyCertificateFunc verify EKU, revocations and other staff of certificate.
 type VerifyCertificateFunc func(conn net.Conn, certificate *x509.Certificate) error
 
 // SetTLSConfig setup tls.Config that provides verification certificate with connection.
@@ -106,7 +106,7 @@ func newVerifyPeerCert(intermediates *x509.CertPool, roots *x509.CertPool, conn 
 			if err != nil {
 				return err
 			}
-			//TODO verify revocation
+
 			_, err = cert.Verify(x509.VerifyOptions{
 				Intermediates: intermediates,
 				Roots:         roots,
