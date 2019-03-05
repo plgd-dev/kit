@@ -20,7 +20,7 @@ func NewConnTCP(c net.Conn, heartBeat time.Duration) *ConnTCP {
 	connection := ConnTCP{
 		connection: c,
 		heartBeat:  heartBeat,
-		readBuffer: acquireReader(c),
+		readBuffer: bufio.NewReaderSize(c, 2048),
 	}
 	return &connection
 }
@@ -34,9 +34,7 @@ func (c *ConnTCP) RemoteAddr() net.Addr {
 }
 
 func (c *ConnTCP) Close() error {
-	err := c.connection.Close()
-	releaseReader(c.readBuffer)
-	return err
+	return c.connection.Close()
 }
 
 func (c *ConnTCP) WriteContext(ctx context.Context, buffer []byte) error {
