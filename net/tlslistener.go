@@ -8,12 +8,14 @@ import (
 	"time"
 )
 
+// TLSListener is a TLS listener that provides accept with context.
 type TLSListener struct {
 	tcp       *net.TCPListener
 	listener  net.Listener
 	heartBeat time.Duration
 }
 
+// NewTLSListen creates tcp listener.
 func NewTLSListen(network string, addr string, cfg *tls.Config, heartBeat time.Duration) (*TLSListener, error) {
 	tcp, err := newNetTCPListen(network, addr)
 	if err != nil {
@@ -27,6 +29,7 @@ func NewTLSListen(network string, addr string, cfg *tls.Config, heartBeat time.D
 	}, nil
 }
 
+// AcceptContext waits with context for a generic Conn.
 func (l *TLSListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 	for {
 		select {
@@ -37,7 +40,7 @@ func (l *TLSListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 			return nil, nil
 		default:
 		}
-		err := l.tcp.SetDeadline(time.Now().Add(l.heartBeat))
+		err := l.SetDeadline(time.Now().Add(l.heartBeat))
 		if err != nil {
 			return nil, fmt.Errorf("cannot accept connections: %v", err)
 		}
@@ -52,18 +55,22 @@ func (l *TLSListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 	}
 }
 
+// SetDeadline sets deadline for accept operation.
 func (l *TLSListener) SetDeadline(t time.Time) error {
 	return l.tcp.SetDeadline(t)
 }
 
+// Accept waits for a generic Conn.
 func (l *TLSListener) Accept() (net.Conn, error) {
 	return l.AcceptContext(context.Background())
 }
 
+// Close closes the connection.
 func (l *TLSListener) Close() error {
 	return l.listener.Close()
 }
 
+// Addr represents a network end point address.
 func (l *TLSListener) Addr() net.Addr {
 	return l.listener.Addr()
 }

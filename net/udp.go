@@ -31,6 +31,7 @@ type ConnUDPContext struct {
 	context []byte
 }
 
+// NewConnUDPContext creates conn udp context.
 func NewConnUDPContext(raddr *net.UDPAddr, oob []byte) *ConnUDPContext {
 	return &ConnUDPContext{
 		raddr:   raddr,
@@ -85,6 +86,7 @@ func parseDstFromOOB(oob []byte) net.IP {
 	return nil
 }
 
+// JoinGroup register UDPConn to multicast group.
 func JoinGroup(conn *net.UDPConn, ifi *net.Interface, gaddr *net.UDPAddr) error {
 	if ip4 := conn.LocalAddr().(*net.UDPAddr).IP.To4(); ip4 != nil {
 		return ipv4.NewPacketConn(conn).JoinGroup(ifi, gaddr)

@@ -10,12 +10,12 @@
   version = "v1.3.5"
 
 [[projects]]
-  digest = "1:28917d5a3f5e53a4c8a4035195c022649c66a4d71d6357a2276cd347945bd527"
+  digest = "1:82a18170c9c41e36939cb5d26da1546b2cfa786aa030a978d3bf183519849230"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = "UT"
-  revision = "03a43f93cd29dc549e6d9b11892795c206f9c38c"
-  version = "v1.20.1"
+  revision = "4602b5a8c6e826f9e0737865818dd43b2339a092"
+  version = "v1.21.0"
 
 [[projects]]
   digest = "1:526d64d0a3ac6c24875724a9355895be56a21f89a5d3ab5ba88d91244269a7d8"
@@ -74,7 +74,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8b9d578b021429a73c1e5d61857c8a5c319688ffde0d9aae165cd1741534fb37"
+  digest = "1:66a692355fbb297c55cacac5598d1c894b3d4dc2d680d0b2b5a69ed1605f7a2a"
   name = "github.com/go-ocf/cqrs"
   packages = [
     "event",
@@ -85,7 +85,7 @@
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "d3f03e776f8706a13b8c828e780cc427f8af1ae2"
+  revision = "d84fa5affa98ee33251b7c15af8dc534d7a7b7c0"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
@@ -180,7 +180,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d9fff816672fef4dd9db94ce28ca12a650b58c84a1033a2cf543a9e9eec31d77"
+  digest = "1:e261a281680b984e2017097542b7ed2a84983c9aa2da95b1bf6d78ed712f9581"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -188,7 +188,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "ed3793a1e1602989ba50bd20823e8521a4da84af"
+  revision = "517df8833274a3bf8c1377ceec64a8f131876cb7"
 
 [[projects]]
   digest = "1:3c1a69cdae3501bf75e76d0d86dc6f2b0a7421bc205c0cb7b96b19eed464a34d"
@@ -221,6 +221,20 @@
   revision = "ff33455a0e382e8a81d14dd7c922020b6b5e7982"
   version = "v1.9.1"
 
+[[projects]]
+  branch = "master"
+  digest = "1:425d81a8ef644b5cd324106e8d6e355581a47c2222b20b938822470a3c96a5e1"
+  name = "golang.org/x/net"
+  packages = [
+    "bpf",
+    "internal/iana",
+    "internal/socket",
+    "ipv4",
+    "ipv6",
+  ]
+  pruneopts = "UT"
+  revision = "16b79f2e4e95ea23b2bf9903c9809ff7b013ce85"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -239,6 +253,8 @@
     "github.com/valyala/fasthttp",
     "github.com/valyala/fasthttp/fasthttputil",
     "go.uber.org/zap",
+    "golang.org/x/net/ipv4",
+    "golang.org/x/net/ipv6",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

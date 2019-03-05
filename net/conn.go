@@ -9,15 +9,19 @@ import (
 	"time"
 )
 
-type ConnTCP struct {
+// Conn is a generic stream-oriented network connection provides Read/Write with context.
+//
+// Multiple goroutines may invoke methods on a Conn simultaneously.
+type Conn struct {
 	heartBeat  time.Duration
-	connection net.Conn // i/o connection if TCP was used
+	connection net.Conn
 	readBuffer *bufio.Reader
 	lock       sync.Mutex
 }
 
-func NewConnTCP(c net.Conn, heartBeat time.Duration) *ConnTCP {
-	connection := ConnTCP{
+// NewConn creates connection over net.Conn.
+func NewConn(c net.Conn, heartBeat time.Duration) *Conn {
+	connection := Conn{
 		connection: c,
 		heartBeat:  heartBeat,
 		readBuffer: bufio.NewReaderSize(c, 2048),
@@ -25,23 +29,27 @@ func NewConnTCP(c net.Conn, heartBeat time.Duration) *ConnTCP {
 	return &connection
 }
 
-func (c *ConnTCP) LocalAddr() net.Addr {
+// LocalAddr returns the local network address. The Addr returned is shared by all invocations of LocalAddr, so do not modify it.
+func (c *Conn) LocalAddr() net.Addr {
 	return c.connection.LocalAddr()
 }
 
-func (c *ConnTCP) RemoteAddr() net.Addr {
+// RemoteAddr returns the remote network address. The Addr returned is shared by all invocations of RemoteAddr, so do not modify it.
+func (c *Conn) RemoteAddr() net.Addr {
 	return c.connection.RemoteAddr()
 }
 
-func (c *ConnTCP) Close() error {
+// Close closes the connection.
+func (c *Conn) Close() error {
 	return c.connection.Close()
 }
 
-func (c *ConnTCP) WriteContext(ctx context.Context, buffer []byte) error {
+// WriteContext writes data with context.
+func (c *Conn) WriteContext(ctx context.Context, data []byte) error {
 	written := 0
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	for written < len(buffer) {
+	for written < len(data) {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -51,7 +59,7 @@ func (c *ConnTCP) WriteContext(ctx context.Context, buffer []byte) error {
 		if err != nil {
 			return fmt.Errorf("cannot set write deadline for tcp connection: %v", err)
 		}
-		n, err := c.connection.Write(buffer[written:])
+		n, err := c.connection.Write(data[written:])
 
 		if err != nil {
 			if passError(err) {
@@ -64,7 +72,8 @@ func (c *ConnTCP) WriteContext(ctx context.Context, buffer []byte) error {
 	return nil
 }
 
-func (c *ConnTCP) ReadFullContext(ctx context.Context, buffer []byte) error {
+// ReadFullContext reads stream with context until whole buffer is satisfied.
+func (c *Conn) ReadFullContext(ctx context.Context, buffer []byte) error {
 	offset := 0
 	for offset < len(buffer) {
 		n, err := c.ReadContext(ctx, buffer[offset:])
@@ -76,7 +85,8 @@ func (c *ConnTCP) ReadFullContext(ctx context.Context, buffer []byte) error {
 	return nil
 }
 
-func (c *ConnTCP) ReadContext(ctx context.Context, buffer []byte) (int, error) {
+// ReadContext reads stream with context.
+func (c *Conn) ReadContext(ctx context.Context, buffer []byte) (int, error) {
 	for {
 		select {
 		case <-ctx.Done():

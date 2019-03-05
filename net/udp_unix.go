@@ -28,6 +28,7 @@ func correctSource(oob []byte) []byte {
 	return oob
 }
 
+// SetUDPSocketOptions set controls FlagDst,FlagInterface to UDPConn.
 func SetUDPSocketOptions(conn *net.UDPConn) error {
 	if ip4 := conn.LocalAddr().(*net.UDPAddr).IP.To4(); ip4 != nil {
 		return ipv4.NewPacketConn(conn).SetControlMessage(ipv4.FlagDst|ipv4.FlagInterface, true)

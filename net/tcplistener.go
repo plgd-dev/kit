@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// TCPListener is a TCP network listener that provides accept with context.
 type TCPListener struct {
 	listener  *net.TCPListener
 	heartBeat time.Duration
@@ -25,6 +26,7 @@ func newNetTCPListen(network string, addr string) (*net.TCPListener, error) {
 	return tcp, nil
 }
 
+// NewTCPListen creates tcp listener.
 func NewTCPListen(network string, addr string, heartBeat time.Duration) (*TCPListener, error) {
 	tcp, err := newNetTCPListen(network, addr)
 	if err != nil {
@@ -33,6 +35,7 @@ func NewTCPListen(network string, addr string, heartBeat time.Duration) (*TCPLis
 	return &TCPListener{listener: tcp, heartBeat: heartBeat}, nil
 }
 
+// AcceptContext waits with context for a generic Conn.
 func (l *TCPListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 	for {
 		select {
@@ -43,7 +46,7 @@ func (l *TCPListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 			return nil, nil
 		default:
 		}
-		err := l.listener.SetDeadline(time.Now().Add(l.heartBeat))
+		err := l.SetDeadline(time.Now().Add(l.heartBeat))
 		if err != nil {
 			return nil, fmt.Errorf("cannot accept connections: %v", err)
 		}
@@ -58,18 +61,22 @@ func (l *TCPListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 	}
 }
 
+// SetDeadline sets deadline for accept operation.
 func (l *TCPListener) SetDeadline(t time.Time) error {
 	return l.listener.SetDeadline(t)
 }
 
+// Accept waits for a generic Conn.
 func (l *TCPListener) Accept() (net.Conn, error) {
 	return l.AcceptContext(context.Background())
 }
 
+// Close closes the connection.
 func (l *TCPListener) Close() error {
 	return l.listener.Close()
 }
 
+// Addr represents a network end point address.
 func (l *TCPListener) Addr() net.Addr {
 	return l.listener.Addr()
 }
