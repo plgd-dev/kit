@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTLSListener_AcceptContext(t *testing.T) {
+func TestTLSListener_AcceptWithContext(t *testing.T) {
 	ctxCanceled, ctxCancel := context.WithCancel(context.Background())
 	ctxCancel()
 
@@ -74,7 +74,7 @@ func TestTLSListener_AcceptContext(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			con, err := listener.AcceptContext(tt.args.ctx)
+			con, err := listener.AcceptWithContext(tt.args.ctx)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

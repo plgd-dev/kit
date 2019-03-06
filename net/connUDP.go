@@ -39,7 +39,7 @@ func (c *ConnUDP) Close() error {
 }
 
 // WriteContext writes data with context.
-func (c *ConnUDP) WriteContext(ctx context.Context, udpCtx *ConnUDPContext, buffer []byte) error {
+func (c *ConnUDP) WriteWithContext(ctx context.Context, udpCtx *ConnUDPContext, buffer []byte) error {
 	written := 0
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -67,7 +67,7 @@ func (c *ConnUDP) WriteContext(ctx context.Context, udpCtx *ConnUDPContext, buff
 }
 
 // ReadContext reads packet with context.
-func (c *ConnUDP) ReadContext(ctx context.Context, buffer []byte) (int, *ConnUDPContext, error) {
+func (c *ConnUDP) ReadWithContext(ctx context.Context, buffer []byte) (int, *ConnUDPContext, error) {
 	for {
 		select {
 		case <-ctx.Done():

@@ -31,7 +31,7 @@ func NewTLSListener(network string, addr string, cfg *tls.Config, heartBeat time
 }
 
 // AcceptContext waits with context for a generic Conn.
-func (l *TLSListener) AcceptContext(ctx context.Context) (net.Conn, error) {
+func (l *TLSListener) AcceptWithContext(ctx context.Context) (net.Conn, error) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -63,7 +63,7 @@ func (l *TLSListener) SetDeadline(t time.Time) error {
 
 // Accept waits for a generic Conn.
 func (l *TLSListener) Accept() (net.Conn, error) {
-	return l.AcceptContext(context.Background())
+	return l.AcceptWithContext(context.Background())
 }
 
 // Close closes the connection.

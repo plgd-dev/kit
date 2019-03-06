@@ -45,7 +45,7 @@ func (c *Conn) Close() error {
 }
 
 // WriteContext writes data with context.
-func (c *Conn) WriteContext(ctx context.Context, data []byte) error {
+func (c *Conn) WriteWithContext(ctx context.Context, data []byte) error {
 	written := 0
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -73,10 +73,10 @@ func (c *Conn) WriteContext(ctx context.Context, data []byte) error {
 }
 
 // ReadFullContext reads stream with context until whole buffer is satisfied.
-func (c *Conn) ReadFullContext(ctx context.Context, buffer []byte) error {
+func (c *Conn) ReadFullWithContext(ctx context.Context, buffer []byte) error {
 	offset := 0
 	for offset < len(buffer) {
-		n, err := c.ReadContext(ctx, buffer[offset:])
+		n, err := c.ReadWithContext(ctx, buffer[offset:])
 		if err != nil {
 			return fmt.Errorf("cannot read full from tcp connection: %v", err)
 		}
@@ -86,7 +86,7 @@ func (c *Conn) ReadFullContext(ctx context.Context, buffer []byte) error {
 }
 
 // ReadContext reads stream with context.
-func (c *Conn) ReadContext(ctx context.Context, buffer []byte) (int, error) {
+func (c *Conn) ReadWithContext(ctx context.Context, buffer []byte) (int, error) {
 	for {
 		select {
 		case <-ctx.Done():

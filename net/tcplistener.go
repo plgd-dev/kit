@@ -37,7 +37,7 @@ func NewTCPListener(network string, addr string, heartBeat time.Duration) (*TCPL
 }
 
 // AcceptContext waits with context for a generic Conn.
-func (l *TCPListener) AcceptContext(ctx context.Context) (net.Conn, error) {
+func (l *TCPListener) AcceptWithContext(ctx context.Context) (net.Conn, error) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -69,7 +69,7 @@ func (l *TCPListener) SetDeadline(t time.Time) error {
 
 // Accept waits for a generic Conn.
 func (l *TCPListener) Accept() (net.Conn, error) {
-	return l.AcceptContext(context.Background())
+	return l.AcceptWithContext(context.Background())
 }
 
 // Close closes the connection.
