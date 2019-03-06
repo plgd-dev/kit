@@ -40,7 +40,7 @@ func TestConn_WriteContext(t *testing.T) {
 		},
 	}
 
-	listener, err := NewTCPListen("tcp", "127.0.0.1:", time.Millisecond*100)
+	listener, err := NewTCPListener("tcp", "127.0.0.1:", time.Millisecond*100)
 	assert.NoError(t, err)
 	defer listener.Close()
 	ctx, cancel := context.WithCancel(context.Background())

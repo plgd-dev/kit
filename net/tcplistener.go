@@ -26,8 +26,9 @@ func newNetTCPListen(network string, addr string) (*net.TCPListener, error) {
 	return tcp, nil
 }
 
-// NewTCPListen creates tcp listener.
-func NewTCPListen(network string, addr string, heartBeat time.Duration) (*TCPListener, error) {
+// NewTCPListener creates tcp listener.
+// Known networks are "tcp", "tcp4" (IPv4-only), "tcp6" (IPv6-only).
+func NewTCPListener(network string, addr string, heartBeat time.Duration) (*TCPListener, error) {
 	tcp, err := newNetTCPListen(network, addr)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create new tcp listener: %v", err)
@@ -52,7 +53,7 @@ func (l *TCPListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 		}
 		rw, err := l.listener.Accept()
 		if err != nil {
-			if passError(err) {
+			if isTemporary(err) {
 				continue
 			}
 			return nil, fmt.Errorf("cannot accept connections: %v", err)
