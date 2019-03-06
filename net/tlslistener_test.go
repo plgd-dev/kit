@@ -50,7 +50,7 @@ func TestTLSListener_AcceptContext(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	listener, err := NewTLSListen("tcp", "127.0.0.1:", config, time.Millisecond*100)
+	listener, err := NewTLSListener("tcp", "127.0.0.1:", config, time.Millisecond*100)
 	assert.NoError(t, err)
 	defer listener.Close()
 

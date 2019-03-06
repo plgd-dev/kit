@@ -55,7 +55,7 @@ func (c *ConnUDP) WriteContext(ctx context.Context, udpCtx *ConnUDPContext, buff
 		}
 		n, err := WriteToSessionUDP(c.connection, udpCtx, buffer[written:])
 		if err != nil {
-			if passError(err) {
+			if isTemporary(err) {
 				continue
 			}
 			return fmt.Errorf("cannot write to tcp connection")
@@ -84,7 +84,7 @@ func (c *ConnUDP) ReadContext(ctx context.Context, buffer []byte) (int, *ConnUDP
 		}
 		n, s, err := ReadFromSessionUDP(c.connection, buffer)
 		if err != nil {
-			if passError(err) {
+			if isTemporary(err) {
 				continue
 			}
 			return -1, nil, fmt.Errorf("cannot read from udp connection: %v", ctx.Err())

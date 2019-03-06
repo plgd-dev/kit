@@ -15,8 +15,9 @@ type TLSListener struct {
 	heartBeat time.Duration
 }
 
-// NewTLSListen creates tcp listener.
-func NewTLSListen(network string, addr string, cfg *tls.Config, heartBeat time.Duration) (*TLSListener, error) {
+// NewTLSListener creates tcp listener.
+// Known networks are "tcp", "tcp4" (IPv4-only), "tcp6" (IPv6-only).
+func NewTLSListener(network string, addr string, cfg *tls.Config, heartBeat time.Duration) (*TLSListener, error) {
 	tcp, err := newNetTCPListen(network, addr)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create new tls listener: %v", err)
@@ -46,7 +47,7 @@ func (l *TLSListener) AcceptContext(ctx context.Context) (net.Conn, error) {
 		}
 		rw, err := l.listener.Accept()
 		if err != nil {
-			if passError(err) {
+			if isTemporary(err) {
 				continue
 			}
 			return nil, fmt.Errorf("cannot accept connections: %v", err)

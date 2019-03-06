@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Conn is a generic stream-oriented network connection provides Read/Write with context.
+// Conn is a generic stream-oriented network connection that provides Read/Write with context.
 //
 // Multiple goroutines may invoke methods on a Conn simultaneously.
 type Conn struct {
@@ -62,7 +62,7 @@ func (c *Conn) WriteContext(ctx context.Context, data []byte) error {
 		n, err := c.connection.Write(data[written:])
 
 		if err != nil {
-			if passError(err) {
+			if isTemporary(err) {
 				continue
 			}
 			return fmt.Errorf("cannot write to tcp connection")
@@ -103,7 +103,7 @@ func (c *Conn) ReadContext(ctx context.Context, buffer []byte) (int, error) {
 		}
 		n, err := c.readBuffer.Read(buffer)
 		if err != nil {
-			if passError(err) {
+			if isTemporary(err) {
 				continue
 			}
 			return -1, fmt.Errorf("cannot read from tcp connection: %v", err)
