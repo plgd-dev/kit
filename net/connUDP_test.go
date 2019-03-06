@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConnUDP_WriteContext(t *testing.T) {
+func TestConnUDP_WriteWithContext(t *testing.T) {
 	peerAddr := "127.0.0.1:2154"
 	b, err := net.ResolveUDPAddr("udp", peerAddr)
 	assert.NoError(t, err)
@@ -31,7 +31,7 @@ func TestConnUDP_WriteContext(t *testing.T) {
 			name: "valid",
 			args: args{
 				ctx:    context.Background(),
-				udpCtx: NewConnUDPContext(b, nil),
+				udpCtx: NewConnUDPWithContext(b, nil),
 				buffer: []byte("hello world"),
 			},
 		},
@@ -64,7 +64,7 @@ func TestConnUDP_WriteContext(t *testing.T) {
 
 	go func() {
 		b := make([]byte, 1024)
-		_, udpCtx, err := c2.ReadContext(ctx, b)
+		_, udpCtx, err := c2.ReadWithContext(ctx, b)
 		if err != nil {
 			return
 		}
@@ -73,7 +73,7 @@ func TestConnUDP_WriteContext(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err = c1.WriteContext(tt.args.ctx, tt.args.udpCtx, tt.args.buffer)
+			err = c1.WriteWithContext(tt.args.ctx, tt.args.udpCtx, tt.args.buffer)
 
 			c1.LocalAddr()
 			c1.RemoteAddr()

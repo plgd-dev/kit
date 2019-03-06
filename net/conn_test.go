@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConn_WriteContext(t *testing.T) {
+func TestConn_WriteWithContext(t *testing.T) {
 	ctxCanceled, ctxCancel := context.WithCancel(context.Background())
 	ctxCancel()
 	helloWorld := []byte("hello world")
@@ -48,13 +48,13 @@ func TestConn_WriteContext(t *testing.T) {
 
 	go func() {
 		for {
-			conn, err := listener.AcceptContext(ctx)
+			conn, err := listener.AcceptWithContext(ctx)
 			if err != nil {
 				return
 			}
 			c := NewConn(conn, time.Millisecond*10)
 			b := make([]byte, len(helloWorld))
-			_ = c.ReadFullContext(ctx, b)
+			_ = c.ReadFullWithContext(ctx, b)
 			c.Close()
 		}
 	}()
@@ -69,7 +69,7 @@ func TestConn_WriteContext(t *testing.T) {
 			c.LocalAddr()
 			c.RemoteAddr()
 
-			err = c.WriteContext(tt.args.ctx, tt.args.data)
+			err = c.WriteWithContext(tt.args.ctx, tt.args.data)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

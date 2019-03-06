@@ -32,7 +32,7 @@ type ConnUDPContext struct {
 }
 
 // NewConnUDPContext creates conn udp context.
-func NewConnUDPContext(raddr *net.UDPAddr, oob []byte) *ConnUDPContext {
+func NewConnUDPWithContext(raddr *net.UDPAddr, oob []byte) *ConnUDPContext {
 	return &ConnUDPContext{
 		raddr:   raddr,
 		context: oob,
