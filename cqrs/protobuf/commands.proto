@@ -9,3 +9,8 @@ message AuthorizationContext {
     string device_id = 2;
     string access_token = 3;
 }
+
+message CommandMetadata {
+    string connection_id = 1;
+    uint64 sequence = 2;
+}
