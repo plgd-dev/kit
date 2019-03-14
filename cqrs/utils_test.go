@@ -29,13 +29,15 @@ func TestProtobufMarshaler(t *testing.T) {
 
 func TestDummyForCoverage(t *testing.T) {
 	device := "dev"
-	version := uint64(1234)
+	sequence := uint64(1234)
+	connId := "c"
 	corId := "a"
 	userId := "u"
 
 	TimeNowMs()
-	em := MakeEventMeta(version)
-	assert.Equal(t, version, em.Version)
+	em := MakeEventMeta(connId, sequence)
+	assert.Equal(t, connId, em.ConnectionId)
+	assert.Equal(t, sequence, em.Sequence)
 	ac := MakeAuditContext(&protobuf.AuthorizationContext{UserId: userId, DeviceId: device}, corId)
 	assert.Equal(t, corId, ac.CorrelationId)
 	assert.Equal(t, userId, ac.UserId)

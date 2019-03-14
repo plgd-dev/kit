@@ -15,10 +15,11 @@ func TimeNowMs() uint64 {
 }
 
 //CreateEventMeta for creating EventMetadata for event.
-func MakeEventMeta(newVersion uint64) protobuf.EventMetadata {
+func MakeEventMeta(connectionId string, sequence uint64) protobuf.EventMetadata {
 	return protobuf.EventMetadata{
-		Version:     newVersion,
-		TimestampMs: TimeNowMs(),
+		ConnectionId: connectionId,
+		Sequence:     sequence,
+		TimestampMs:  TimeNowMs(),
 	}
 }
 
