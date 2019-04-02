@@ -157,7 +157,6 @@ func (c *ConnUDP) writeMulticastWithContext(ctx context.Context, udpCtx *ConnUDP
 			}
 
 			if err := c.packetConn.SetMulticastInterface(&iface); err != nil {
-				// log.Errorf("cannot set multicast interface %v for connection: %v", iface.Name, err)
 				break
 			}
 
@@ -171,7 +170,6 @@ func (c *ConnUDP) writeMulticastWithContext(ctx context.Context, udpCtx *ConnUDP
 				if isTemporary(err) {
 					continue
 				}
-				// log.Errorf("cannot write multicast to connection via iface %v: %v", iface.Name, err)
 				break
 			}
 			written += n
