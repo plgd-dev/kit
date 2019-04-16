@@ -29,7 +29,7 @@ type VerifyCertificateFunc func(conn net.Conn, certificate *x509.Certificate) er
 func SetTLSConfig(config TLSConfig, verifyCertificate VerifyCertificateFunc) (*tls.Config, error) {
 	cert, err := tls.LoadX509KeyPair(config.Certificate, config.CertificateKey)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %v", config.Certificate, config.CertificateKey, err)
 	}
 
 	caRootPool := x509.NewCertPool()
@@ -37,7 +37,7 @@ func SetTLSConfig(config TLSConfig, verifyCertificate VerifyCertificateFunc) (*t
 
 	err = filepath.Walk(config.CAPool, func(path string, info os.FileInfo, e error) error {
 		if e != nil {
-			return e
+			return fmt.Errorf("cannot walk through directory '%v': %v", config.CAPool, e)
 		}
 
 		// check if it is a regular file (not dir)
