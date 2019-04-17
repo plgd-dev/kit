@@ -26,7 +26,7 @@ func main() {
 	defer f.Close()
 
 	insecure := false
-	insecureStr := os.Getenv("INSECURE")
+	insecureStr := os.Getenv("OCF_INSECURE")
 	okayResponses := []string{"y", "Y", "yes", "Yes", "YES", "true", "TRUE"}
 	for _, okayResponse := range okayResponses {
 		if okayResponse == insecureStr {
@@ -36,7 +36,7 @@ func main() {
 	}
 	envInsecure := ""
 	if len(insecureStr) > 0 {
-		envInsecure = "INSECURE=" + insecureStr + " "
+		envInsecure = "OCF_INSECURE=" + insecureStr + " "
 	}
 
 	packageTemplate.Execute(f, struct {
