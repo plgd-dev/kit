@@ -1,4 +1,4 @@
-package net
+package security
 
 import (
 	"bytes"
@@ -14,6 +14,9 @@ import (
 
 	"github.com/go-ocf/kit/log"
 )
+
+// Generates `func IsInsecure() bool`
+//go:generate go run generateInsecure.go security
 
 // TLSConfig set configuration.
 type TLSConfig struct {
