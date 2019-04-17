@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const envInsecure = "OCF_INSECURE"
+
 // run with generateInsecure [package]
 func main() {
 	if len(os.Args) != 2 {
@@ -26,7 +28,7 @@ func main() {
 	defer f.Close()
 
 	insecure := false
-	insecureStr := os.Getenv("OCF_INSECURE")
+	insecureStr := os.Getenv(envInsecure)
 	okayResponses := []string{"y", "Y", "yes", "Yes", "YES", "true", "TRUE"}
 	for _, okayResponse := range okayResponses {
 		if okayResponse == insecureStr {
@@ -36,7 +38,7 @@ func main() {
 	}
 	envInsecure := ""
 	if len(insecureStr) > 0 {
-		envInsecure = "OCF_INSECURE=" + insecureStr + " "
+		envInsecure = "envInsecure=" + insecureStr + " "
 	}
 
 	packageTemplate.Execute(f, struct {
