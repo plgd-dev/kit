@@ -3,9 +3,7 @@ package net
 import (
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"io/ioutil"
-	"net"
 	"os"
 	"path/filepath"
 	"testing"
@@ -47,10 +45,10 @@ func TestTLSListener_AcceptWithContext(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.RemoveAll(dir)
 	TLSConfig := testSetupTLS(t, dir)
+	certVerifier, err := security.NewServerCertificateVerifier()
+	assert.NoError(t, err)
 
-	config, err := security.SetTLSConfig(TLSConfig, func(conn net.Conn, certificate *x509.Certificate) error {
-		return nil
-	})
+	config, err := security.SetTLSConfig(TLSConfig, certVerifier)
 	assert.NoError(t, err)
 
 	listener, err := NewTLSListener("tcp", "127.0.0.1:", config, time.Millisecond*100)

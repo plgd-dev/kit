@@ -25,11 +25,8 @@ type TLSConfig struct {
 	CAPool         string `envconfig:"TLS_CA_POOL"`
 }
 
-// VerifyCertificateFunc verify EKU, revocations and other staff of certificate.
-type VerifyCertificateFunc func(conn net.Conn, certificate *x509.Certificate) error
-
 // SetTLSConfig setup tls.Config that provides verification certificate with connection.
-func SetTLSConfig(config TLSConfig, verifyCertificate VerifyCertificateFunc) (*tls.Config, error) {
+func SetTLSConfig(config TLSConfig, certificateVerifier CertificateVerifier) (*tls.Config, error) {
 	cert, err := tls.LoadX509KeyPair(config.Certificate, config.CertificateKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %v", config.Certificate, config.CertificateKey, err)
@@ -94,7 +91,7 @@ func SetTLSConfig(config TLSConfig, verifyCertificate VerifyCertificateFunc) (*t
 				Certificates: []tls.Certificate{cert},
 				ClientAuth:   tls.RequireAnyClientCert,
 			}
-			m.VerifyPeerCertificate = newVerifyPeerCert(caIntermediatesPool, caRootPool, info.Conn, verifyCertificate)
+			m.VerifyPeerCertificate = newVerifyPeerCert(caIntermediatesPool, caRootPool, info.Conn, certificateVerifier)
 			return &m, nil
 		},
 	}
@@ -102,7 +99,7 @@ func SetTLSConfig(config TLSConfig, verifyCertificate VerifyCertificateFunc) (*t
 	return &tlsConfig, nil
 }
 
-func newVerifyPeerCert(intermediates *x509.CertPool, roots *x509.CertPool, conn net.Conn, verifyCertificate VerifyCertificateFunc) func(rawCerts [][]byte, verifyChains [][]*x509.Certificate) error {
+func newVerifyPeerCert(intermediates *x509.CertPool, roots *x509.CertPool, conn net.Conn, certificateVerifier CertificateVerifier) func(rawCerts [][]byte, verifyChains [][]*x509.Certificate) error {
 	return func(rawCerts [][]byte, verifyChains [][]*x509.Certificate) error {
 		for _, rawCert := range rawCerts {
 			cert, err := x509.ParseCertificate(rawCert)
@@ -119,7 +116,7 @@ func newVerifyPeerCert(intermediates *x509.CertPool, roots *x509.CertPool, conn 
 			if err != nil {
 				return err
 			}
-			err = verifyCertificate(conn, cert)
+			err = certificateVerifier.Verify(conn, cert)
 			if err != nil {
 				return err
 			}
