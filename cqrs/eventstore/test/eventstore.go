@@ -72,6 +72,12 @@ func (s *MockEventStore) LoadFromSnapshot(ctx context.Context, queries []eventst
 						queriesInt[makeModelId(query.GroupId, aggrId)] = eventstore.VersionQuery{AggregateId: aggrId, Version: events[0].Version}
 					}
 				}
+			case query.GroupId == "" && query.AggregateId != "":
+				for groupId, aggregates := range s.events {
+					if events, ok := aggregates[query.AggregateId]; ok {
+						queriesInt[makeModelId(groupId, query.AggregateId)] = eventstore.VersionQuery{AggregateId: query.AggregateId, Version: events[0].Version}
+					}
+				}
 			default:
 				if aggregates, ok := s.events[query.GroupId]; ok {
 					if events, ok := aggregates[query.AggregateId]; ok {
