@@ -9,9 +9,10 @@ import (
 )
 
 type grpcClientConnOptions struct {
-	tlsConfig security.TLSConfig
-	secure    bool
-	insecure  bool
+	tlsConfig          security.TLSConfig
+	secure             bool
+	insecure           bool
+	insecureSkipVerify bool
 }
 
 // GrpcClientConnOption configures how we set up the connection.
@@ -37,6 +38,18 @@ func (o withTLSOption) applyOnClientConn(opts *grpcClientConnOptions) {
 // WithTLS creates connection with TLS.
 func WithTLS(tlsConfig security.TLSConfig) GrpcOption {
 	return &withTLSOption{tlsConfig}
+}
+
+type withInsecureSkipVerify struct {
+}
+
+func (o withInsecureSkipVerify) applyOnClientConn(opts *grpcClientConnOptions) {
+	opts.insecureSkipVerify = true
+}
+
+// WithInsecureSkipVerify without verifies peer
+func WithInsecureSkipVerify() GrpcClientConnOption {
+	return &withInsecureSkipVerify{}
 }
 
 type withInsecureConfigOption struct {
@@ -73,6 +86,7 @@ func NewGrpcClientConn(host string, opts ...GrpcClientConnOption) (conn *grpc.Cl
 		if err != nil {
 			return nil, fmt.Errorf("cannot create grpc connection: %v", err)
 		}
+		tlsConfig.InsecureSkipVerify = cfg.insecureSkipVerify
 		conn, err = grpc.Dial(host, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	} else {
 		conn, err = grpc.Dial(host, grpc.WithInsecure())
