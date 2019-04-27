@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-ocf/kit/cqrs/protobuf"
+	"github.com/go-ocf/kit/cqrs/pb"
 	"github.com/golang/snappy"
 )
 
@@ -15,8 +15,8 @@ func TimeNowMs() uint64 {
 }
 
 //CreateEventMeta for creating EventMetadata for event.
-func MakeEventMeta(connectionId string, sequence, version uint64) protobuf.EventMetadata {
-	return protobuf.EventMetadata{
+func MakeEventMeta(connectionId string, sequence, version uint64) pb.EventMetadata {
+	return pb.EventMetadata{
 		ConnectionId: connectionId,
 		Sequence:     sequence,
 		Version:      version,
@@ -24,8 +24,8 @@ func MakeEventMeta(connectionId string, sequence, version uint64) protobuf.Event
 	}
 }
 
-func MakeAuditContext(a *protobuf.AuthorizationContext, correlationId string) protobuf.AuditContext {
-	return protobuf.AuditContext{
+func MakeAuditContext(a *pb.AuthorizationContext, correlationId string) pb.AuditContext {
+	return pb.AuditContext{
 		UserId:        a.UserId,
 		DeviceId:      a.DeviceId,
 		CorrelationId: correlationId,

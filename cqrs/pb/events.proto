@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package ocf.cloud;
+package ocf.cloud.pb;
 
-option go_package = "github.com/go-ocf/kit/cqrs/protobuf;protobuf";
+option go_package = "github.com/go-ocf/kit/cqrs/pb;pb";
 
 message AuditContext {
     string user_id = 1;
