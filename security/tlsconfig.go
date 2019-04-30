@@ -85,6 +85,9 @@ func SetTLSConfig(config TLSConfig, certificateVerifier CertificateVerifier) (*t
 	tlsConfig := tls.Config{
 		Certificates: []tls.Certificate{cert},
 		ClientAuth:   tls.RequireAnyClientCert,
+		ClientCAs:    caRootPool,
+		RootCAs:      caRootPool,
+
 		GetConfigForClient: func(info *tls.ClientHelloInfo) (*tls.Config, error) {
 			//https://github.com/golang/go/issues/29895
 			m := tls.Config{
