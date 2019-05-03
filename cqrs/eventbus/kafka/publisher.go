@@ -36,3 +36,8 @@ func NewPublisher(config Config) (*Publisher, error) {
 		p,
 	}, nil
 }
+
+// Close close publisher.
+func (p *Publisher) Close() error {
+	return p.Publisher.Close()
+}

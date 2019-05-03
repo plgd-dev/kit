@@ -10,12 +10,12 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:8bf13b4dbecd2e3e2bf4d8fac3b37ffc61dc19653f2e38c7b0e575c7182c6d8b"
+  digest = "1:2ec153af6a806c3d63d4299f2549bcb29d75d9703097341be309a46db3481488"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5d2af84cf5e2dd36f2daecaaafa13c4e286f20fd"
-  version = "v1.22.0"
+  revision = "ea9ab1c316850bee881a07bb2555ee8a685cd4b6"
+  version = "v1.22.1"
 
 [[projects]]
   digest = "1:526d64d0a3ac6c24875724a9355895be56a21f89a5d3ab5ba88d91244269a7d8"
@@ -74,7 +74,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b153b2d352aa8cec64a8874c7ab44e561e7f69abf9b2a401edb7d9fcb30ee70c"
+  digest = "1:345356f515b31057ad96ae3df176660c32861aad5c196483b9b9c893ff32f768"
   name = "github.com/go-ocf/cqrs"
   packages = [
     "event",
@@ -85,7 +85,7 @@
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "de22494047bfc874d7f366369d94a83d4f58857a"
+  revision = "18e0ca419fd3c79bce0715fa249f2721bbbb79fa"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
@@ -150,15 +150,15 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:cf9272ab0a637cb1ffa40e2b6220108d7016a36b3eb357e4b57aacb7a8f725c0"
+  digest = "1:259f9b7645983a7a823318d78aa96dec68af8891f706493ac1ec04d819cb977c"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "9419d2361c8ae111073ffe3337ecc364fb590921"
-  version = "v2.1.2"
+  revision = "d705d4371bfccdf47f10e45584e896026c83616f"
+  version = "v2.2.3"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -194,7 +194,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:80567223d969bfc31c898b9537526f03467eb99b9ef3a934d52f8267422854f3"
+  digest = "1:e7f017dd58313530f359ad769513eb87e1ecd9b4729a46e58035e6a9e667aac0"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -202,15 +202,15 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "ed16dc07fd135b0c4bff506b7050f4555b3dd9c2"
+  revision = "15dbe35bb591e48819071bec8a6d1779c8334cfe"
 
 [[projects]]
-  digest = "1:3c1a69cdae3501bf75e76d0d86dc6f2b0a7421bc205c0cb7b96b19eed464a34d"
+  digest = "1:a5158647b553c61877aa9ae74f4015000294e47981e6b8b07525edcbb0747c81"
   name = "go.uber.org/atomic"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1ea20fb1cbb1cc08cbd0d913a96dead89aa18289"
-  version = "v1.3.2"
+  revision = "df976f2515e274675050de7b3f42545de80594fd"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:60bf2a5e347af463c42ed31a493d817f8a72f102543060ed992754e689805d1a"
@@ -221,7 +221,7 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:c52caf7bd44f92e54627a31b85baf06a68333a196b3d8d241480a774733dcf8b"
+  digest = "1:676160e6a4722b08e0e26b11521d575c2cb2b6f0c679e1ee6178c5d8dee51e5e"
   name = "go.uber.org/zap"
   packages = [
     ".",
@@ -232,12 +232,12 @@
     "zapcore",
   ]
   pruneopts = "UT"
-  revision = "ff33455a0e382e8a81d14dd7c922020b6b5e7982"
-  version = "v1.9.1"
+  revision = "27376062155ad36be76b0f12cf1572a221d3a48c"
+  version = "v1.10.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:981d4298c8ee163d5bd934c75791e2b03299757c736c8eaa7e2cdba3b3332da4"
+  digest = "1:3d22985c213481c2fa2793a28dc41cd571469858a193b42407159a31de15f7a5"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -255,18 +255,18 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "4829fb13d2c62012c17688fa7f629f371014946d"
+  revision = "7f726cade0ab7c929c16ce0b5b25bd201e25f39f"
 
 [[projects]]
   branch = "master"
-  digest = "1:157e5158a7f29d6633eed502880463aa43de3c36d451c7051591efd12f455ac8"
+  digest = "1:1ddfda089b8a15d92242412aabc1107b8c7a87c609c09c5b441c81dbcca0ab79"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "9f0b1ff7b46a4014ddb5d4bdb6602a43b882cb27"
+  revision = "a43fa875dd822b81eb6d2ad538bc1f4caba169bd"
 
 [[projects]]
-  digest = "1:f4ea3f623a07a2602bb9c1624d6dc7d291261278ba2484508fac559dc7926048"
+  digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -287,8 +287,8 @@
     "unicode/rangetable",
   ]
   pruneopts = "UT"
-  revision = "c942b20a5d85b458c4dce1589326051d85e25d6d"
-  version = "v0.3.1"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "master"
@@ -296,7 +296,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "e7d98fc518a78c9f8b5ee77be7b0b317475d89e1"
+  revision = "54afdca5d873f7b529e2ce3def1a99df16feda90"
 
 [[projects]]
   digest = "1:707c3a5d10ed430ea767d73df122d9eb3dfb6312bbacc9f2e39204390686d1d0"
