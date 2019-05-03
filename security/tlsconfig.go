@@ -11,8 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/go-ocf/kit/log"
 )
 
 // Generates `func IsInsecure() bool`
@@ -44,31 +42,24 @@ func SetTLSConfig(config TLSConfig, certificateVerifier CertificateVerifier) (*t
 		if info.Mode().IsRegular() {
 			certPEMBlock, err := ioutil.ReadFile(path)
 			if err != nil {
-				log.Warnf("cannot read file '%v': %v", path, err)
 				return nil
 			}
 			certDERBlock, _ := pem.Decode(certPEMBlock)
 			if certDERBlock == nil {
-				log.Warnf("cannot decode der block '%v'", path)
 				return nil
 			}
 			if certDERBlock.Type != "CERTIFICATE" {
-				log.Warnf("DER block is not certificate '%v'", path)
 				return nil
 			}
 			caCert, err := x509.ParseCertificate(certDERBlock.Bytes)
 			if err != nil {
-				log.Warnf("cannot parse certificate '%v': %v", path, err)
 				return nil
 			}
 			if bytes.Compare(caCert.RawIssuer, caCert.RawSubject) == 0 && caCert.IsCA {
-				log.Infof("adding root certificate '%v'", path)
 				caRootPool.AddCert(caCert)
 			} else if caCert.IsCA {
-				log.Infof("adding intermediate certificate '%v'", path)
 				caIntermediatesPool.AddCert(caCert)
 			} else {
-				log.Warnf("ignoring certificate '%v'", path)
 			}
 		}
 		return nil
