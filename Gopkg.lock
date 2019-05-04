@@ -74,18 +74,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:345356f515b31057ad96ae3df176660c32861aad5c196483b9b9c893ff32f768"
+  digest = "1:c40e0672dd3e5c96ceb526db42f098a6536d31a30ef887ed7bbde73b2564019c"
   name = "github.com/go-ocf/cqrs"
   packages = [
     "event",
     "eventbus",
     "eventbus/kafka",
+    "eventbus/nats",
     "eventstore",
     "eventstore/mongodb",
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "18e0ca419fd3c79bce0715fa249f2721bbbb79fa"
+  revision = "aad060d6c6aa38b6cec12bf74cc19b629fb0555f"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
@@ -140,6 +141,34 @@
   pruneopts = "UT"
   revision = "05a8198c0f5a27739aec358908d7e12c64ce6eb7"
   version = "v1.2.1"
+
+[[projects]]
+  digest = "1:2ca73053216eb11c8eea2855c8099ad82773638522f91cc0542ec9759163ff3c"
+  name = "github.com/nats-io/go-nats"
+  packages = [
+    ".",
+    "encoders/builtin",
+    "util",
+  ]
+  pruneopts = "UT"
+  revision = "70fe06cee50d4b6f98248d9675fb55f2a3aa7228"
+  version = "v1.7.2"
+
+[[projects]]
+  digest = "1:0b5d91120efc54504bc253fda90b08c4be88cd78a4023ef60019e95bb0cdc136"
+  name = "github.com/nats-io/nkeys"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1546a3320a8f195a5b5c84aef8309377c2e411d5"
+  version = "v0.0.2"
+
+[[projects]]
+  digest = "1:599f3202ce0a754144ddc4be4c6df9c6ab27b1d722a63ede6b2e0c3a2cc338a8"
+  name = "github.com/nats-io/nuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4b96681fa6d28dd0ab5fe79bac63b3a493d9ee94"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:9ae0d8ea7a876d02bd206dc87bc4c947fa91288aa8c8b0c0b3be1427be854875"
@@ -237,7 +266,18 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3d22985c213481c2fa2793a28dc41cd571469858a193b42407159a31de15f7a5"
+  digest = "1:d5891c5bca9c62e5d394ca26491d2b710a1dc08cedeb0ca8f9ac4c3305120b02"
+  name = "golang.org/x/crypto"
+  packages = [
+    "ed25519",
+    "ed25519/internal/edwards25519",
+  ]
+  pruneopts = "UT"
+  revision = "a29dc8fdc73485234dbef99ebedb95d2eced08de"
+
+[[projects]]
+  branch = "master"
+  digest = "1:55d23335466a6b21b9320bc749e632af7b997efc148d24a8b2d5799024601860"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -255,7 +295,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "7f726cade0ab7c929c16ce0b5b25bd201e25f39f"
+  revision = "f4e77d36d62c17c2336347bb2670ddbd02d092b7"
 
 [[projects]]
   branch = "master"
@@ -348,10 +388,12 @@
     "github.com/globalsign/mgo/bson",
     "github.com/go-ocf/cqrs/event",
     "github.com/go-ocf/cqrs/eventbus/kafka",
+    "github.com/go-ocf/cqrs/eventbus/nats",
     "github.com/go-ocf/cqrs/eventstore",
     "github.com/go-ocf/cqrs/eventstore/mongodb",
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
+    "github.com/nats-io/go-nats",
     "github.com/panjf2000/ants",
     "github.com/stretchr/testify/assert",
     "github.com/valyala/fasthttp",

@@ -28,6 +28,13 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
     ports:
       - 2181:2181
+  
+  nats:
+    image: nats
+    ports:
+      - 4222:4222
+      - 6222:6222
+      - 8222:8222
 
   mongo:
     image: mongo:3.4.5
