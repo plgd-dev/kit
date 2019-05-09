@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"github.com/Shopify/sarama"
+	cqrsEventBus "github.com/go-ocf/cqrs/eventbus"
 	cqrsKafka "github.com/go-ocf/cqrs/eventbus/kafka"
 	cqrsUtils "github.com/go-ocf/kit/cqrs"
 )
@@ -10,10 +11,10 @@ type Subscriber struct {
 	*cqrsKafka.Subscriber
 }
 
-//NewPublisher create new Publisher with configuration, proto marshaller and unmarshaller
-func NewSubscriber(config Config) (*Subscriber, error) {
+// NewSubscriber create new subscriber with configuration and proto unmarshaller.
+func NewSubscriber(config Config, goroutinePoolGo cqrsEventBus.GoroutinePoolGoFunc, errFunc cqrsEventBus.ErrFunc) (*Subscriber, error) {
 	saramaConfig := sarama.NewConfig()
-	s, err := cqrsKafka.NewSubscriber(config.Endpoints, saramaConfig, cqrsUtils.Unmarshal, config.ErrFunc)
+	s, err := cqrsKafka.NewSubscriber(config.Endpoints, saramaConfig, cqrsUtils.Unmarshal, goroutinePoolGo, errFunc)
 	if err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ type Publisher struct {
 	*cqrsNats.Publisher
 }
 
-// NewPublisher creates new Publisher with configuration proto marshaller.
+// NewPublisher creates new publisher with proto marshaller.
 func NewPublisher(config Config) (*Publisher, error) {
 	p, err := cqrsNats.NewPublisher(config.URL, cqrsUtils.Marshal, config.Options...)
 	if err != nil {

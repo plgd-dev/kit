@@ -23,7 +23,6 @@ import (
 
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/panjf2000/ants"
 
 	"github.com/go-ocf/cqrs/event"
 	"github.com/go-ocf/cqrs/eventstore"
@@ -60,7 +59,7 @@ func (c Config) String() string {
 }
 
 //NewEventStore create a event store from configuration
-func NewEventStore(config Config, pool *ants.Pool) (*EventStore, error) {
+func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc) (*EventStore, error) {
 	session, err := mgo.Dial(config.Host)
 	if err != nil {
 		return nil, fmt.Errorf("cannot dial to DB: %v", err)
@@ -69,7 +68,7 @@ func NewEventStore(config Config, pool *ants.Pool) (*EventStore, error) {
 	session.SetMode(mgo.Strong, true)
 	session.SetSafe(&mgo.Safe{W: 1})
 
-	es, err := cqrsMongodb.NewEventStoreWithSession(session, config.DatabaseName, "events", config.BatchSize, pool, cqrsUtils.Marshal, cqrsUtils.Unmarshal, log.Debugf)
+	es, err := cqrsMongodb.NewEventStoreWithSession(session, config.DatabaseName, "events", config.BatchSize, goroutinePoolGo, cqrsUtils.Marshal, cqrsUtils.Unmarshal, log.Debugf)
 	if err != nil {
 		return nil, err
 	}
