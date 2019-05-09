@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/go-ocf/cqrs/event"
 	"github.com/go-ocf/cqrs/eventstore"
@@ -91,6 +92,9 @@ func (s *MockEventStore) LoadFromSnapshot(ctx context.Context, queries []eventst
 	ret := make([]eventstore.VersionQuery, 0, len(queriesInt))
 	for _, q := range queriesInt {
 		ret = append(ret, q)
+	}
+	if len(ret) == 0 {
+		return fmt.Errorf("cannot load events: not found")
 	}
 
 	return s.LoadFromVersion(ctx, ret, eventHandler)
