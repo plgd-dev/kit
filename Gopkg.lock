@@ -73,10 +73,11 @@
   revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
 
 [[projects]]
-  branch = "goroutinePoolHandler"
-  digest = "1:783abe7931a5d4fdc5e979c900041dfdac27aa17e3b0e8e90bf94cc09b357860"
+  branch = "master"
+  digest = "1:a15ef16edc1c454e8688baabdf8772d017ebf43e33833817e6be0c742a08c30a"
   name = "github.com/go-ocf/cqrs"
   packages = [
+    ".",
     "event",
     "eventbus",
     "eventbus/kafka",
@@ -86,7 +87,7 @@
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "df83988cd216a46fd7e01786573bf4873f361339"
+  revision = "71a295af5428973e5c3a419108dcc86ca1f75c00"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
@@ -265,7 +266,7 @@
     "ed25519/internal/edwards25519",
   ]
   pruneopts = "UT"
-  revision = "e1dfcc566284e143ba8f9afbb3fa563f2a0d212b"
+  revision = "cbcb750295291b33242907a04be40e80801d0cfc"
 
 [[projects]]
   branch = "master"
@@ -287,7 +288,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "f4e77d36d62c17c2336347bb2670ddbd02d092b7"
+  revision = "a4d6f7feada510cc50e69a37b484cb0fdc6b7876"
 
 [[projects]]
   branch = "master"
@@ -295,7 +296,7 @@
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "2d0786266e9cd132da844109aa05016f11f3df28"
+  revision = "a5b02f93d862f065920dd6a40dddc66b60d0dec4"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -378,6 +379,7 @@
     "github.com/Shopify/sarama",
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
+    "github.com/go-ocf/cqrs",
     "github.com/go-ocf/cqrs/event",
     "github.com/go-ocf/cqrs/eventbus",
     "github.com/go-ocf/cqrs/eventbus/kafka",

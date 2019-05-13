@@ -34,7 +34,7 @@
   name = "github.com/globalsign/mgo"
 
 [[constraint]]
-  branch = "goroutinePoolHandler"
+  branch = "master"
   name = "github.com/go-ocf/cqrs"
 
 [[constraint]]
