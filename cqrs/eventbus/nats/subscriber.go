@@ -1,20 +1,18 @@
 package nats
 
 import (
+	cqrsEventBus "github.com/go-ocf/cqrs/eventbus"
 	cqrsNats "github.com/go-ocf/cqrs/eventbus/nats"
 	cqrsUtils "github.com/go-ocf/kit/cqrs"
-	"github.com/go-ocf/kit/log"
 )
 
 type Subscriber struct {
 	*cqrsNats.Subscriber
 }
 
-// NewSubscriber create new Subscriber with proto unmarshaller.
-func NewSubscriber(config Config) (*Subscriber, error) {
-	s, err := cqrsNats.NewSubscriber(config.URL, cqrsUtils.Unmarshal, func(err error) {
-		log.Errorf("%v", err)
-	}, config.Options...)
+// NewSubscriber create new subscriber with proto unmarshaller.
+func NewSubscriber(config Config, goroutinePoolGo cqrsEventBus.GoroutinePoolGoFunc, errFunc cqrsEventBus.ErrFunc) (*Subscriber, error) {
+	s, err := cqrsNats.NewSubscriber(config.URL, cqrsUtils.Unmarshal, goroutinePoolGo, errFunc, config.Options...)
 	if err != nil {
 		return nil, err
 	}

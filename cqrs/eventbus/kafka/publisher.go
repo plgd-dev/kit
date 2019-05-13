@@ -10,8 +10,7 @@ import (
 )
 
 type Config struct {
-	Endpoints []string          `envconfig:"KAFKA_ENDPOINTS" default:"localhost:9092"`
-	ErrFunc   cqrsKafka.ErrFunc //used by subscriber to report error in internal goroutine
+	Endpoints []string `envconfig:"KAFKA_ENDPOINTS" default:"localhost:9092"`
 }
 
 //String return string representation of Config
@@ -24,7 +23,7 @@ type Publisher struct {
 	*cqrsKafka.Publisher
 }
 
-//NewPublisher create new Publisher with configuration, proto marshaller and unmarshaller
+// NewPublisher creates new publisher with configuration and proto marshaller.
 func NewPublisher(config Config) (*Publisher, error) {
 	saramaConfig := sarama.NewConfig()
 	saramaConfig.Producer.Flush.MaxMessages = 1

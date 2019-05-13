@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/go-ocf/cqrs/event"
 	"github.com/go-ocf/cqrs/eventstore"
@@ -92,6 +93,9 @@ func (s *MockEventStore) LoadFromSnapshot(ctx context.Context, queries []eventst
 	for _, q := range queriesInt {
 		ret = append(ret, q)
 	}
+	if len(ret) == 0 {
+		return fmt.Errorf("cannot load events: not found")
+	}
 
 	return s.LoadFromVersion(ctx, ret, eventHandler)
 }
@@ -114,7 +118,7 @@ func (i *iter) Err() error {
 	return nil
 }
 
-func (s *MockEventStore) GetInstanceId(ctx context.Context, deviceId, resourceId string) (int64, error) {
+func (s *MockEventStore) GetInstanceId(ctx context.Context, groupId, aggregateId string) (int64, error) {
 	return -1, errors.New("not supported")
 }
 func (s *MockEventStore) RemoveInstanceId(ctx context.Context, instanceId int64) error {
@@ -125,16 +129,16 @@ func NewMockEventStore() *MockEventStore {
 	return &MockEventStore{make(map[string]map[string][]event.EventUnmarshaler)}
 }
 
-func (e *MockEventStore) Append(deviceId, resourceId string, ev event.EventUnmarshaler) {
+func (e *MockEventStore) Append(groupId, aggregateId string, ev event.EventUnmarshaler) {
 	var m map[string][]event.EventUnmarshaler
 	var ok bool
-	if m, ok = e.events[deviceId]; !ok {
+	if m, ok = e.events[groupId]; !ok {
 		m = make(map[string][]event.EventUnmarshaler)
-		e.events[deviceId] = m
+		e.events[groupId] = m
 	}
 	var r []event.EventUnmarshaler
-	if r, ok = m[resourceId]; !ok {
+	if r, ok = m[aggregateId]; !ok {
 		r = make([]event.EventUnmarshaler, 0, 10)
 	}
-	m[resourceId] = append(r, ev)
+	m[aggregateId] = append(r, ev)
 }

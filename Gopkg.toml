@@ -50,10 +50,6 @@
   version = "1.7.2"
 
 [[constraint]]
-  name = "github.com/panjf2000/ants"
-  version = "1.0.0"
-
-[[constraint]]
   name = "github.com/stretchr/testify"
   version = "1.3.0"
 
