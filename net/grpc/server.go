@@ -17,7 +17,7 @@ type Server struct {
 
 // Config holds service's settings.
 type Config struct {
-	Addr string `default:"0.0.0.0:9100"`
+	Addr string `envconfig:"ADDRESS" default:"0.0.0.0:9100"`
 
 	TLSConfig security.TLSConfig
 }
