@@ -9,3 +9,11 @@ WORKDIR $MAINDIR
 COPY Gopkg.toml Gopkg.lock ./
 RUN dep ensure -v --vendor-only
 COPY . .
+
+FROM build AS build-secure
+RUN OCF_INSECURE=false go generate ./vendor/github.com/go-ocf/kit/security/
+WORKDIR $MAINDIR
+
+FROM build AS build-insecure
+RUN OCF_INSECURE=true go generate ./vendor/github.com/go-ocf/kit/security/
+WORKDIR $MAINDIR
