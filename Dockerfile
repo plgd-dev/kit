@@ -11,9 +11,7 @@ RUN dep ensure -v --vendor-only
 COPY . .
 
 FROM build AS build-secure
-RUN OCF_INSECURE=false go generate ./vendor/github.com/go-ocf/kit/security/
-WORKDIR $MAINDIR
+RUN OCF_INSECURE=false go generate ./security/
 
 FROM build AS build-insecure
-RUN OCF_INSECURE=true go generate ./vendor/github.com/go-ocf/kit/security/
-WORKDIR $MAINDIR
+RUN OCF_INSECURE=true go generate ./security/
