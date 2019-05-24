@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net"
 
-	kit "github.com/go-ocf/kit/net"
 	"github.com/go-ocf/kit/security"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // Server handles gRPC requests to the service.
@@ -26,7 +26,7 @@ type Config struct {
 // for registering service's protobuf definition.
 func NewServer(cfg Config, register func(*grpc.Server)) (*Server, error) {
 	option := makeConnectionOption(cfg.TLSConfig)
-	srv, err := kit.NewGrpcServer(option)
+	srv, err := NewServerWithOptions(option)
 	if err != nil {
 		return nil, fmt.Errorf("could not create server: %v", err)
 	}
@@ -53,10 +53,57 @@ func (s *Server) Stop() {
 	s.server.Stop()
 }
 
-func makeConnectionOption(tls security.TLSConfig) kit.GrpcOption {
-	if security.IsInsecure() {
-		return kit.WithInsecure()
-	} else {
-		return kit.WithTLS(tls)
+// NewServer creates grpc server. One of WithTLSConfig, WithInsecure must be set.
+func NewServerWithOptions(opts ...ServerOption) (server *grpc.Server, err error) {
+	var cfg serverOptions
+	for _, o := range opts {
+		o.applyOnServer(&cfg)
 	}
+	if !cfg.secure && !cfg.insecure {
+		return nil, fmt.Errorf("cannot create grpc server: cannot use transport layer: not set - use WithTLSConfig or WithInsecure option")
+	}
+	if cfg.secure && cfg.insecure {
+		return nil, fmt.Errorf("cannot create grpc server: cannot use transport layer: both WithTLSConfig and WithInsecure are set")
+	}
+
+	if !cfg.secure {
+		return grpc.NewServer(), nil
+	}
+	serverCertVerifier, err := security.NewClientCertificateVerifier()
+	if err != nil {
+		return nil, fmt.Errorf("cannot create grpc connection: %v", err)
+	}
+	tlsConfig, err := security.SetTLSConfig(cfg.tlsConfig, serverCertVerifier)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create grpc connection: %v", err)
+	}
+	return grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig))), nil
+}
+
+func makeConnectionOption(tls security.TLSConfig) Option {
+	if security.IsInsecure() {
+		return WithInsecure()
+	} else {
+		return WithTLS(tls)
+	}
+}
+
+type serverOptions struct {
+	tlsConfig security.TLSConfig
+	secure    bool
+	insecure  bool
+}
+
+// ServerOption configures how we set up the server.
+type ServerOption interface {
+	applyOnServer(*serverOptions)
+}
+
+func (o withTLSOption) applyOnServer(opts *serverOptions) {
+	opts.tlsConfig = o.tlsConfig
+	opts.secure = true
+}
+
+func (o withInsecureConfigOption) applyOnServer(opts *serverOptions) {
+	opts.insecure = true
 }

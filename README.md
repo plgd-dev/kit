@@ -3,3 +3,18 @@
 [![Go Report](https://goreportcard.com/badge/github.com/go-ocf/kit)](https://goreportcard.com/report/github.com/go-ocf/kit)
 
 # kit
+
+
+## Build
+
+Some components in `net` depend on the `security.IsInsecure` flag, which needs to be generated as follows:
+
+Secure
+```sh
+go generate ./security
+```
+
+Insecure
+```sh
+OCF_INSECURE=TRUE go generate ./security
+```
