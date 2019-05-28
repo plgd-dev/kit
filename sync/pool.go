@@ -2,6 +2,7 @@ package sync
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -61,7 +62,7 @@ func (p *Pool) GetOrCreate(ctx context.Context, key string) (interface{}, error)
 	}
 	item, err := p.create(ctx, key)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not create pool item %s: %v", key, err)
 	}
 	p.store[key] = item
 	return item, nil
