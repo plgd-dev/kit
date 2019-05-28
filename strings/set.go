@@ -1,14 +1,14 @@
-package string
+package strings
 
-type StringSet map[string]struct{}
+type Set map[string]struct{}
 
-func MakeStringSet(a ...string) StringSet {
-	set := make(StringSet, len(a))
+func MakeSet(a ...string) Set {
+	set := make(Set, len(a))
 	set.Add(a...)
 	return set
 }
 
-func (set StringSet) ToSlice() []string {
+func (set Set) ToSlice() []string {
 	keys := make([]string, len(set))
 	i := 0
 	for k := range set {
@@ -18,13 +18,13 @@ func (set StringSet) ToSlice() []string {
 	return keys
 }
 
-func (set StringSet) Add(a ...string) {
+func (set Set) Add(a ...string) {
 	for _, s := range a {
 		set[s] = struct{}{}
 	}
 }
 
-func (set StringSet) HasOneOf(a ...string) bool {
+func (set Set) HasOneOf(a ...string) bool {
 	for _, s := range a {
 		if _, ok := set[s]; ok {
 			return true
