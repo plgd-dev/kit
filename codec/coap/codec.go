@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	coap "github.com/go-ocf/go-coap"
-	"github.com/go-ocf/kit/cbor"
+	"github.com/go-ocf/kit/codec/cbor"
 )
 
 const (
