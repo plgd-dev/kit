@@ -90,6 +90,14 @@
   revision = "71a295af5428973e5c3a419108dcc86ca1f75c00"
 
 [[projects]]
+  branch = "californium"
+  digest = "1:3f4bf6807f04ac1cc7484f32b9d8748795275f42cac6291250c38493a7a8f962"
+  name = "github.com/go-ocf/go-coap"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1fb4bc6e068f166bb22388e3994967853b7ec19e"
+
+[[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -199,12 +207,23 @@
   revision = "3113b8401b8a98917cde58f8bbd42a1b1c03b1fd"
 
 [[projects]]
-  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
+  digest = "1:5da8ce674952566deae4dbc23d07c85caafc6cfa815b0b3e03e41979cedb8750"
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
+  packages = [
+    "assert",
+    "require",
+  ]
   pruneopts = "UT"
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
   version = "v1.3.0"
+
+[[projects]]
+  digest = "1:d0072748c62defde1ad99dde77f6ffce492a0e5aea9204077e497c7edfb86653"
+  name = "github.com/ugorji/go"
+  packages = ["codec"]
+  pruneopts = "UT"
+  revision = "2adff0894ba3bc2eeb9f9aea45fefd49802e1a13"
+  version = "v1.1.4"
 
 [[projects]]
   digest = "1:c468422f334a6b46a19448ad59aaffdfc0a36b08fdcc1c749a0b29b6453d7e59"
@@ -386,17 +405,22 @@
     "github.com/go-ocf/cqrs/eventbus/nats",
     "github.com/go-ocf/cqrs/eventstore",
     "github.com/go-ocf/cqrs/eventstore/mongodb",
+    "github.com/go-ocf/go-coap",
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
     "github.com/nats-io/go-nats",
     "github.com/stretchr/testify/assert",
+    "github.com/stretchr/testify/require",
+    "github.com/ugorji/go/codec",
     "github.com/valyala/fasthttp",
     "github.com/valyala/fasthttp/fasthttputil",
     "go.uber.org/zap",
     "golang.org/x/net/ipv4",
     "golang.org/x/net/ipv6",
     "google.golang.org/grpc",
+    "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",
+    "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
