@@ -17,12 +17,17 @@ type Pool struct {
 // so that it may add the missing item to the pool.
 type PoolFunc func(ctx context.Context, key string) (interface{}, error)
 
-// NewPool creates a pool with the create factory function.
-func NewPool(create PoolFunc) *Pool {
-	return &Pool{
-		store:  make(map[string]interface{}),
-		create: create,
-	}
+// NewPool creates a pool.
+func NewPool() *Pool {
+	return &Pool{store: make(map[string]interface{})}
+}
+
+// SetFactory sets the pool factory for GetOrCreate.
+func (p *Pool) SetFactory(f PoolFunc) {
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	p.create = f
 }
 
 // Put adds an item to the pool.
@@ -50,8 +55,8 @@ func (p *Pool) Get(key string) (_ interface{}, ok bool) {
 	return item, ok
 }
 
-// GetOrCreate returns an item and calls create on a mis.
-// Warning: The create function is called under the lock,
+// GetOrCreate returns an item and calls the factory on a mis.
+// Warning: The factory function is called under the lock,
 // therefore it must not call any Pool's methods to avoid deadlocks.
 func (p *Pool) GetOrCreate(ctx context.Context, key string) (interface{}, error) {
 	p.mtx.Lock()
@@ -59,6 +64,10 @@ func (p *Pool) GetOrCreate(ctx context.Context, key string) (interface{}, error)
 
 	if item, ok := p.store[key]; ok {
 		return item, nil
+	}
+
+	if p.create == nil {
+		return nil, fmt.Errorf("missing pool factory")
 	}
 	item, err := p.create(ctx, key)
 	if err != nil {

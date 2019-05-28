@@ -13,7 +13,7 @@ import (
 )
 
 func TestPutGet(t *testing.T) {
-	p := sync.NewPool(failingCreate(t))
+	p := sync.NewPool()
 	p.Put(testAddr, &testConn)
 
 	c, ok := p.Get(testAddr)
@@ -22,7 +22,7 @@ func TestPutGet(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	p := sync.NewPool(failingCreate(t))
+	p := sync.NewPool()
 	p.Put(testAddr, &testConn)
 	p.Delete(testAddr)
 
@@ -31,18 +31,18 @@ func TestDelete(t *testing.T) {
 }
 
 func TestMiss(t *testing.T) {
-	p := sync.NewPool(failingCreate(t))
+	p := sync.NewPool()
 
 	_, ok := p.Get(testAddr)
 	assert.False(t, ok)
 }
 
 func TestCreated(t *testing.T) {
-	create := func(ctx context.Context, key string) (interface{}, error) {
+	p := sync.NewPool()
+	p.SetFactory(func(ctx context.Context, key string) (interface{}, error) {
 		assert.Equal(t, testAddr, key)
 		return &testConn, nil
-	}
-	p := sync.NewPool(create)
+	})
 
 	c, err := p.GetOrCreate(context.Background(), testAddr)
 	require.NoError(t, err)
@@ -50,7 +50,7 @@ func TestCreated(t *testing.T) {
 }
 
 func TestCreationNotNeeded(t *testing.T) {
-	p := sync.NewPool(failingCreate(t))
+	p := sync.NewPool()
 	p.Put(testAddr, &testConn)
 
 	c, err := p.GetOrCreate(context.Background(), testAddr)
@@ -59,10 +59,17 @@ func TestCreationNotNeeded(t *testing.T) {
 }
 
 func TestCreationFailure(t *testing.T) {
-	create := func(ctx context.Context, key string) (interface{}, error) {
+	p := sync.NewPool()
+	p.SetFactory(func(ctx context.Context, key string) (interface{}, error) {
 		return nil, fmt.Errorf("")
-	}
-	p := sync.NewPool(create)
+	})
+
+	_, err := p.GetOrCreate(context.Background(), testAddr)
+	assert.Error(t, err)
+}
+
+func TestMissingFactory(t *testing.T) {
+	p := sync.NewPool()
 
 	_, err := p.GetOrCreate(context.Background(), testAddr)
 	assert.Error(t, err)
@@ -72,10 +79,3 @@ var (
 	testAddr = net.MakeAddr("host", 42).String()
 	testConn = gocoap.ClientConn{}
 )
-
-func failingCreate(t *testing.T) sync.PoolFunc {
-	return func(ctx context.Context, key string) (interface{}, error) {
-		require.Fail(t, "unexpected create call")
-		return nil, nil
-	}
-}
