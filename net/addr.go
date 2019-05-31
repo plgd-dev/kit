@@ -68,3 +68,8 @@ func (a Addr) SetPort(port uint16) Addr {
 	a.port = port
 	return a
 }
+
+// GetPort returns the port.
+func (a Addr) GetPort() uint16 {
+	return a.port
+}
