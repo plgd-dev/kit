@@ -24,11 +24,16 @@ func (CBORCodec) Encode(v interface{}) ([]byte, error) {
 
 // Decode the CBOR payload of a COAP message.
 func (CBORCodec) Decode(m coap.Message, v interface{}) error {
+	if v == nil {
+		return nil
+	}
 	cf := m.Option(coap.ContentFormat)
 	mt, ok := cf.(coap.MediaType)
+
 	if !ok || (mt != coap.AppCBOR && mt != coap.AppOcfCbor) {
 		return fmt.Errorf("not a CBOR content format: %v", cf)
 	}
+
 	if err := cbor.Decode(m.Payload(), v); err != nil {
 		return fmt.Errorf("decoding failed for the message %v on %v", m.MessageID(), m.PathString())
 	}
