@@ -76,6 +76,6 @@ func TestMissingFactory(t *testing.T) {
 }
 
 var (
-	testAddr = net.MakeAddr("host", 42).String()
+	testAddr = net.MakeAddr("http","host", 42).String()
 	testConn = gocoap.ClientConn{}
 )
