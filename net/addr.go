@@ -69,8 +69,7 @@ func (a Addr) URL() string {
 
 // RemovePort sets the zero value.
 func (a Addr) RemovePort() Addr {
-	a.port = 0
-	return a
+	return a.SetPort(0)
 }
 
 // SetPort changes the port.
@@ -82,6 +81,17 @@ func (a Addr) SetPort(port uint16) Addr {
 // GetPort returns the port.
 func (a Addr) GetPort() uint16 {
 	return a.port
+}
+
+// SetScheme changes the scheme.
+func (a Addr) SetScheme(scheme string) Addr {
+	a.scheme = scheme
+	return a
+}
+
+// RemoveScheme sets the empty value.
+func (a Addr) RemoveScheme() Addr {
+	return a.SetScheme("")
 }
 
 // GetScheme returns the scheme.
