@@ -55,6 +55,17 @@ func (p *Pool) Get(key string) (_ interface{}, ok bool) {
 	return item, ok
 }
 
+// Pop pops an item from the pool or false.
+func (p *Pool) Pop(key string) (_ interface{}, ok bool) {
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
+
+	item, ok := p.store[key]
+	delete(p.store, key)
+
+	return item, ok
+}
+
 // GetOrCreate returns an item and calls the factory on a mis.
 // Warning: The factory function is called under the lock,
 // therefore it must not call any Pool's methods to avoid deadlocks.
