@@ -24,16 +24,7 @@ func TestPutGet(t *testing.T) {
 func TestDelete(t *testing.T) {
 	p := sync.NewPool()
 	p.Put(testAddr, &testConn)
-	p.Delete(testAddr)
-
-	_, ok := p.Get(testAddr)
-	assert.False(t, ok)
-}
-
-func TestPop(t *testing.T) {
-	p := sync.NewPool()
-	p.Put(testAddr, &testConn)
-	c, ok := p.Pop(testAddr)
+	c, ok := p.Delete(testAddr)
 	assert.True(t, ok)
 	assert.Equal(t, c, &testConn)
 

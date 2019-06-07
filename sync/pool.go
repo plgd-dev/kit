@@ -38,14 +38,6 @@ func (p *Pool) Put(key string, item interface{}) {
 	p.store[key] = item
 }
 
-// Delete deletes an item from the pool.
-func (p *Pool) Delete(key string) {
-	p.mtx.Lock()
-	defer p.mtx.Unlock()
-
-	delete(p.store, key)
-}
-
 // Get returns an item from the pool or false.
 func (p *Pool) Get(key string) (_ interface{}, ok bool) {
 	p.mtx.Lock()
@@ -55,8 +47,8 @@ func (p *Pool) Get(key string) (_ interface{}, ok bool) {
 	return item, ok
 }
 
-// Pop pops an item from the pool or false.
-func (p *Pool) Pop(key string) (_ interface{}, ok bool) {
+// Delete pops an item from the pool or false.
+func (p *Pool) Delete(key string) (_ interface{}, ok bool) {
 	p.mtx.Lock()
 	defer p.mtx.Unlock()
 
