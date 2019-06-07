@@ -30,6 +30,17 @@ func TestDelete(t *testing.T) {
 	assert.False(t, ok)
 }
 
+func TestPop(t *testing.T) {
+	p := sync.NewPool()
+	p.Put(testAddr, &testConn)
+	c, ok := p.Pop(testAddr)
+	assert.True(t, ok)
+	assert.Equal(t, c, &testConn)
+
+	_, ok = p.Get(testAddr)
+	assert.False(t, ok)
+}
+
 func TestMiss(t *testing.T) {
 	p := sync.NewPool()
 
@@ -76,6 +87,6 @@ func TestMissingFactory(t *testing.T) {
 }
 
 var (
-	testAddr = net.MakeAddr("http","host", 42).String()
+	testAddr = net.MakeAddr("http", "host", 42).String()
 	testConn = gocoap.ClientConn{}
 )
