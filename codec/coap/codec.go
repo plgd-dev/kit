@@ -7,23 +7,19 @@ import (
 	"github.com/go-ocf/kit/codec/cbor"
 )
 
-const (
-	AppCBOR uint16 = uint16(coap.AppCBOR)
-)
-
-// CBORCodec encodes/decodes according to the CoAP content format/media type.
-type CBORCodec struct{}
+// VNDOCFCBORCodec encodes/decodes according to the CoAP content format/media type.
+type VNDOCFCBORCodec struct{}
 
 // ContentFormat used for encoding.
-func (CBORCodec) ContentFormat() coap.MediaType { return coap.AppCBOR }
+func (VNDOCFCBORCodec) ContentFormat() coap.MediaType { return coap.AppOcfCbor }
 
 // Encode encodes v and returns bytes.
-func (CBORCodec) Encode(v interface{}) ([]byte, error) {
+func (VNDOCFCBORCodec) Encode(v interface{}) ([]byte, error) {
 	return cbor.Encode(v)
 }
 
 // Decode the CBOR payload of a COAP message.
-func (CBORCodec) Decode(m coap.Message, v interface{}) error {
+func (VNDOCFCBORCodec) Decode(m coap.Message, v interface{}) error {
 	if v == nil {
 		return nil
 	}
