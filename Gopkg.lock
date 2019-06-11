@@ -140,8 +140,8 @@
     "zlib",
   ]
   pruneopts = "UT"
-  revision = "8756f2777357367e8b792ec60331ce0d40fb925e"
-  version = "v1.6.2"
+  revision = "05d6922103c7275c684bd5df6608b25577b10521"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:923c4d7194b42e054b2eb8a6c62824ac55e23ececc1c7e48d4da69c971c55954"
@@ -152,23 +152,16 @@
   version = "v1.2.1"
 
 [[projects]]
-  digest = "1:6de8b539649786932d077d1c035570d68526e9dd76519009c4a736c91762d033"
+  digest = "1:2ca73053216eb11c8eea2855c8099ad82773638522f91cc0542ec9759163ff3c"
   name = "github.com/nats-io/go-nats"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "e2837a2879e82886f6e21715e3a0217fdc46d370"
-  version = "v1.8.1"
-
-[[projects]]
-  digest = "1:95837473f879ea39a76b82c43c7badf93a4b27b2d5654182ec3d1728f8ebec30"
-  name = "github.com/nats-io/nats.go"
   packages = [
+    ".",
     "encoders/builtin",
     "util",
   ]
   pruneopts = "UT"
-  revision = "e2837a2879e82886f6e21715e3a0217fdc46d370"
-  version = "v1.8.1"
+  revision = "70fe06cee50d4b6f98248d9675fb55f2a3aa7228"
+  version = "v1.7.2"
 
 [[projects]]
   digest = "1:0b5d91120efc54504bc253fda90b08c4be88cd78a4023ef60019e95bb0cdc136"
@@ -292,11 +285,11 @@
     "ed25519/internal/edwards25519",
   ]
   pruneopts = "UT"
-  revision = "f99c8df09eb5bff426315721bfa5f16a99cad32c"
+  revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
 
 [[projects]]
   branch = "master"
-  digest = "1:18f24e2e6cf322e3a985d1573771f5e5c349cbbe2f01dc227cd7e4dabb0f21d9"
+  digest = "1:a07e2c8740f5f67befe939dc705ee0844ecf7da3ae36612518a749c7ad33c6bc"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -314,18 +307,18 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "461777fb6f67e8cb9d70cda16573678d085a74cf"
+  revision = "3f473d35a33aa6fdd203e306dc439b797820e3f1"
 
 [[projects]]
   branch = "master"
-  digest = "1:f2c1bf1f253a026632a5f8871b9ec426a04a2a97983c541acac40f6dae7448d1"
+  digest = "1:2a96b14fed8617c9e499777c03ec21f35dfd5b396f0b05fcdd7eff9e6c67f196"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "5b15430b70e38eb7f9c844f97c25f25a246d5c63"
+  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -358,7 +351,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "eb0b1bdb6ae60fcfc41b8d907b50dfb346112301"
+  revision = "a7e196e89fd3a3c4d103ca540bd5dac3a736e375"
 
 [[projects]]
   digest = "1:e8800ddadd6bce3bc0c5ffd7bc55dbdddc6e750956c10cc10271cade542fccbe"

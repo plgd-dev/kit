@@ -3,29 +3,50 @@ package json
 import (
 	"bytes"
 	"fmt"
+	"io"
 
 	"github.com/go-ocf/kit/codec/cbor"
 
 	"github.com/ugorji/go/codec"
 )
 
-// Encode encodes v and returns bytes.
-func Encode(v interface{}) ([]byte, error) {
-	b := new(bytes.Buffer)
+// WriteTo writes v to writer.
+func WriteTo(w io.Writer, v interface{}) error {
 	var h codec.JsonHandle
 	h.BasicHandle.Canonical = true
-	err := codec.NewEncoder(b, &h).Encode(v)
+	err := codec.NewEncoder(w, &h).Encode(v)
 	if err != nil {
-		return nil, fmt.Errorf("CBOR encoder failed: %v", err)
+		return fmt.Errorf("JSON encoder failed: %v", err)
+	}
+	return nil
+}
+
+// Encode encodes v and returns bytes.
+func Encode(v interface{}) ([]byte, error) {
+	b := bytes.NewBuffer(make([]byte, 0, 128))
+	err := WriteTo(b, v)
+	if err != nil {
+		return nil, err
 	}
 	return b.Bytes(), nil
 }
 
+// ReadFrom reads and stores the result in v.
+func ReadFrom(w io.Reader, v interface{}) error {
+	var h codec.JsonHandle
+	err := codec.NewDecoder(w, &h).Decode(v)
+	if err != nil {
+		return fmt.Errorf("JSON decoder failed: %v", err)
+	}
+	return nil
+}
+
 // Decode decodes bytes and stores the result in v.
 func Decode(b []byte, v interface{}) error {
-	err := codec.NewDecoderBytes(b, new(codec.JsonHandle)).Decode(v)
+	buf := bytes.NewBuffer(b)
+	err := ReadFrom(buf, v)
 	if err != nil {
-		return fmt.Errorf("CBOR decoder failed: %v", err)
+		return err
 	}
 	return nil
 }
