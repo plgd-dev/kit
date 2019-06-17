@@ -90,12 +90,15 @@
   revision = "71a295af5428973e5c3a419108dcc86ca1f75c00"
 
 [[projects]]
-  branch = "californium"
-  digest = "1:3f4bf6807f04ac1cc7484f32b9d8748795275f42cac6291250c38493a7a8f962"
+  branch = "master"
+  digest = "1:07f7e11549f38d489651053d624c432c1247cd9a0f64a24c4ce455936c7fe325"
   name = "github.com/go-ocf/go-coap"
-  packages = ["."]
+  packages = [
+    ".",
+    "net",
+  ]
   pruneopts = "UT"
-  revision = "1fb4bc6e068f166bb22388e3994967853b7ec19e"
+  revision = "6251d1201ea55633381bcccde2f47303b3736a40"
 
 [[projects]]
   digest = "1:bed9d72d596f94e65fff37f4d6c01398074a6bb1c3f3ceff963516bd01db6ff5"
@@ -427,8 +430,6 @@
     "github.com/valyala/fasthttp",
     "github.com/valyala/fasthttp/fasthttputil",
     "go.uber.org/zap",
-    "golang.org/x/net/ipv4",
-    "golang.org/x/net/ipv6",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",
