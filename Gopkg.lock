@@ -38,8 +38,8 @@
   name = "github.com/eapache/go-resiliency"
   packages = ["breaker"]
   pruneopts = "UT"
-  revision = "ea41b0fad31007accc7f806884dcdf3da98b79ce"
-  version = "v1.1.0"
+  revision = "5efd2ed019fd331ec2defc6f3bd98882f1e3e636"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -96,6 +96,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "1fb4bc6e068f166bb22388e3994967853b7ec19e"
+
+[[projects]]
+  digest = "1:bed9d72d596f94e65fff37f4d6c01398074a6bb1c3f3ceff963516bd01db6ff5"
+  name = "github.com/gofrs/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6b08a5c5172ba18946672b49749cde22873dd7c2"
+  version = "v3.2.0"
 
 [[projects]]
   digest = "1:4652941215f23c7ad6546bab86964c72248a1134baa53f0df618661344ba5cac"
@@ -235,7 +243,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:993172b272fffd95e705059778e5a84a939bbcf46b8b0637d616cdbb3704d444"
+  digest = "1:ae1322db6af7b1244fbd2f6e25c4406bd16ce348f1b909da91b2a0eef9edff65"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -243,7 +251,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "9494955f8e5a64a6abd126049e11f916d3121ac9"
+  revision = "9ba4cef1bac8ebc8fe71123bd20cfc681fdb78a8"
 
 [[projects]]
   digest = "1:a5158647b553c61877aa9ae74f4015000294e47981e6b8b07525edcbb0747c81"
@@ -289,7 +297,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a07e2c8740f5f67befe939dc705ee0844ecf7da3ae36612518a749c7ad33c6bc"
+  digest = "1:4ea677236b1c0ec4ff523ac8293022fcf0a8b43c3f5a29816955505fbce58155"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -307,18 +315,18 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "3f473d35a33aa6fdd203e306dc439b797820e3f1"
+  revision = "d28f0bde5980168871434b95cfc858db9f2a7a99"
 
 [[projects]]
   branch = "master"
-  digest = "1:2a96b14fed8617c9e499777c03ec21f35dfd5b396f0b05fcdd7eff9e6c67f196"
+  digest = "1:3398992b8f4b00ce4a6a5f9770008cf66dcff8f128b51eeab8c1f657096cac8f"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
+  revision = "15dcb6c0061f497a3f66e3ea034b629c6dd4d99e"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -409,6 +417,7 @@
     "github.com/go-ocf/cqrs/eventstore",
     "github.com/go-ocf/cqrs/eventstore/mongodb",
     "github.com/go-ocf/go-coap",
+    "github.com/gofrs/uuid",
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
     "github.com/nats-io/go-nats",

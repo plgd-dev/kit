@@ -1,4 +1,4 @@
-package coap
+package ocf
 
 import (
 	"fmt"
