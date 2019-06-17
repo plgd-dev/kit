@@ -38,6 +38,10 @@
   name = "github.com/go-ocf/cqrs"
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/go-ocf/go-coap"
+
+[[constraint]]
   name = "github.com/gogo/protobuf"
   version = "1.2.1"
 
@@ -61,10 +65,6 @@
 [[constraint]]
   name = "go.uber.org/zap"
   version = "1.10.0"
-
-[[constraint]]
-  branch = "master"
-  name = "golang.org/x/net"
 
 [[constraint]]
   name = "google.golang.org/grpc"

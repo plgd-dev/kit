@@ -31,6 +31,42 @@ type Codec interface {
 
 var ExtendedKeyUsage_IDENTITY_CERTIFICATE = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 44924, 1, 6}
 
+func GetDeviceIDFromIndetityCertificate(cert *x509.Certificate) (string, error) {
+	// verify EKU manually
+	ekuHasClient := false
+	for _, eku := range cert.ExtKeyUsage {
+		if eku == x509.ExtKeyUsageClientAuth {
+			ekuHasClient = true
+			break
+		}
+	}
+	if !ekuHasClient {
+		return "", fmt.Errorf("not contains ExtKeyUsageClientAuth")
+	}
+	ekuHasOcfId := false
+	for _, eku := range cert.UnknownExtKeyUsage {
+		if eku.Equal(ExtendedKeyUsage_IDENTITY_CERTIFICATE) {
+			ekuHasOcfId = true
+			break
+		}
+	}
+	if !ekuHasOcfId {
+		return "", fmt.Errorf("not contains ExtKeyUsage with OCF ID(1.3.6.1.4.1.44924.1.6")
+	}
+	cn := strings.Split(cert.Subject.CommonName, ":")
+	if len(cn) != 2 {
+		return "", fmt.Errorf("invalid subject common name: %v", cert.Subject.CommonName)
+	}
+	if strings.ToLower(cn[0]) != "uuid" {
+		return "", fmt.Errorf("invalid subject common name %v: 'uuid' - not found", cert.Subject.CommonName)
+	}
+	deviceId, err := uuid.FromString(cn[1])
+	if err != nil {
+		return "", fmt.Errorf("invalid subject common name %v: %v", cert.Subject.CommonName, err)
+	}
+	return deviceId.String(), nil
+}
+
 func VerifyIndetityCertificate(cert *x509.Certificate) error {
 	// verify EKU manually
 	ekuHasClient := false
@@ -49,27 +85,11 @@ func VerifyIndetityCertificate(cert *x509.Certificate) error {
 	if !ekuHasServer {
 		return fmt.Errorf("not contains ExtKeyUsageServerAuth")
 	}
-	ekuHasOcfId := false
-	for _, eku := range cert.UnknownExtKeyUsage {
-		if eku.Equal(ExtendedKeyUsage_IDENTITY_CERTIFICATE) {
-			ekuHasOcfId = true
-			break
-		}
-	}
-	if !ekuHasOcfId {
-		return fmt.Errorf("not contains ExtKeyUsage with OCF ID(1.3.6.1.4.1.44924.1.6")
-	}
-	cn := strings.Split(cert.Subject.CommonName, ":")
-	if len(cn) != 2 {
-		return fmt.Errorf("invalid subject common name: %v", cert.Subject.CommonName)
-	}
-	if strings.ToLower(cn[0]) != "uuid" {
-		return fmt.Errorf("invalid subject common name %v: 'uuid' - not found", cert.Subject.CommonName)
-	}
-	_, err := uuid.FromString(cn[1])
+	_, err := GetDeviceIDFromIndetityCertificate(cert)
 	if err != nil {
-		return fmt.Errorf("invalid subject common name %v: %v", cert.Subject.CommonName, err)
+		return err
 	}
+
 	return nil
 }
 
