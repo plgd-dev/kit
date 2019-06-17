@@ -160,6 +160,12 @@ func WithCredentialSubject(in string) OptionFunc {
 	}
 }
 
+func WithAccept(contentFormat gocoap.MediaType) OptionFunc {
+	return func(req gocoap.Message) {
+		req.SetOption(gocoap.Accept, contentFormat)
+	}
+}
+
 func (c *Client) UpdateResource(
 	ctx context.Context,
 	href string,
