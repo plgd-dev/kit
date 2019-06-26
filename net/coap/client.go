@@ -148,6 +148,18 @@ func WithResourceType(in string) OptionFunc {
 	}
 }
 
+func WithInstanceID(in int) OptionFunc {
+	return func(req gocoap.Message) {
+		req.AddOption(gocoap.URIQuery, "ins="+strconv.Itoa(in))
+	}
+}
+
+func WithDeviceID(in string) OptionFunc {
+	return func(req gocoap.Message) {
+		req.AddOption(gocoap.URIQuery, "di="+in)
+	}
+}
+
 func WithCredentialId(in int) OptionFunc {
 	return func(req gocoap.Message) {
 		req.AddOption(gocoap.URIQuery, "credid="+strconv.Itoa(in))
