@@ -30,8 +30,8 @@
   version = "1.22.1"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/globalsign/mgo"
+  name = "go.mongodb.org/mongo-driver"
+  version = "1.0.4"
 
 [[constraint]]
   branch = "master"
