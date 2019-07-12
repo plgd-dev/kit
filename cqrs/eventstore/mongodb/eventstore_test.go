@@ -37,7 +37,7 @@ func TestInstanceId(t *testing.T) {
 	}, nil)
 	defer func() {
 		store.Clear(ctx)
-		store.Close()
+		store.Close(ctx)
 	}()
 	assert.NoError(t, err)
 
