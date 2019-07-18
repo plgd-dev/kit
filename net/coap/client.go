@@ -10,6 +10,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	uuid "github.com/gofrs/uuid"
@@ -348,4 +349,137 @@ func (c *Client) ExchangeWithContext(ctx context.Context, req gocoap.Message) (g
 
 func (c *Client) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
+}
+
+type CloseHandlerFunc = func(err error)
+
+type OnCloseHandler struct {
+	handlers map[int]CloseHandlerFunc
+	nextId   int
+	lock     sync.Mutex
+}
+
+func NewOnCloseHandler() *OnCloseHandler {
+	return &OnCloseHandler{
+		handlers: make(map[int]CloseHandlerFunc),
+	}
+}
+
+func (h *OnCloseHandler) Add(onClose func(err error)) int {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+	v := h.nextId
+	h.nextId++
+	h.handlers[v] = onClose
+	return v
+}
+
+func (h *OnCloseHandler) Remove(onCloseID int) {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+	delete(h.handlers, onCloseID)
+}
+
+func (h *OnCloseHandler) getHandlers() []CloseHandlerFunc {
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
+	res := make([]func(error), 0, len(h.handlers))
+	for _, ho := range h.handlers {
+		res = append(res, ho)
+	}
+	return res
+
+}
+
+func (h *OnCloseHandler) OnClose(err error) {
+	handlers := h.getHandlers()
+	for _, ho := range handlers {
+		ho(err)
+	}
+}
+
+type ClientCloseHandler struct {
+	*Client
+	onClose *OnCloseHandler
+}
+
+func (c *ClientCloseHandler) RegisterCloseHandler(f CloseHandlerFunc) (closeHandlerID int) {
+	return c.onClose.Add(f)
+}
+
+func (c *ClientCloseHandler) UnregisterCloseHandler(closeHandlerID int) {
+	c.onClose.Remove(closeHandlerID)
+}
+
+func newClientCloseHandler(conn *gocoap.ClientConn, onClose *OnCloseHandler) *ClientCloseHandler {
+	return &ClientCloseHandler{Client: NewClient(conn), onClose: onClose}
+}
+
+func DialUDP(ctx context.Context, addr string) (*ClientCloseHandler, error) {
+	h := NewOnCloseHandler()
+	client := gocoap.Client{Net: "udp", NotifySessionEndFunc: h.OnClose}
+	c, err := client.DialWithContext(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+	return newClientCloseHandler(c, h), nil
+}
+
+func DialTCP(ctx context.Context, addr string, disableTCPSignalMessages bool) (*ClientCloseHandler, error) {
+	h := NewOnCloseHandler()
+	client := gocoap.Client{Net: "tcp", NotifySessionEndFunc: h.OnClose,
+		// Iotivity 1.3 breaks with signal messages,
+		// but Iotivity 2.0 requires them.
+		DisableTCPSignalMessages: disableTCPSignalMessages,
+	}
+	c, err := client.DialWithContext(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+	return newClientCloseHandler(c, h), nil
+}
+
+func DialTCPSecure(ctx context.Context, addr string, disableTCPSignalMessages bool, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error) (*ClientCloseHandler, error) {
+	h := NewOnCloseHandler()
+	caPool := x509.NewCertPool()
+	for _, ca := range cas {
+		caPool.AddCert(ca)
+	}
+
+	tlsCfg := tls.Config{
+		InsecureSkipVerify: true,
+		Certificates:       []tls.Certificate{cert},
+		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+			for _, rawCert := range rawCerts {
+				cert, err := x509.ParseCertificate(rawCert)
+				if err != nil {
+					return err
+				}
+				_, err = cert.Verify(x509.VerifyOptions{
+					Roots:       caPool,
+					CurrentTime: time.Now(),
+					KeyUsages:   []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+				})
+				if err != nil {
+					return err
+				}
+				if verifyPeerCertificate(cert) != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	}
+	client := gocoap.Client{Net: "tcp-tls", NotifySessionEndFunc: h.OnClose,
+		TLSConfig: &tlsCfg,
+		// Iotivity 1.3 breaks with signal messages,
+		// but Iotivity 2.0 requires them.
+		DisableTCPSignalMessages: disableTCPSignalMessages,
+	}
+	c, err := client.DialWithContext(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+	return newClientCloseHandler(c, h), nil
 }
