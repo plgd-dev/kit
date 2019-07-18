@@ -2,7 +2,6 @@ package sync
 
 import (
 	"context"
-	"fmt"
 	"sync/atomic"
 )
 
@@ -15,29 +14,27 @@ type RefCounter struct {
 }
 
 // Data returns data
-func (r *RefCounter) Data() (interface{}, error) {
+func (r *RefCounter) Data() interface{} {
 	v := atomic.LoadInt64(&r.count)
 	if v <= 0 || r.data == nil {
-		return nil, fmt.Errorf("using RefCounterer after data released")
+		panic("using RefCounter after data released")
 	}
-	return r.data, nil
+	return r.data
 }
 
-// Increment increments counter
-func (r *RefCounter) Increment() error {
+// Acquire increments counter
+func (r *RefCounter) Acquire() {
 	v := atomic.AddInt64(&r.count, 1)
 	if v <= 1 || r.data == nil {
-		return fmt.Errorf("using RefCounterer after data released")
+		panic("using RefCounter after data released")
 	}
-
-	return nil
 }
 
-// Decrement decrements counter, when counter reach 0, releaseDataFunc will be called
-func (r *RefCounter) Decrement(ctx context.Context) error {
+// Release decrements counter, when counter reach 0, releaseDataFunc will be called
+func (r *RefCounter) Release(ctx context.Context) error {
 	v := atomic.AddInt64(&r.count, -1)
 	if v < 0 || r.data == nil {
-		return fmt.Errorf("using RefCounterer after data released")
+		panic("using RefCounter after data released")
 	}
 	if v == 0 {
 		data := r.data
@@ -49,7 +46,7 @@ func (r *RefCounter) Decrement(ctx context.Context) error {
 	return nil
 }
 
-// NewRefCounter creates RefCounterer
+// NewRefCounter creates RefCounter
 func NewRefCounter(data interface{}, releaseDataFunc ReleaseDataFunc) *RefCounter {
 	return &RefCounter{
 		data:            data,

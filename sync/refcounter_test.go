@@ -7,16 +7,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRefCounter_Increment(t *testing.T) {
+func TestRefCounter_Acquire(t *testing.T) {
 	type fields struct {
 		count           int64
 		data            interface{}
 		releaseDataFunc ReleaseDataFunc
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
+		name      string
+		fields    fields
+		wantPanic bool
 	}{
 		{
 			name: "valid",
@@ -31,7 +31,7 @@ func TestRefCounter_Increment(t *testing.T) {
 				count: 1,
 				data:  nil,
 			},
-			wantErr: true,
+			wantPanic: true,
 		},
 		{
 			name: "invalid count",
@@ -39,7 +39,7 @@ func TestRefCounter_Increment(t *testing.T) {
 				count: 0,
 				data:  nil,
 			},
-			wantErr: true,
+			wantPanic: true,
 		},
 	}
 	for _, tt := range tests {
@@ -49,17 +49,16 @@ func TestRefCounter_Increment(t *testing.T) {
 				data:            tt.fields.data,
 				releaseDataFunc: tt.fields.releaseDataFunc,
 			}
-			err := r.Increment()
-			if tt.wantErr {
-				require.Error(t, err)
+			if tt.wantPanic {
+				require.Panics(t, r.Acquire)
 			} else {
-				require.NoError(t, err)
+				require.NotPanics(t, r.Acquire)
 			}
 		})
 	}
 }
 
-func TestRefCounter_Decrement(t *testing.T) {
+func TestRefCounter_Release(t *testing.T) {
 	type fields struct {
 		count int64
 		data  interface{}
@@ -67,7 +66,7 @@ func TestRefCounter_Decrement(t *testing.T) {
 	tests := []struct {
 		name                string
 		fields              fields
-		wantErr             bool
+		wantPanic           bool
 		releaseDataFuncUsed bool
 	}{
 		{
@@ -92,7 +91,7 @@ func TestRefCounter_Decrement(t *testing.T) {
 				count: 0,
 				data:  1,
 			},
-			wantErr: true,
+			wantPanic: true,
 		},
 		{
 			name: "invalid - data",
@@ -100,7 +99,7 @@ func TestRefCounter_Decrement(t *testing.T) {
 				count: 0,
 				data:  nil,
 			},
-			wantErr: true,
+			wantPanic: true,
 		},
 	}
 	for _, tt := range tests {
@@ -115,11 +114,15 @@ func TestRefCounter_Decrement(t *testing.T) {
 				},
 			}
 			ctx := context.Background()
-			err := r.Decrement(ctx)
-			if tt.wantErr {
-				require.Error(t, err)
+
+			if tt.wantPanic {
+				require.Panics(t, func() {
+					r.Release(ctx)
+				})
 			} else {
-				require.NoError(t, err)
+				require.NotPanics(t, func() {
+					r.Release(ctx)
+				})
 				require.Equal(t, tt.releaseDataFuncUsed, *releaseDataFuncUsed)
 			}
 		})
