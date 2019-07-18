@@ -124,7 +124,7 @@ func DialTcpTls(ctx context.Context, addr string, cert tls.Certificate, cas []*x
 			return nil
 		},
 	}
-	coapConn, err := gocoap.DialWithTLS("tcp", addr, &tlsConfig)
+	coapConn, err := gocoap.DialTLS("tcp", addr, &tlsConfig)
 	if err != nil {
 		return nil, err
 	}
