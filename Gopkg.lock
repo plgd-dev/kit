@@ -76,14 +76,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:07f7e11549f38d489651053d624c432c1247cd9a0f64a24c4ce455936c7fe325"
+  digest = "1:54db90590501bc62881ae2d15f9ace4f0b4f9e119e357c1ddf4f8cbde7a4ff37"
   name = "github.com/go-ocf/go-coap"
   packages = [
     ".",
     "net",
   ]
   pruneopts = "UT"
-  revision = "6251d1201ea55633381bcccde2f47303b3736a40"
+  revision = "6cb733c1b04ba02c412af95088c8aefcfe696272"
 
 [[projects]]
   digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
@@ -163,8 +163,8 @@
     "zlib",
   ]
   pruneopts = "UT"
-  revision = "315059c39568ee89ae0c118bc6dc7306041543c3"
-  version = "v1.7.2"
+  revision = "23256797d1e4ccac36fad828362cdfef5b3aeb90"
+  version = "v1.7.4"
 
 [[projects]]
   digest = "1:923c4d7194b42e054b2eb8a6c62824ac55e23ececc1c7e48d4da69c971c55954"
@@ -214,6 +214,26 @@
   version = "v2.2.4"
 
 [[projects]]
+  digest = "1:00ba9fb5c14095829a3c738c8998b2e3d6019002291e41443ecb775f191e8ba2"
+  name = "github.com/pion/dtls"
+  packages = [
+    ".",
+    "internal/crypto/ccm",
+    "internal/udp",
+  ]
+  pruneopts = "UT"
+  revision = "bcc3927a53a8f925a2d30ee83cb319270a7bd667"
+  version = "v1.4.0"
+
+[[projects]]
+  digest = "1:92d9305a35d7130172f46e095505cc56af49d073907ae52088c15e8c8ae3f519"
+  name = "github.com/pion/logging"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0387f8acdeb20faf48e539e74906dd633851f3a8"
+  version = "v0.2.2"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -258,7 +278,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a0b7634717eaa7c1e556caa592f48b6eb97334dc2e7181298261cd9e6672afc3"
+  digest = "1:14263f971ab2057d9d8e0e47a5c9af0ae482c4d2530c47f86e8a247046d5df8e"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -266,7 +286,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "a0248ed3a1ce5bf65a1fe9734237590bfc80d8f3"
+  revision = "55ea350c55431331ff77defe5f450331577f64dd"
 
 [[projects]]
   branch = "master"
@@ -356,9 +376,10 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:addbd8224d6adb3e0387ebdd1aa2aef4a0844c9b8cfde3d31b6b6c633d2cf2ce"
+  digest = "1:60abc8e0555dae05ca4ffa3800d73c591e7636e8af9ba2c97708a5e162a1e8d0"
   name = "golang.org/x/crypto"
   packages = [
+    "curve25519",
     "ed25519",
     "ed25519/internal/edwards25519",
     "md4",
@@ -439,7 +460,7 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "3bdd9d9f5532d75d09efb230bd767d265245cfe5"
+  revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
   digest = "1:cf01ae0753310464677058b125fa31e74fd943781782ada503180ad784fc83d3"

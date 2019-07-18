@@ -55,10 +55,18 @@ func (c NoCodec) Encode(v interface{}) ([]byte, error) {
 // Decode validates the content format and
 // propagates the payload to v as *[]byte without any conversions.
 func (c NoCodec) Decode(m coap.Message, v interface{}) error {
+	if v == nil {
+		return nil
+	}
 	cf := m.Option(coap.ContentFormat)
 	mt, ok := cf.(coap.MediaType)
-	if !ok || mt != c.ContentFormat() {
-		return fmt.Errorf("unexpected content format: %v", cf)
+	if !ok {
+		if len(m.Payload()) == 0 {
+			return nil
+		}
+		if mt != c.ContentFormat() {
+			return fmt.Errorf("unexpected content format: %v", cf)
+		}
 	}
 
 	p, ok := v.(*[]byte)
