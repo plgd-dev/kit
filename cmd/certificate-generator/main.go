@@ -35,6 +35,7 @@ var (
 	subjectOrganization = flag.String("subjectOrganization", "", "subject organization")
 	subjectCountry      = flag.String("subjectCountry", "", "subject country")
 	subjectCommonName   = flag.String("subjectCommonName", "", "subject country")
+	maxPathLength       = flag.Int("maxPathLength", -1, "max path len")
 )
 
 var ekuOcfId = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 44924, 1, 6}
@@ -182,6 +183,10 @@ func main() {
 			fmt.Fprintf(os.Stderr, "subjectCommonName cannot be empty: %q", *ecdsaCurve)
 			os.Exit(1)
 		}
+		if *maxPathLength < 0 {
+			fmt.Fprintf(os.Stderr, "maxPathLength must be greater then -1(unlimited)")
+			os.Exit(1)
+		}
 		if *outCert == "" {
 			*outCert = "intermediatecacert.pem"
 		}
@@ -189,6 +194,11 @@ func main() {
 			*outKey = "intermediatecakey.pem"
 		}
 		template.IsCA = true
+
+		template.MaxPathLen = *maxPathLength
+		if *maxPathLength == 0 {
+			template.MaxPathLenZero = true
+		}
 		template.KeyUsage |= x509.KeyUsageCertSign | x509.KeyUsageCRLSign
 
 		cert, err := security.LoadX509(*caCert)
