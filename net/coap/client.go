@@ -94,43 +94,6 @@ func VerifyIndetityCertificate(cert *x509.Certificate) error {
 	return nil
 }
 
-func DialTcpTls(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error) (*Client, error) {
-	caPool := x509.NewCertPool()
-	for _, ca := range cas {
-		caPool.AddCert(ca)
-	}
-
-	tlsConfig := tls.Config{
-		InsecureSkipVerify: true,
-		Certificates:       []tls.Certificate{cert},
-		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-			for _, rawCert := range rawCerts {
-				cert, err := x509.ParseCertificate(rawCert)
-				if err != nil {
-					return err
-				}
-				_, err = cert.Verify(x509.VerifyOptions{
-					Roots:       caPool,
-					CurrentTime: time.Now(),
-					KeyUsages:   []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
-				})
-				if err != nil {
-					return err
-				}
-				if verifyPeerCertificate(cert) != nil {
-					return err
-				}
-			}
-			return nil
-		},
-	}
-	coapConn, err := gocoap.DialTLS("tcp", addr, &tlsConfig)
-	if err != nil {
-		return nil, err
-	}
-	return NewClient(coapConn), nil
-}
-
 func NewClient(conn *gocoap.ClientConn) *Client {
 	return &Client{conn: conn}
 }
@@ -447,32 +410,39 @@ func DialTCPSecure(ctx context.Context, addr string, disableTCPSignalMessages bo
 		caPool.AddCert(ca)
 	}
 
-	tlsCfg := tls.Config{
+	tlsConfig := tls.Config{
 		InsecureSkipVerify: true,
 		Certificates:       []tls.Certificate{cert},
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+			intermediateCAPool := x509.NewCertPool()
+			var certificate *x509.Certificate
 			for _, rawCert := range rawCerts {
-				cert, err := x509.ParseCertificate(rawCert)
+				certs, err := x509.ParseCertificates(rawCert)
 				if err != nil {
 					return err
 				}
-				_, err = cert.Verify(x509.VerifyOptions{
-					Roots:       caPool,
-					CurrentTime: time.Now(),
-					KeyUsages:   []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
-				})
-				if err != nil {
-					return err
+				certificate = certs[0]
+				for i := 1; i < len(certs); i++ {
+					intermediateCAPool.AddCert(certs[i])
 				}
-				if verifyPeerCertificate(cert) != nil {
-					return err
-				}
+			}
+			_, err := certificate.Verify(x509.VerifyOptions{
+				Roots:         caPool,
+				Intermediates: intermediateCAPool,
+				CurrentTime:   time.Now(),
+				KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+			})
+			if err != nil {
+				return err
+			}
+			if verifyPeerCertificate(certificate) != nil {
+				return err
 			}
 			return nil
 		},
 	}
 	client := gocoap.Client{Net: "tcp-tls", NotifySessionEndFunc: h.OnClose,
-		TLSConfig: &tlsCfg,
+		TLSConfig: &tlsConfig,
 		// Iotivity 1.3 breaks with signal messages,
 		// but Iotivity 2.0 requires them.
 		DisableTCPSignalMessages: disableTCPSignalMessages,
