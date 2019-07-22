@@ -155,6 +155,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:a2cff208d4759f6ba1b1cd228587b0a1869f95f22542ec9cd17fff64430113c7"
+  name = "github.com/jessevdk/go-flags"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
+  version = "v1.4.0"
+
+[[projects]]
   digest = "1:823dc0f8e4cdad8d91e6aba4cdd985a035596a8aa02e9d2abf1bec347894c41f"
   name = "github.com/klauspost/compress"
   packages = [
@@ -586,6 +594,7 @@
     "github.com/gofrs/uuid",
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
+    "github.com/jessevdk/go-flags",
     "github.com/nats-io/go-nats",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
