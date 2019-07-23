@@ -17,7 +17,8 @@ type basicConstraints struct {
 	CA bool
 }
 
-func createIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+// GenerateIdentityCSR creates identity CSR according to configuration.
+func GenerateIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.PrivateKey) ([]byte, error) {
 	//create the csr
 	subj := cfg.ToPkixName()
 	subj.CommonName = fmt.Sprintf("uuid:%v", deviceID)
@@ -69,7 +70,7 @@ func createIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.Pri
 }
 
 func GenerateIdentityCert(cfg Configuration, deviceID string, privateKey *ecdsa.PrivateKey, signerCA []*x509.Certificate, signerCAKey *ecdsa.PrivateKey) ([]byte, error) {
-	csr, err := createIdentityCSR(cfg, deviceID, privateKey)
+	csr, err := GenerateIdentityCSR(cfg, deviceID, privateKey)
 	if err != nil {
 		return nil, err
 	}
