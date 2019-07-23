@@ -12,7 +12,8 @@ import (
 	ocfSigner "github.com/go-ocf/kit/security/signer"
 )
 
-func createCSR(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+// GenerateCSR creates CSR according to configuration.
+func GenerateCSR(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, error) {
 	//create the csr
 	subj := cfg.ToPkixName()
 
@@ -75,7 +76,7 @@ func createCSR(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, error) 
 }
 
 func GenerateCert(cfg Configuration, privateKey *ecdsa.PrivateKey, signerCA []*x509.Certificate, signerCAKey *ecdsa.PrivateKey) ([]byte, error) {
-	csr, err := createCSR(cfg, privateKey)
+	csr, err := GenerateCSR(cfg, privateKey)
 	if err != nil {
 		return nil, err
 	}
