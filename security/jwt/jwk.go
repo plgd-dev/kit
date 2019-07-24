@@ -39,7 +39,7 @@ func (c *KeyCache) GetKey(token *jwt.Token) (interface{}, error) {
 func (c *KeyCache) LookupKey(token *jwt.Token) (jwk.Key, error) {
 	id, ok := token.Header["kid"].(string)
 	if !ok {
-		return nil, fmt.Errorf("missing kid in JWT")
+		return nil, fmt.Errorf("missing key id in token")
 	}
 
 	c.m.Lock()

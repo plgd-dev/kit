@@ -75,6 +75,36 @@ func TestParser(t *testing.T) {
 	assert.Equal(t, 2019, time.Unix(int64(c["auth_time"].(float64)), 0).Year())
 }
 
+func TestEmptyToken(t *testing.T) {
+	server := newTestJwks()
+	defer server.Close()
+
+	v := jwt.NewValidator(server.URL + uri)
+	_, err := v.Parse("")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "missing token")
+
+	var c jwt.Claims
+	err = v.ParseWithClaims("", &c)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "missing token")
+}
+
+func TestInvalidToken(t *testing.T) {
+	server := newTestJwks()
+	defer server.Close()
+
+	v := jwt.NewValidator(server.URL + uri)
+	_, err := v.Parse("invalid")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "could not parse token")
+
+	var c jwt.Claims
+	err = v.ParseWithClaims("invalid", &c)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "could not parse token")
+}
+
 func newTestJwks() *httptest.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc(uri, func(w http.ResponseWriter, r *http.Request) {
