@@ -1,6 +1,7 @@
 package generateCertificate
 
 import (
+	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"fmt"
@@ -26,8 +27,12 @@ type Configuration struct {
 		DNSNames    []string `long:"domain" description:"to set more values repeat option with parameter"`
 		IPAddresses []string `long:"ip" description:"to set more values repeat option with parameter"`
 	} `group:"Subject Alternative Name" namespace:"san"`
-	MaxPathLen         int           `long:"maxPathLen" default:"-1"  description:"int, -1 means unlimited"`
+	BasicConstraints struct {
+		Ignore     bool `long:"ignore"  description:"bool, don't set basic constraints"`
+		MaxPathLen int  `long:"maxPathLen" default:"-1"  description:"int, -1 means unlimited"`
+	} `group:"Basic Constraints" namespace:"basicConstraints"`
 	ValidFor           time.Duration `long:"validFor" default:"8760h" description:"duration, format in NUMh"`
+	KeyUsages          []string      `long:"ku" default:"digitalSignature" default:"keyAgreement" description:"to set more values repeat option with parameter"`
 	ExtensionKeyUsages []string      `long:"eku" default:"client" default:"server" description:"to set more values repeat option with parameter"`
 }
 
@@ -42,6 +47,74 @@ func (cfg Configuration) ToPkixName() pkix.Name {
 	}
 }
 
+func reverseBitsInAByte(in byte) byte {
+	b1 := in>>4 | in<<4
+	b2 := b1>>2&0x33 | b1<<2&0xcc
+	b3 := b2>>1&0x55 | b2<<1&0xaa
+	return b3
+}
+
+// asn1BitLength returns the bit-length of bitString by considering the
+// most-significant bit in a byte to be the "first" bit. This convention
+// matches ASN.1, but differs from almost everything else.
+func asn1BitLength(bitString []byte) int {
+	bitLen := len(bitString) * 8
+
+	for i := range bitString {
+		b := bitString[len(bitString)-i-1]
+
+		for bit := uint(0); bit < 8; bit++ {
+			if (b>>bit)&1 == 1 {
+				return bitLen
+			}
+			bitLen--
+		}
+	}
+
+	return 0
+}
+
+func (cfg Configuration) ToKeyUsages() (asn1.BitString, error) {
+	var ku x509.KeyUsage
+	for _, k := range cfg.KeyUsages {
+		switch k {
+		case "digitalSignature":
+			ku |= x509.KeyUsageDigitalSignature
+		case "contentCommitment":
+			ku |= x509.KeyUsageContentCommitment
+		case "keyEncipherment":
+			ku |= x509.KeyUsageKeyEncipherment
+		case "dataEncipherment":
+			ku |= x509.KeyUsageDataEncipherment
+		case "keyAgreement":
+			ku |= x509.KeyUsageKeyAgreement
+		case "certSign":
+			ku |= x509.KeyUsageCertSign
+		case "crlSign":
+			ku |= x509.KeyUsageCRLSign
+		case "encipherOnly":
+			ku |= x509.KeyUsageEncipherOnly
+		case "decipherOnly":
+			ku |= x509.KeyUsageDecipherOnly
+		case "":
+		default:
+			return asn1.BitString{}, fmt.Errorf("invalid key usage %v", k)
+		}
+	}
+
+	var a [2]byte
+	a[0] = reverseBitsInAByte(byte(ku))
+	a[1] = reverseBitsInAByte(byte(ku >> 8))
+
+	l := 1
+	if a[1] != 0 {
+		l = 2
+	}
+
+	bitString := a[:l]
+	return asn1.BitString{Bytes: bitString, BitLength: asn1BitLength(bitString)}, nil
+}
+
 func (cfg Configuration) ToExtensionKeyUsages() ([]asn1.ObjectIdentifier, error) {
 	var ekus []asn1.ObjectIdentifier
 	for _, e := range cfg.ExtensionKeyUsages {
@@ -50,6 +123,7 @@ func (cfg Configuration) ToExtensionKeyUsages() ([]asn1.ObjectIdentifier, error)
 			ekus = append(ekus, asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1})
 		case "client":
 			ekus = append(ekus, asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 2})
+		case "":
 		default:
 			var eku asn1.ObjectIdentifier
 			oidStr := strings.Split(e, ".")

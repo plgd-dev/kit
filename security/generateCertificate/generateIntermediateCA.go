@@ -30,11 +30,11 @@ func newCert(cfg Configuration) (*x509.Certificate, error) {
 		IsCA: true,
 	}
 
-	if cfg.MaxPathLen >= 0 {
-		if cfg.MaxPathLen == 0 {
+	if cfg.BasicConstraints.MaxPathLen >= 0 {
+		if cfg.BasicConstraints.MaxPathLen == 0 {
 			template.MaxPathLenZero = true
 		} else {
-			template.MaxPathLen = cfg.MaxPathLen
+			template.MaxPathLen = cfg.BasicConstraints.MaxPathLen
 		}
 	}
 	return &template, nil

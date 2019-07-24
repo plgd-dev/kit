@@ -17,55 +17,66 @@ func GenerateCSR(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, error
 	//create the csr
 	subj := cfg.ToPkixName()
 
-	extensionKeyUsages, err := cfg.ToExtensionKeyUsages()
-	if err != nil {
-		return nil, err
-	}
-
-	val, err := asn1.Marshal(extensionKeyUsages)
-	if err != nil {
-		return nil, err
-	}
-
-	bcVal, err := asn1.Marshal(basicConstraints{false})
-	if err != nil {
-		return nil, err
-	}
-
-	kuVal, err := asn1.Marshal(asn1.BitString{[]byte{1<<3 | 1<<7}, 7}) //x509.KeyUsageDigitalSignature | x509.KeyUsageKeyAgreement
-	if err != nil {
-		return nil, err
-	}
-
 	ips, err := cfg.ToIPAddresses()
 	if err != nil {
 		return nil, err
 	}
 
+	extraExtensions := make([]pkix.Extension, 0, 3)
+	if !cfg.BasicConstraints.Ignore {
+		bcVal, err := asn1.Marshal(basicConstraints{false})
+		if err != nil {
+			return nil, err
+		}
+		extraExtensions = append(extraExtensions, pkix.Extension{
+			Id:       asn1.ObjectIdentifier{2, 5, 29, 19}, //basic constraints
+			Value:    bcVal,
+			Critical: false,
+		})
+	}
+
+	keyUsages, err := cfg.ToKeyUsages()
+	if err != nil {
+		return nil, err
+	}
+	if keyUsages.BitLength > 0 {
+		val, err := asn1.Marshal(keyUsages)
+		if err != nil {
+			return nil, err
+		}
+		extraExtensions = append(extraExtensions, pkix.Extension{
+			Id:       asn1.ObjectIdentifier{2, 5, 29, 15}, //key usage
+			Value:    val,
+			Critical: false,
+		})
+	}
+
+	extensionKeyUsages, err := cfg.ToExtensionKeyUsages()
+	if err != nil {
+		return nil, err
+	}
+	if len(extensionKeyUsages) > 0 {
+		val, err := asn1.Marshal(extensionKeyUsages)
+		if err != nil {
+			return nil, err
+		}
+		extraExtensions = append(extraExtensions, pkix.Extension{
+			Id:       asn1.ObjectIdentifier{2, 5, 29, 37}, //EKU
+			Value:    val,
+			Critical: false,
+		})
+	}
+
 	rawSubj := subj.ToRDNSequence()
 	asn1Subj, _ := asn1.Marshal(rawSubj)
 	template := x509.CertificateRequest{
-		RawSubject:  asn1Subj,
-		DNSNames:    cfg.SubjectAlternativeName.DNSNames,
-		IPAddresses: ips,
-		ExtraExtensions: []pkix.Extension{
-			{
-				Id:       asn1.ObjectIdentifier{2, 5, 29, 19}, //basic constraints
-				Value:    bcVal,
-				Critical: false,
-			},
-			{
-				Id:       asn1.ObjectIdentifier{2, 5, 29, 15}, //key usage
-				Value:    kuVal,
-				Critical: false,
-			},
-			{
-				Id:       asn1.ObjectIdentifier{2, 5, 29, 37}, //EKU
-				Value:    val,
-				Critical: false,
-			},
-		},
+		RawSubject:         asn1Subj,
+		DNSNames:           cfg.SubjectAlternativeName.DNSNames,
+		IPAddresses:        ips,
 		SignatureAlgorithm: x509.ECDSAWithSHA256,
+	}
+	if len(extraExtensions) > 0 {
+		template.ExtraExtensions = extraExtensions
 	}
 
 	csrDER, err := x509.CreateCertificateRequest(rand.Reader, &template, privateKey)
