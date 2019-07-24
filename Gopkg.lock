@@ -2,20 +2,20 @@
 
 
 [[projects]]
-  digest = "1:6d8a3b164679872fa5a4c44559235f7fb109c7b5cd0f456a2159d579b76cc9ba"
+  digest = "1:b6526fa4c07838585a136c1a0d897daf598a20412cb3b933d340b8657b283101"
   name = "github.com/DataDog/zstd"
   packages = ["."]
   pruneopts = "UT"
-  revision = "809b919c325d7887bff7bd876162af73db53e878"
-  version = "v1.4.0"
+  revision = "2347a397da4ee9c6b8226d4aff82c302d0e52773"
+  version = "v1.4.1"
 
 [[projects]]
-  digest = "1:b449dbaada891dc97f016bc3519bb1af0e1a4296828f7a560a0ba47ea75f20bb"
+  digest = "1:eb44ca0314e275df1bf81bdc59fe1a122186d24f172be84077b40d34d93c6f56"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dde3ddda8b4b3a594690086725799ab1573bb895"
-  version = "v1.23.0"
+  revision = "46c83074a05474240f9620fb7c70fb0d80ca401a"
+  version = "v1.23.1"
 
 [[projects]]
   digest = "1:526d64d0a3ac6c24875724a9355895be56a21f89a5d3ab5ba88d91244269a7d8"
@@ -76,14 +76,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:54db90590501bc62881ae2d15f9ace4f0b4f9e119e357c1ddf4f8cbde7a4ff37"
+  digest = "1:08c56a9321e118147e6f8e1ef18bb6647f5aefa611dbd73f9849efac653e245e"
   name = "github.com/go-ocf/go-coap"
   packages = [
     ".",
     "net",
   ]
   pruneopts = "UT"
-  revision = "6cb733c1b04ba02c412af95088c8aefcfe696272"
+  revision = "4d60089651dfdc4b0f0ff5011c121c53535dfd5b"
 
 [[projects]]
   digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
@@ -398,7 +398,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0ef8e3551a664181c9e8b0c65e40ac43a2b59987369a68460fc951a923086133"
+  digest = "1:dec195265a3e73d5a840fa83e6fdbfaf12c35921ac4beb6eb41c0ee40b6f9ef0"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -416,7 +416,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
