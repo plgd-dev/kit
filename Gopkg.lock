@@ -34,6 +34,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   digest = "1:1f0c7ab489b407a7f8f9ad16c25a504d28ab461517a971d341388a56156c1bd7"
   name = "github.com/eapache/go-resiliency"
   packages = ["breaker"]
@@ -183,6 +191,19 @@
   version = "v1.2.1"
 
 [[projects]]
+  digest = "1:aea1c53d4757225e70d19ddd87e7843a25897b3c4f3901a2ab07e04586a5b76a"
+  name = "github.com/lestrrat-go/jwx"
+  packages = [
+    "internal/base64",
+    "internal/option",
+    "jwa",
+    "jwk",
+  ]
+  pruneopts = "UT"
+  revision = "5d60d87d07ddea9874404944870bec81aabcf574"
+  version = "v0.9.0"
+
+[[projects]]
   digest = "1:2ca73053216eb11c8eea2855c8099ad82773638522f91cc0542ec9759163ff3c"
   name = "github.com/nats-io/go-nats"
   packages = [
@@ -240,6 +261,14 @@
   pruneopts = "UT"
   revision = "0387f8acdeb20faf48e539e74906dd633851f3a8"
   version = "v0.2.2"
+
+[[projects]]
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -583,6 +612,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Shopify/sarama",
+    "github.com/dgrijalva/jwt-go",
     "github.com/go-ocf/cqrs",
     "github.com/go-ocf/cqrs/event",
     "github.com/go-ocf/cqrs/eventbus",
@@ -595,6 +625,7 @@
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
     "github.com/jessevdk/go-flags",
+    "github.com/lestrrat-go/jwx/jwk",
     "github.com/nats-io/go-nats",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
