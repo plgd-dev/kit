@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 
@@ -25,7 +26,10 @@ type Config struct {
 // NewServer instantiates the server and provides the register callback
 // for registering service's protobuf definition.
 func NewServer(cfg Config, register func(*grpc.Server)) (*Server, error) {
-	option := makeConnectionOption(cfg.TLSConfig)
+	option, err := makeConnectionOption(cfg.TLSConfig)
+	if err != nil {
+		return nil, fmt.Errorf("could not create server: %v", err)
+	}
 	srv, err := NewServerWithOptions(option)
 	if err != nil {
 		return nil, fmt.Errorf("could not create server: %v", err)
@@ -53,7 +57,7 @@ func (s *Server) Stop() {
 	s.server.Stop()
 }
 
-// NewServer creates grpc server. One of WithTLSConfig, WithInsecure must be set.
+// NewServerWithOptions creates grpc server. One of WithTLS, WithInsecure must be set.
 func NewServerWithOptions(opts ...ServerOption) (server *grpc.Server, err error) {
 	var cfg serverOptions
 	for _, o := range opts {
@@ -69,27 +73,21 @@ func NewServerWithOptions(opts ...ServerOption) (server *grpc.Server, err error)
 	if !cfg.secure {
 		return grpc.NewServer(), nil
 	}
-	serverCertVerifier, err := security.NewClientCertificateVerifier()
-	if err != nil {
-		return nil, fmt.Errorf("cannot create grpc connection: %v", err)
-	}
-	tlsConfig, err := security.SetTLSConfig(cfg.tlsConfig, serverCertVerifier)
-	if err != nil {
-		return nil, fmt.Errorf("cannot create grpc connection: %v", err)
-	}
-	return grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig))), nil
+
+	return grpc.NewServer(grpc.Creds(credentials.NewTLS(cfg.tlsConfig))), nil
 }
 
-func makeConnectionOption(tls security.TLSConfig) Option {
+func makeConnectionOption(tls security.TLSConfig) (Option, error) {
 	if security.IsInsecure() {
-		return WithInsecure()
+		return WithInsecure(), nil
 	} else {
-		return WithTLS(tls)
+		tlsConfig, err := security.NewTLSConfigFromConfiguration(tls, security.VerifyClientCertificate)
+		return WithTLS(tlsConfig), err
 	}
 }
 
 type serverOptions struct {
-	tlsConfig security.TLSConfig
+	tlsConfig *tls.Config
 	secure    bool
 	insecure  bool
 }
