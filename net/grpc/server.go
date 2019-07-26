@@ -1,7 +1,6 @@
 package grpc
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net"
 
@@ -12,7 +11,7 @@ import (
 
 // Server handles gRPC requests to the service.
 type Server struct {
-	server   *grpc.Server
+	*grpc.Server
 	listener net.Listener
 }
 
@@ -23,85 +22,38 @@ type Config struct {
 	TLSConfig security.TLSConfig
 }
 
-// NewServer instantiates the server and provides the register callback
-// for registering service's protobuf definition.
-func NewServer(cfg Config, register func(*grpc.Server)) (*Server, error) {
-	option, err := makeConnectionOption(cfg.TLSConfig)
-	if err != nil {
-		return nil, fmt.Errorf("could not create server: %v", err)
+// NewServer instantiates a gRPC server.
+func NewServer(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
+	if !security.IsInsecure() {
+		tls, err := tlsCreds(cfg.TLSConfig)
+		if err != nil {
+			return nil, fmt.Errorf("invalid TLS configuration: %v", err)
+		}
+		opt = append(opt, tls)
 	}
-	srv, err := NewServerWithOptions(option)
-	if err != nil {
-		return nil, fmt.Errorf("could not create server: %v", err)
-	}
-	register(srv)
 
 	lis, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
 		return nil, fmt.Errorf("listening failed: %v", err)
 	}
-	return &Server{server: srv, listener: lis}, nil
+
+	srv := grpc.NewServer(opt...)
+	return &Server{Server: srv, listener: lis}, nil
 }
 
 // Serve starts serving and blocks.
 func (s *Server) Serve() error {
-	err := s.server.Serve(s.listener)
+	err := s.Server.Serve(s.listener)
 	if err != nil {
 		return fmt.Errorf("serving failed: %v", err)
 	}
 	return nil
 }
 
-// Stop ends serving.
-func (s *Server) Stop() {
-	s.server.Stop()
-}
-
-// NewServerWithOptions creates grpc server. One of WithTLS, WithInsecure must be set.
-func NewServerWithOptions(opts ...ServerOption) (server *grpc.Server, err error) {
-	var cfg serverOptions
-	for _, o := range opts {
-		o.applyOnServer(&cfg)
+func tlsCreds(cfg security.TLSConfig) (grpc.ServerOption, error) {
+	tlsConfig, err := security.NewTLSConfigFromConfiguration(cfg, security.VerifyClientCertificate)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create grpc connection: %v", err)
 	}
-	if !cfg.secure && !cfg.insecure {
-		return nil, fmt.Errorf("cannot create grpc server: cannot use transport layer: not set - use WithTLSConfig or WithInsecure option")
-	}
-	if cfg.secure && cfg.insecure {
-		return nil, fmt.Errorf("cannot create grpc server: cannot use transport layer: both WithTLSConfig and WithInsecure are set")
-	}
-
-	if !cfg.secure {
-		return grpc.NewServer(), nil
-	}
-
-	return grpc.NewServer(grpc.Creds(credentials.NewTLS(cfg.tlsConfig))), nil
-}
-
-func makeConnectionOption(tls security.TLSConfig) (Option, error) {
-	if security.IsInsecure() {
-		return WithInsecure(), nil
-	} else {
-		tlsConfig, err := security.NewTLSConfigFromConfiguration(tls, security.VerifyClientCertificate)
-		return WithTLS(tlsConfig), err
-	}
-}
-
-type serverOptions struct {
-	tlsConfig *tls.Config
-	secure    bool
-	insecure  bool
-}
-
-// ServerOption configures how we set up the server.
-type ServerOption interface {
-	applyOnServer(*serverOptions)
-}
-
-func (o withTLSOption) applyOnServer(opts *serverOptions) {
-	opts.tlsConfig = o.tlsConfig
-	opts.secure = true
-}
-
-func (o withInsecureConfigOption) applyOnServer(opts *serverOptions) {
-	opts.insecure = true
+	return grpc.Creds(credentials.NewTLS(tlsConfig)), nil
 }
