@@ -23,14 +23,15 @@ func MakeJWTInterceptors(jwksUrl string, claims ClaimsFunc) AuthInterceptors {
 	return MakeAuthInterceptors(ValidateJWT(jwksUrl, claims))
 }
 
-func (f AuthInterceptors) UnaryServer() grpc.UnaryServerInterceptor {
-	return grpc_auth.UnaryServerInterceptor(f.authFunc)
+func (f AuthInterceptors) Unary() grpc.ServerOption {
+	return grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(f.authFunc))
 }
-func (f AuthInterceptors) StreamServer() grpc.StreamServerInterceptor {
-	return grpc_auth.StreamServerInterceptor(f.authFunc)
+func (f AuthInterceptors) Stream() grpc.ServerOption {
+	return grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(f.authFunc))
 }
 
-type ClaimsFunc = func(context.Context) jwt.Claims
+type ClaimsFunc = func(context.Context) Claims
+type Claims = interface{ Valid() error }
 
 func ValidateJWT(jwksUrl string, claims ClaimsFunc) grpc_auth.AuthFunc {
 	validator := jwt.NewValidator(jwksUrl)
