@@ -152,6 +152,18 @@
   version = "v1.7.3"
 
 [[projects]]
+  digest = "1:a93a4de7b00fb9cc952bc0483e9a32cd273adbbd7f3282bfe89656b2f88fb08c"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "auth",
+    "util/metautils",
+  ]
+  pruneopts = "UT"
+  revision = "c250d6563d4d4c20252cd865923440e829844f4e"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:f14364057165381ea296e49f8870a9ffce2b8a95e34d6ae06c759106aaef428c"
   name = "github.com/hashicorp/go-uuid"
   packages = ["."]
@@ -670,6 +682,7 @@
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
     "github.com/gorilla/mux",
+    "github.com/grpc-ecosystem/go-grpc-middleware/auth",
     "github.com/jessevdk/go-flags",
     "github.com/lestrrat-go/jwx/jwk",
     "github.com/nats-io/go-nats",

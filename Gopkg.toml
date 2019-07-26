@@ -50,6 +50,10 @@
   name = "github.com/lestrrat-go/jwx"
   version = "v0.9.0"
 
+[[constraint]]
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  version = "v1.0.0"
+
 [prune]
   go-tests = true
   unused-packages = true
