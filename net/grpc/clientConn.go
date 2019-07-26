@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"crypto/tls"
 	"fmt"
 
 	"github.com/go-ocf/kit/security"
@@ -11,7 +12,7 @@ import (
 )
 
 type clientConnOptions struct {
-	tlsConfig          security.TLSConfig
+	tlsConfig          *tls.Config
 	secure             bool
 	insecure           bool
 	insecureSkipVerify bool
@@ -29,7 +30,7 @@ type Option interface {
 }
 
 type withTLSOption struct {
-	tlsConfig security.TLSConfig
+	tlsConfig *tls.Config
 }
 
 func (o withTLSOption) applyOnClientConn(opts *clientConnOptions) {
@@ -38,20 +39,8 @@ func (o withTLSOption) applyOnClientConn(opts *clientConnOptions) {
 }
 
 // WithTLS creates connection with TLS.
-func WithTLS(tlsConfig security.TLSConfig) Option {
+func WithTLS(tlsConfig *tls.Config) Option {
 	return &withTLSOption{tlsConfig}
-}
-
-type withInsecureSkipVerify struct {
-}
-
-func (o withInsecureSkipVerify) applyOnClientConn(opts *clientConnOptions) {
-	opts.insecureSkipVerify = true
-}
-
-// WithInsecureSkipVerify without verifies peer
-func WithInsecureSkipVerify() ClientConnOption {
-	return &withInsecureSkipVerify{}
 }
 
 type withInsecureConfigOption struct {
@@ -80,16 +69,7 @@ func NewClientConnWithOptions(host string, opts ...ClientConnOption) (conn *grpc
 	}
 
 	if cfg.secure {
-		serverCertVerifier, err := security.NewServerCertificateVerifier()
-		if err != nil {
-			return nil, fmt.Errorf("cannot create grpc connection: %v", err)
-		}
-		tlsConfig, err := security.SetTLSConfig(cfg.tlsConfig, serverCertVerifier)
-		if err != nil {
-			return nil, fmt.Errorf("cannot create grpc connection: %v", err)
-		}
-		tlsConfig.InsecureSkipVerify = cfg.insecureSkipVerify
-		conn, err = grpc.Dial(host, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		conn, err = grpc.Dial(host, grpc.WithTransportCredentials(credentials.NewTLS(cfg.tlsConfig)))
 	} else {
 		conn, err = grpc.Dial(host, grpc.WithInsecure())
 	}
@@ -113,7 +93,11 @@ func NewClientConn(host string, tls *security.TLSConfig) (*grpc.ClientConn, erro
 	if security.IsInsecure() {
 		opt = WithInsecure()
 	} else {
-		opt = WithTLS(*tls)
+		tlsCfg, err := security.NewTLSConfigFromConfiguration(*tls, security.VerifyServerCertificate)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid TLS config: %v", err)
+		}
+		opt = WithTLS(tlsCfg)
 	}
 
 	conn, err := NewClientConnWithOptions(host, opt)
