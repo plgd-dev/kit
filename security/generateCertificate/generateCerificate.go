@@ -35,7 +35,7 @@ func GenerateCSR(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, error
 		})
 	}
 
-	keyUsages, err := cfg.ToKeyUsages()
+	keyUsages, err := cfg.AsnKeyUsages()
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func GenerateCSR(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, error
 		})
 	}
 
-	extensionKeyUsages, err := cfg.ToExtensionKeyUsages()
+	extensionKeyUsages, err := cfg.AsnExtensionKeyUsages()
 	if err != nil {
 		return nil, err
 	}
