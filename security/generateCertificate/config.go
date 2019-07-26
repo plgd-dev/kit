@@ -74,7 +74,7 @@ func asn1BitLength(bitString []byte) int {
 	return 0
 }
 
-func (cfg Configuration) ToKeyUsages() (asn1.BitString, error) {
+func (cfg Configuration) X509KeyUsages() (x509.KeyUsage, error) {
 	var ku x509.KeyUsage
 	for _, k := range cfg.KeyUsages {
 		switch k {
@@ -98,8 +98,16 @@ func (cfg Configuration) ToKeyUsages() (asn1.BitString, error) {
 			ku |= x509.KeyUsageDecipherOnly
 		case "":
 		default:
-			return asn1.BitString{}, fmt.Errorf("invalid key usage %v", k)
+			return 0, fmt.Errorf("invalid key usage %v", k)
 		}
+	}
+	return ku, nil
+}
+
+func (cfg Configuration) AsnKeyUsages() (asn1.BitString, error) {
+	ku, err := cfg.X509KeyUsages()
+	if err != nil {
+		return asn1.BitString{}, err
 	}
 
 	var a [2]byte
@@ -115,14 +123,15 @@ func (cfg Configuration) ToKeyUsages() (asn1.BitString, error) {
 	return asn1.BitString{Bytes: bitString, BitLength: asn1BitLength(bitString)}, nil
 }
 
-func (cfg Configuration) ToExtensionKeyUsages() ([]asn1.ObjectIdentifier, error) {
-	var ekus []asn1.ObjectIdentifier
+func (cfg Configuration) X509ExtKeyUsages() ([]x509.ExtKeyUsage, []asn1.ObjectIdentifier, error) {
+	unknownEkus := make([]asn1.ObjectIdentifier, 0, 4)
+	ekus := make([]x509.ExtKeyUsage, 0, 4)
 	for _, e := range cfg.ExtensionKeyUsages {
 		switch e {
 		case "server":
-			ekus = append(ekus, asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1})
+			ekus = append(ekus, x509.ExtKeyUsageServerAuth)
 		case "client":
-			ekus = append(ekus, asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 2})
+			ekus = append(ekus, x509.ExtKeyUsageClientAuth)
 		case "":
 		default:
 			var eku asn1.ObjectIdentifier
@@ -130,16 +139,86 @@ func (cfg Configuration) ToExtensionKeyUsages() ([]asn1.ObjectIdentifier, error)
 			for _, v := range oidStr {
 				i, err := strconv.Atoi(v)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				eku = append(eku, i)
 			}
 			if len(eku) > 0 {
-				ekus = append(ekus, eku)
+				unknownEkus = append(unknownEkus, eku)
 			}
 		}
 	}
-	return ekus, nil
+	if len(ekus) == 0 {
+		ekus = nil
+	}
+	if len(unknownEkus) == 0 {
+		unknownEkus = nil
+	}
+	return ekus, unknownEkus, nil
+}
+
+var (
+	oidExtKeyUsageAny                            = asn1.ObjectIdentifier{2, 5, 29, 37, 0}
+	oidExtKeyUsageServerAuth                     = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}
+	oidExtKeyUsageClientAuth                     = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 2}
+	oidExtKeyUsageCodeSigning                    = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 3}
+	oidExtKeyUsageEmailProtection                = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 4}
+	oidExtKeyUsageIPSECEndSystem                 = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 5}
+	oidExtKeyUsageIPSECTunnel                    = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 6}
+	oidExtKeyUsageIPSECUser                      = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 7}
+	oidExtKeyUsageTimeStamping                   = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 8}
+	oidExtKeyUsageOCSPSigning                    = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 9}
+	oidExtKeyUsageMicrosoftServerGatedCrypto     = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 10, 3, 3}
+	oidExtKeyUsageNetscapeServerGatedCrypto      = asn1.ObjectIdentifier{2, 16, 840, 1, 113730, 4, 1}
+	oidExtKeyUsageMicrosoftCommercialCodeSigning = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 2, 1, 22}
+	oidExtKeyUsageMicrosoftKernelCodeSigning     = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 311, 61, 1, 1}
+)
+
+// extKeyUsageOIDs contains the mapping between an ExtKeyUsage and its OID.
+var extKeyUsageOIDs = []struct {
+	extKeyUsage x509.ExtKeyUsage
+	oid         asn1.ObjectIdentifier
+}{
+	{x509.ExtKeyUsageAny, oidExtKeyUsageAny},
+	{x509.ExtKeyUsageServerAuth, oidExtKeyUsageServerAuth},
+	{x509.ExtKeyUsageClientAuth, oidExtKeyUsageClientAuth},
+	{x509.ExtKeyUsageCodeSigning, oidExtKeyUsageCodeSigning},
+	{x509.ExtKeyUsageEmailProtection, oidExtKeyUsageEmailProtection},
+	{x509.ExtKeyUsageIPSECEndSystem, oidExtKeyUsageIPSECEndSystem},
+	{x509.ExtKeyUsageIPSECTunnel, oidExtKeyUsageIPSECTunnel},
+	{x509.ExtKeyUsageIPSECUser, oidExtKeyUsageIPSECUser},
+	{x509.ExtKeyUsageTimeStamping, oidExtKeyUsageTimeStamping},
+	{x509.ExtKeyUsageOCSPSigning, oidExtKeyUsageOCSPSigning},
+	{x509.ExtKeyUsageMicrosoftServerGatedCrypto, oidExtKeyUsageMicrosoftServerGatedCrypto},
+	{x509.ExtKeyUsageNetscapeServerGatedCrypto, oidExtKeyUsageNetscapeServerGatedCrypto},
+	{x509.ExtKeyUsageMicrosoftCommercialCodeSigning, oidExtKeyUsageMicrosoftCommercialCodeSigning},
+	{x509.ExtKeyUsageMicrosoftKernelCodeSigning, oidExtKeyUsageMicrosoftKernelCodeSigning},
+}
+
+func OidFromExtKeyUsage(eku x509.ExtKeyUsage) (oid asn1.ObjectIdentifier, ok bool) {
+	for _, pair := range extKeyUsageOIDs {
+		if eku == pair.extKeyUsage {
+			return pair.oid, true
+		}
+	}
+	return
+}
+
+func (cfg Configuration) AsnExtensionKeyUsages() ([]asn1.ObjectIdentifier, error) {
+	ekus, unknownEkus, err := cfg.X509ExtKeyUsages()
+	if err != nil {
+		return nil, err
+	}
+	res := make([]asn1.ObjectIdentifier, 0, len(ekus)+len(unknownEkus))
+	for _, e := range ekus {
+		v, ok := OidFromExtKeyUsage(e)
+		if !ok {
+			return nil, fmt.Errorf("cannot convert x509.KeyUsage %v to oid: oid representation not found", e)
+		}
+		res = append(res, v)
+	}
+	res = append(res, unknownEkus...)
+	return res, nil
 }
 
 func (cfg Configuration) ToIPAddresses() ([]net.IP, error) {

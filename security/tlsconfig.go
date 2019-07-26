@@ -1,12 +1,17 @@
 package security
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"time"
+
+	"github.com/go-ocf/kit/security/generateCertificate"
 )
 
 // Generates `func IsInsecure() bool`
@@ -48,6 +53,39 @@ func NewTLSConfigFromConfiguration(config TLSConfig, certificateVerifier VerifyP
 		caRootPool = append(caRootPool, caCert...)
 	}
 	return NewTLSConfig(cert, caRootPool, certificateVerifier), nil
+}
+
+func generateClientSelfSignedCertificate(validFor time.Duration) (tls.Certificate, error) {
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+	var cfg generateCertificate.Configuration
+	cfg.Subject.CommonName = "client self-signed certificate"
+	cfg.KeyUsages = []string{"digitalSignature, keyAgreement"}
+	cfg.ExtensionKeyUsages = []string{"client"}
+	cfg.ValidFor = validFor
+	cert, err := generateCertificate.GenerateSelfSignedCertificate(cfg, priv)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	privKey, err := x509.MarshalECPrivateKey(priv)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	privKeyPEM := pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privKey})
+
+	return tls.X509KeyPair(cert, privKeyPEM)
+}
+
+func NewTLSConfigWithClientSelfSignedCertificate(validFor time.Duration, cas []*x509.Certificate, verifyPeerCertificate VerifyPeerCertificateFunc) (*tls.Config, error) {
+	cert, err := generateClientSelfSignedCertificate(validFor)
+	if err != nil {
+		return nil, err
+	}
+	return NewTLSConfig(cert, cas, verifyPeerCertificate), nil
 }
 
 func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate VerifyPeerCertificateFunc) *tls.Config {
