@@ -144,6 +144,14 @@
   revision = "2a8bb927dd31d8daada140a5d09578521ce5c36a"
 
 [[projects]]
+  digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "00bdffe0f3c77e27d2cf6f5c70232a2d3e4d9c15"
+  version = "v1.7.3"
+
+[[projects]]
   digest = "1:f14364057165381ea296e49f8870a9ffce2b8a95e34d6ae06c759106aaef428c"
   name = "github.com/hashicorp/go-uuid"
   packages = ["."]
@@ -232,6 +240,14 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
+  name = "github.com/patrickmn/go-cache"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
+
+[[projects]]
   digest = "1:f690a0a27cefae695fa9587aa3ed23652e593be1d98b35f8184d10bccec30444"
   name = "github.com/pierrec/lz4"
   packages = [
@@ -243,7 +259,7 @@
   version = "v2.2.4"
 
 [[projects]]
-  digest = "1:00ba9fb5c14095829a3c738c8998b2e3d6019002291e41443ecb775f191e8ba2"
+  digest = "1:67a2ee7fd6b0baa4f10f48bcc9db2bfabf0d564e61c434b999d8034de0c748ae"
   name = "github.com/pion/dtls"
   packages = [
     ".",
@@ -251,8 +267,8 @@
     "internal/udp",
   ]
   pruneopts = "UT"
-  revision = "bcc3927a53a8f925a2d30ee83cb319270a7bd667"
-  version = "v1.4.0"
+  revision = "7388ccad5a5f2e77a7ff8a7731fc7954b001adc0"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:92d9305a35d7130172f46e095505cc56af49d073907ae52088c15e8c8ae3f519"
@@ -427,10 +443,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:dec195265a3e73d5a840fa83e6fdbfaf12c35921ac4beb6eb41c0ee40b6f9ef0"
+  digest = "1:0c8a6a947380d77f0079c9a54d336a49ba197b70c385beb97be25b720c4d4e67"
   name = "golang.org/x/net"
   packages = [
     "bpf",
+    "context",
+    "context/ctxhttp",
     "http/httpguts",
     "http2",
     "http2/hpack",
@@ -449,6 +467,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:8d1c112fb1679fa097e9a9255a786ee47383fa2549a3da71bcb1334a693ebcfe"
+  name = "golang.org/x/oauth2"
+  packages = [
+    ".",
+    "internal",
+  ]
+  pruneopts = "UT"
+  revision = "0f29369cfe4552d0e4bcddc57cc75f4d7e672a33"
+
+[[projects]]
+  branch = "master"
   digest = "1:382bb5a7fb4034db3b6a2d19e5a4a6bcf52f4750530603c01ca18a172fa3089b"
   name = "golang.org/x/sync"
   packages = ["semaphore"]
@@ -457,14 +486,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:31d44814b45607afa77c6e8ef20ea8bacc1d1053fe084440c874f311732e7ec3"
+  digest = "1:f99b0e9035cf86cdc14cb2848308e831193d5e19ab9a23a8493cd925bdc3952b"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "fae7ac547cb717d141c433a2a173315e216b64c4"
+  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -492,6 +521,22 @@
   version = "v0.3.2"
 
 [[projects]]
+  digest = "1:6eb6e3b6d9fffb62958cf7f7d88dbbe1dd6839436b0802e194c590667a40412a"
+  name = "google.golang.org/appengine"
+  packages = [
+    "internal",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/remote_api",
+    "internal/urlfetch",
+    "urlfetch",
+  ]
+  pruneopts = "UT"
+  revision = "b2f4a3cf3c67576a2ee09e1fe62656a5086ce880"
+  version = "v1.6.1"
+
+[[projects]]
   branch = "master"
   digest = "1:583a0c80f5e3a9343d33aea4aead1e1afcc0043db66fdf961ddd1fe8cd3a4faf"
   name = "google.golang.org/genproto"
@@ -500,7 +545,7 @@
   revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
-  digest = "1:cf01ae0753310464677058b125fa31e74fd943781782ada503180ad784fc83d3"
+  digest = "1:581c9b0fe9354faf730ff231cf3682089e0b703073cf10e3976219609d27a9ea"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -538,8 +583,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
-  version = "v1.22.0"
+  revision = "045159ad57f3781d409358e3ade910a018c16b30"
+  version = "v1.22.1"
 
 [[projects]]
   digest = "1:c902038ee2d6f964d3b9f2c718126571410c5d81251cbab9fe58abd37803513c"
@@ -624,9 +669,11 @@
     "github.com/gofrs/uuid",
     "github.com/gogo/protobuf/proto",
     "github.com/golang/snappy",
+    "github.com/gorilla/mux",
     "github.com/jessevdk/go-flags",
     "github.com/lestrrat-go/jwx/jwk",
     "github.com/nats-io/go-nats",
+    "github.com/patrickmn/go-cache",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "github.com/ugorji/go/codec",
@@ -637,6 +684,7 @@
     "go.mongodb.org/mongo-driver/mongo/options",
     "go.mongodb.org/mongo-driver/mongo/readpref",
     "go.uber.org/zap",
+    "golang.org/x/oauth2",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",
