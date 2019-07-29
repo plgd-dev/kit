@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 
@@ -30,6 +31,25 @@ func NewServer(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
 			return nil, fmt.Errorf("invalid TLS configuration: %v", err)
 		}
 		opt = append(opt, tls)
+	}
+
+	lis, err := net.Listen("tcp", cfg.Addr)
+	if err != nil {
+		return nil, fmt.Errorf("listening failed: %v", err)
+	}
+
+	srv := grpc.NewServer(opt...)
+	return &Server{Server: srv, listener: lis}, nil
+}
+
+// NewServerWithoutPeerVerification instantiates a gRPC server without peer verification.
+func NewServerWithoutPeerVerification(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
+	if !security.IsInsecure() {
+		cert, err := tls.LoadX509KeyPair(cfg.TLSConfig.Certificate, cfg.TLSConfig.CertificateKey)
+		if err != nil {
+			return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %v", cfg.TLSConfig.Certificate, cfg.TLSConfig.CertificateKey, err)
+		}
+		opt = append(opt, grpc.Creds(credentials.NewTLS(security.NewTLSConfigWithoutPeerVerification(cert))))
 	}
 
 	lis, err := net.Listen("tcp", cfg.Addr)

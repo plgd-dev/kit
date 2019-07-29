@@ -37,7 +37,7 @@ func NewTLSConfigFromConfiguration(config TLSConfig, certificateVerifier VerifyP
 	var caRootPool []*x509.Certificate
 	certPEMBlock, err := ioutil.ReadFile(config.CAPool)
 	if err != nil {
-		return nil, nil
+		return nil, fmt.Errorf("cannot load ca '%v': %v", config.CAPool, err)
 	}
 	rest := certPEMBlock
 	var block *pem.Block
@@ -88,6 +88,15 @@ func NewTLSConfigWithClientSelfSignedCertificate(validFor time.Duration, cas []*
 	return NewTLSConfig(cert, cas, verifyPeerCertificate), nil
 }
 
+// NewTLSConfigWithoutPeerVerification creates tls.Config without verify client certificate.
+func NewTLSConfigWithoutPeerVerification(cert tls.Certificate) *tls.Config {
+	return &tls.Config{
+		ClientAuth:   tls.NoClientCert,
+		Certificates: []tls.Certificate{cert},
+	}
+}
+
+// NewTLSConfig creates tls.Config with veryfication of client certificate.
 func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate VerifyPeerCertificateFunc) *tls.Config {
 	caPool := x509.NewCertPool()
 	for _, ca := range cas {
