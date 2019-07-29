@@ -157,6 +157,7 @@ func (cfg Configuration) X509ExtKeyUsages() ([]x509.ExtKeyUsage, []asn1.ObjectId
 	return ekus, unknownEkus, nil
 }
 
+// copied from https://golang.org/src/crypto/x509/x509.go
 var (
 	oidExtKeyUsageAny                            = asn1.ObjectIdentifier{2, 5, 29, 37, 0}
 	oidExtKeyUsageServerAuth                     = asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}

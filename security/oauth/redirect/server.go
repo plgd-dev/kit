@@ -96,7 +96,7 @@ func NewServer(uri, redirectToResultURI string, waitTime time.Duration, errors f
 	if err != nil {
 		return nil, err
 	}
-	cache := cache.New(waitTime, cache.DefaultExpiration)
+	cache := cache.New(waitTime, waitTime)
 	h := &Handler{
 		cache:               cache,
 		errors:              errors,
