@@ -2,11 +2,14 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 
 	"github.com/go-ocf/kit/security/jwt"
 )
@@ -46,4 +49,9 @@ func ValidateJWT(jwksUrl string, claims ClaimsFunc) grpc_auth.AuthFunc {
 		}
 		return ctx, nil
 	}
+}
+
+func CtxWithToken(ctx context.Context, token string) context.Context {
+	md := metadata.Pairs("authorization", fmt.Sprintf("%s %s", "bearer", token))
+	return metautils.NiceMD(md).ToOutgoing(ctx)
 }
