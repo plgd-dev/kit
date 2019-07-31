@@ -10,7 +10,7 @@ var log *zap.SugaredLogger
 
 // Config configuration for setup logging.
 type Config struct {
-	Debug bool `envconfig:"LOG_DEBUG" default:"false"`
+	Debug bool `long:"debug" env:"LOG_DEBUG" envconfig:"LOG_DEBUG" description:"enable debug logs"`
 }
 
 func init() {
