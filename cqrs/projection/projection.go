@@ -93,6 +93,7 @@ func (p *Projection) Unregister(registrationId string) error {
 			log.Errorf("cannot change topics for projection: %v", err)
 		}
 	}
-
-	return nil
+	return p.cqrsProjection.Forget([]eventstore.SnapshotQuery{
+		{GroupId: registrationId},
+	})
 }
