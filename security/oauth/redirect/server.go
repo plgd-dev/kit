@@ -24,8 +24,7 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 // OnRedirectFunc called when handler serve redirect request.
-// data can be code or token depends on what you set in GetAuthCodeURL.
-type OnRedirectFunc func(ctx context.Context, data string) (nextRedirectURI string, err error)
+type OnRedirectFunc func(ctx context.Context, data string) (err error)
 
 type Handler struct {
 	cache               *cache.Cache
@@ -33,10 +32,11 @@ type Handler struct {
 	errors              func(error)
 }
 
-func (h *Handler) RedirectResult(w http.ResponseWriter, r *http.Request, errRes error) {
-	u, err := url.Parse(h.redirectToResultURI)
+func (h *Handler) RedirectResult(w http.ResponseWriter, r *http.Request, redirectURI string, errRes error) {
+	u, err := url.Parse(redirectURI)
 	if err != nil {
 		h.errors(fmt.Errorf("cannot redirect result: %v", err))
+		return
 	}
 	q := u.Query()
 	if err != nil {
@@ -50,27 +50,31 @@ func (h *Handler) RedirectResult(w http.ResponseWriter, r *http.Request, errRes 
 	http.Redirect(w, r, u.String(), http.StatusTemporaryRedirect)
 }
 
+type redirect struct {
+	finalRedirectURL string
+	onRedirect       OnRedirectFunc
+}
+
 func (h *Handler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	state := r.FormValue("state")
-	onRedirect, ok := h.cache.Get(state)
+	c, ok := h.cache.Get(state)
 
 	if !ok {
-		h.RedirectResult(w, r, fmt.Errorf("cannot handle  OAuthCallback for %v: not found", state))
+		h.errors(fmt.Errorf("cannot handle  OAuthCallback for %v: not found", state))
+		w.WriteHeader(http.StatusRequestTimeout)
 		return
 	}
 	h.cache.Delete(state)
+	redirect := c.(redirect)
 
-	nextRedirectURI, err := onRedirect.(OnRedirectFunc)(r.Context(), code)
-	if err != nil {
-		h.RedirectResult(w, r, err)
+	err := redirect.onRedirect(r.Context(), code)
+	if redirect.finalRedirectURL != "" {
+		h.RedirectResult(w, r, redirect.finalRedirectURL, err)
 		return
 	}
-	if nextRedirectURI != "" {
-		http.Redirect(w, r, nextRedirectURI, http.StatusTemporaryRedirect)
-		return
-	}
-	h.RedirectResult(w, r, err)
+	h.errors(err)
+	w.WriteHeader(http.StatusBadRequest)
 }
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +88,7 @@ type Server struct {
 	errors     func(error)
 }
 
-func NewServer(uri, redirectToResultURI string, waitTime time.Duration, errors func(error)) (*Server, error) {
+func NewServer(uri string, waitTime time.Duration, errors func(error)) (*Server, error) {
 	if errors == nil {
 		return nil, fmt.Errorf("invalid errors argument")
 	}
@@ -98,9 +102,8 @@ func NewServer(uri, redirectToResultURI string, waitTime time.Duration, errors f
 	}
 	cache := cache.New(waitTime, waitTime)
 	h := &Handler{
-		cache:               cache,
-		errors:              errors,
-		redirectToResultURI: redirectToResultURI,
+		cache:  cache,
+		errors: errors,
 	}
 
 	r := router.NewRouter()
@@ -134,12 +137,19 @@ func (s *Server) Close() error {
 }
 
 func (s *Server) GetAuthCodeURL(onRedirect OnRedirectFunc, cfg oauth2.Config, options ...oauth2.AuthCodeOption) (authCodeURL string, err error) {
-	cfg.RedirectURL = s.uri
+
 	state, err := uuid.NewV4()
 	if err != nil {
 		return "", err
 	}
-	s.cache.Add(state.String(), onRedirect, cache.DefaultExpiration)
+
+	v := redirect{
+		finalRedirectURL: cfg.RedirectURL,
+		onRedirect:       onRedirect,
+	}
+	cfg.RedirectURL = s.uri
+
+	s.cache.Add(state.String(), v, cache.DefaultExpiration)
 	url := cfg.AuthCodeURL(state.String(), options...)
 	return url, nil
 }

@@ -72,16 +72,16 @@ func TestServer_GetAuthCodeURL(t *testing.T) {
 						TokenURL: oauthServer.URL + "/token",
 					},
 				},
-				onRedirect: func(ctx context.Context, token string) (string, error) {
+				onRedirect: func(ctx context.Context, token string) error {
 					fmt.Println("on redirect")
 					require.Equal(t, "code", token)
-					return "", nil
+					return nil
 				},
 			},
 		},
 	}
 
-	s, err := NewServer("http://localhost:48694/authcbk", oauthServer.URL+"/", time.Second*1, func(err error) {
+	s, err := NewServer("http://localhost:48694/authcbk", time.Second*1, func(err error) {
 		t.Log(err)
 		//require.NoError(t, err)
 	})
