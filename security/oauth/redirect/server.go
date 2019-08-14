@@ -136,11 +136,10 @@ func (s *Server) Close() error {
 	return s.httpServer.Close()
 }
 
-func (s *Server) GetAuthCodeURL(onRedirect OnRedirectFunc, cfg oauth2.Config, options ...oauth2.AuthCodeOption) (authCodeURL string, err error) {
-
+func (s *Server) GetAuthCodeURL(onRedirect OnRedirectFunc, cfg oauth2.Config, options ...oauth2.AuthCodeOption) (authID, authCodeURL string, err error) {
 	state, err := uuid.NewV4()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	v := redirect{
@@ -151,5 +150,9 @@ func (s *Server) GetAuthCodeURL(onRedirect OnRedirectFunc, cfg oauth2.Config, op
 
 	s.cache.Add(state.String(), v, cache.DefaultExpiration)
 	url := cfg.AuthCodeURL(state.String(), options...)
-	return url, nil
+	return state.String(), url, nil
+}
+
+func (s *Server) Remove(authID string) {
+	s.cache.Delete(authID)
 }

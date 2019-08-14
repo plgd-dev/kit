@@ -93,7 +93,7 @@ func TestServer_GetAuthCodeURL(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotAuthCodeURL, err := s.GetAuthCodeURL(tt.args.onRedirect, tt.args.cfg, tt.args.options...)
+			_, gotAuthCodeURL, err := s.GetAuthCodeURL(tt.args.onRedirect, tt.args.cfg, tt.args.options...)
 			if tt.wantErr {
 				require.Error(t, err)
 				return
