@@ -39,7 +39,7 @@ func (h *Handler) RedirectResult(w http.ResponseWriter, r *http.Request, redirec
 		return
 	}
 	q := u.Query()
-	if err != nil {
+	if errRes != nil {
 		h.errors(errRes)
 		q.Set("success", "false")
 		q.Set("error", errRes.Error())
