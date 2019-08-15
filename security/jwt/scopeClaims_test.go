@@ -27,7 +27,7 @@ func TestExpiredScope(t *testing.T) {
 	require.Contains(t, err.Error(), "token is expired")
 }
 
-func testScopeClaims(scope string) ScopeClaims {
+func testScopeClaims(scope string) *ScopeClaims {
 	c := NewScopeClaims(scope)
 	c.Claims = Claims{
 		ClientID: "testClientID",

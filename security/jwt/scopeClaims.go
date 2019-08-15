@@ -11,14 +11,14 @@ type ScopeClaims struct {
 	requiredScope string
 }
 
-func NewScopeClaims(scope string) ScopeClaims {
+func NewScopeClaims(scope string) *ScopeClaims {
 	if scope == "" {
 		panic("missing scope")
 	}
-	return ScopeClaims{requiredScope: scope}
+	return &ScopeClaims{requiredScope: scope}
 }
 
-func (c ScopeClaims) Valid() error {
+func (c *ScopeClaims) Valid() error {
 	if err := c.Claims.Valid(); err != nil {
 		return err
 	}
