@@ -52,7 +52,7 @@ type Config struct {
 	Host            string        `envconfig:"MONGO_HOST" default:"localhost:27017"`
 	DatabaseName    string        `envconfig:"MONGO_DATABASE" default:"eventStore"`
 	BatchSize       int           `envconfig:"MONGO_BATCH_SIZE" default:"16"`
-	MaxPoolSize     uint16        `envconfig:"MONGO_MAX_POOL_SIZE" default:"16"`
+	MaxPoolSize     uint64        `envconfig:"MONGO_MAX_POOL_SIZE" default:"16"`
 	MaxConnIdleTime time.Duration `envconfig:"MONGO_MAX_CONN_IDLE_TIME" default:"240s"`
 }
 
