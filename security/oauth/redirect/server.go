@@ -73,8 +73,10 @@ func (h *Handler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
 		h.RedirectResult(w, r, redirect.finalRedirectURL, err)
 		return
 	}
-	h.errors(err)
-	w.WriteHeader(http.StatusBadRequest)
+	if err != nil {
+		h.errors(err)
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {
