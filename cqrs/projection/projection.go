@@ -59,11 +59,6 @@ func (p *Projection) Register(ctx context.Context, registrationId string, query 
 		return false, nil
 	}
 
-	err = p.cqrsProjection.Project(ctx, query)
-	if err != nil {
-		return false, fmt.Errorf("cannot register device: %v", err)
-	}
-
 	topics, updateSubscriber := p.topicManager.Add(registrationId)
 
 	if updateSubscriber {
@@ -73,6 +68,12 @@ func (p *Projection) Register(ctx context.Context, registrationId string, query 
 			return false, fmt.Errorf("cannot register device: %v", err)
 		}
 	}
+
+	err = p.cqrsProjection.Project(ctx, query)
+	if err != nil {
+		return false, fmt.Errorf("cannot register device: %v", err)
+	}
+
 	return true, nil
 }
 
