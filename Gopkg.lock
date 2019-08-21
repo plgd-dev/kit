@@ -67,7 +67,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:47373ede16ae324cc9cc63976e8f177434e9ee0f796e4d5da007693273dbc2be"
+  digest = "1:1bdfa2480a6e3c2f50d51ba693776b127f267caa3a000e3a10e7b97c92ab6632"
   name = "github.com/go-ocf/cqrs"
   packages = [
     ".",
@@ -80,18 +80,18 @@
     "protobuf/eventbus",
   ]
   pruneopts = "UT"
-  revision = "7a358a5965098a5e9487ea38ffb09f0437588704"
+  revision = "3c501311326cc4549fceb9c5af6dd97344dc89ea"
 
 [[projects]]
   branch = "master"
-  digest = "1:08c56a9321e118147e6f8e1ef18bb6647f5aefa611dbd73f9849efac653e245e"
+  digest = "1:36d071955b334eb8d4dfe6d658b1164b109aacff99898378fb8a44aba950f34c"
   name = "github.com/go-ocf/go-coap"
   packages = [
     ".",
     "net",
   ]
   pruneopts = "UT"
-  revision = "4d60089651dfdc4b0f0ff5011c121c53535dfd5b"
+  revision = "a16a7adc8f4388efca82a8171a210253fa9a56b3"
 
 [[projects]]
   digest = "1:586ea76dbd0374d6fb649a91d70d652b7fe0ccffb8910a77468e7702e7901f3d"
@@ -191,7 +191,7 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:823dc0f8e4cdad8d91e6aba4cdd985a035596a8aa02e9d2abf1bec347894c41f"
+  digest = "1:836838f1466d370fc7678c927e5b7473f38ba12c2e571f8eca957bd0a102c2db"
   name = "github.com/klauspost/compress"
   packages = [
     "flate",
@@ -199,8 +199,8 @@
     "zlib",
   ]
   pruneopts = "UT"
-  revision = "23256797d1e4ccac36fad828362cdfef5b3aeb90"
-  version = "v1.7.4"
+  revision = "4030f0cdb60476e7065ab476972fcfd43670cd86"
+  version = "v1.7.6"
 
 [[projects]]
   digest = "1:923c4d7194b42e054b2eb8a6c62824ac55e23ececc1c7e48d4da69c971c55954"
@@ -260,18 +260,18 @@
   version = "v2.1.0"
 
 [[projects]]
-  digest = "1:f690a0a27cefae695fa9587aa3ed23652e593be1d98b35f8184d10bccec30444"
+  digest = "1:b5e6db1f0095a7427712ba7f5890d6c0cb6b61d6f9d76bc5a4e3d2344461e652"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = "UT"
-  revision = "057d66e894a4e55853274a3bbbf7de02ba639e43"
-  version = "v2.2.4"
+  revision = "8ef35db8296124c4969aab929c16c91c3cb2c8a0"
+  version = "v2.2.6"
 
 [[projects]]
-  digest = "1:67a2ee7fd6b0baa4f10f48bcc9db2bfabf0d564e61c434b999d8034de0c748ae"
+  digest = "1:f2e48504ac446aae46160fbcab65053eb4edaba0890cca991b73c68b171e216c"
   name = "github.com/pion/dtls"
   packages = [
     ".",
@@ -279,8 +279,8 @@
     "internal/udp",
   ]
   pruneopts = "UT"
-  revision = "7388ccad5a5f2e77a7ff8a7731fc7954b001adc0"
-  version = "v1.5.0"
+  revision = "91d652d3f91d6c08c193e4d297067f8f653775f9"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:92d9305a35d7130172f46e095505cc56af49d073907ae52088c15e8c8ae3f519"
@@ -315,15 +315,15 @@
   revision = "9beb055b7962d16947a14e1cd718098a2431e20e"
 
 [[projects]]
-  digest = "1:5da8ce674952566deae4dbc23d07c85caafc6cfa815b0b3e03e41979cedb8750"
+  digest = "1:99d32780e5238c2621fff621123997c3e3cca96db8be13179013aea77dfab551"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "UT"
-  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
-  version = "v1.3.0"
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:5a1cf4e370bc86137b58da2ae065e76526d32b11f62a7665f36dbd5f41fa95ff"
@@ -343,7 +343,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:14263f971ab2057d9d8e0e47a5c9af0ae482c4d2530c47f86e8a247046d5df8e"
+  digest = "1:9ac1027203be1e5f4bc35bc822f0938d07716f8c83ba5ffd3a331682335ab24b"
   name = "github.com/valyala/fasthttp"
   packages = [
     ".",
@@ -351,7 +351,7 @@
     "stackless",
   ]
   pruneopts = "UT"
-  revision = "55ea350c55431331ff77defe5f450331577f64dd"
+  revision = "c5413ffda8a3203d573900b871da46234fcf9466"
 
 [[projects]]
   branch = "master"
@@ -370,7 +370,7 @@
   revision = "73f8eece6fdcd902c185bf651de50f3828bed5ed"
 
 [[projects]]
-  digest = "1:721dfafdcdef689834240d27526505237b230b7dea54df28ec299ab182cfbd1f"
+  digest = "1:c540afe732e96088051488bc827eadfba64b90a0e803ea61e7ec80907887362e"
   name = "go.mongodb.org/mongo-driver"
   packages = [
     "bson",
@@ -390,23 +390,21 @@
     "x/bsonx",
     "x/bsonx/bsoncore",
     "x/mongo/driver",
+    "x/mongo/driver/address",
     "x/mongo/driver/auth",
     "x/mongo/driver/auth/internal/gssapi",
+    "x/mongo/driver/connstring",
+    "x/mongo/driver/description",
+    "x/mongo/driver/dns",
+    "x/mongo/driver/operation",
     "x/mongo/driver/session",
     "x/mongo/driver/topology",
     "x/mongo/driver/uuid",
-    "x/network/address",
-    "x/network/command",
-    "x/network/compressor",
-    "x/network/connection",
-    "x/network/connstring",
-    "x/network/description",
-    "x/network/result",
-    "x/network/wiremessage",
+    "x/mongo/driver/wiremessage",
   ]
   pruneopts = "UT"
-  revision = "0d1270edf53072da4da781b76d2e1db58831152f"
-  version = "v1.0.4"
+  revision = "d42ea7239f0db8a61e77191b9f2730a922459042"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:a5158647b553c61877aa9ae74f4015000294e47981e6b8b07525edcbb0747c81"
@@ -451,11 +449,11 @@
     "pbkdf2",
   ]
   pruneopts = "UT"
-  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
+  revision = "60c769a6c58655dab1b9adac0d58967dd517cfba"
 
 [[projects]]
   branch = "master"
-  digest = "1:0c8a6a947380d77f0079c9a54d336a49ba197b70c385beb97be25b720c4d4e67"
+  digest = "1:ffc4bac4f43413fc72afd840c472f2e45046d12a4012d3ed8886e83a8735d637"
   name = "golang.org/x/net"
   packages = [
     "bpf",
@@ -475,7 +473,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
+  revision = "74dc4d7220e7acc4e100824340f3e66577424772"
 
 [[projects]]
   branch = "master"
@@ -498,14 +496,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f99b0e9035cf86cdc14cb2848308e831193d5e19ab9a23a8493cd925bdc3952b"
+  digest = "1:d52ccbb025caf0a2166e0204ed934567b8d0dfdd23a09d947f1f040708888a0a"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
+  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -554,10 +552,10 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "c506a9f9061087022822e8da603a52fc387115a8"
+  revision = "24fa4b261c55da65468f2abfdae2b024eef27dfb"
 
 [[projects]]
-  digest = "1:581c9b0fe9354faf730ff231cf3682089e0b703073cf10e3976219609d27a9ea"
+  digest = "1:3b97661db2e5d4c87f7345e875ea28f911e54c715ba0a74be08e1649d67e05cd"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -595,8 +593,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "045159ad57f3781d409358e3ade910a018c16b30"
-  version = "v1.22.1"
+  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
+  version = "v1.23.0"
 
 [[projects]]
   digest = "1:c902038ee2d6f964d3b9f2c718126571410c5d81251cbab9fe58abd37803513c"
@@ -664,6 +662,14 @@
   revision = "99a8ce2fbf8b8087b6ed12a37c61b10f04070043"
   version = "v1.1.0"
 
+[[projects]]
+  digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -683,6 +689,7 @@
     "github.com/golang/snappy",
     "github.com/gorilla/mux",
     "github.com/grpc-ecosystem/go-grpc-middleware/auth",
+    "github.com/grpc-ecosystem/go-grpc-middleware/util/metautils",
     "github.com/jessevdk/go-flags",
     "github.com/lestrrat-go/jwx/jwk",
     "github.com/nats-io/go-nats",
@@ -701,6 +708,7 @@
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",
+    "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"
