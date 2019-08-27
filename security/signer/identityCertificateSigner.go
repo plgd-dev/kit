@@ -2,7 +2,7 @@ package local
 
 import (
 	"context"
-	"crypto/ecdsa"
+	"crypto"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/asn1"

@@ -3,7 +3,7 @@ package local
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
+	"crypto"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
