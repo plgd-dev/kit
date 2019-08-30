@@ -2,7 +2,7 @@ package local
 
 import (
 	"context"
-	"crypto/ecdsa"
+	"crypto"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/asn1"
@@ -16,11 +16,11 @@ import (
 
 type IdentityCertificateSigner struct {
 	caCert   []*x509.Certificate
-	caKey    *ecdsa.PrivateKey
+	caKey    crypto.PrivateKey
 	validFor time.Duration
 }
 
-func NewIdentityCertificateSigner(caCert []*x509.Certificate, caKey *ecdsa.PrivateKey, validFor time.Duration) *IdentityCertificateSigner {
+func NewIdentityCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validFor time.Duration) *IdentityCertificateSigner {
 	return &IdentityCertificateSigner{caCert: caCert, caKey: caKey, validFor: validFor}
 }
 

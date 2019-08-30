@@ -3,7 +3,7 @@ package local
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
+	"crypto"
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
@@ -14,11 +14,11 @@ import (
 
 type BasicCertificateSigner struct {
 	caCert   []*x509.Certificate
-	caKey    *ecdsa.PrivateKey
+	caKey    crypto.PrivateKey
 	validFor time.Duration
 }
 
-func NewBasicCertificateSigner(caCert []*x509.Certificate, caKey *ecdsa.PrivateKey, validFor time.Duration) *BasicCertificateSigner {
+func NewBasicCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validFor time.Duration) *BasicCertificateSigner {
 	return &BasicCertificateSigner{caCert: caCert, caKey: caKey, validFor: validFor}
 }
 
