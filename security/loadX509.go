@@ -2,6 +2,7 @@ package security
 
 import (
 	"crypto/ecdsa"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -50,4 +51,20 @@ func LoadX509PrivateKey(path string) (*ecdsa.PrivateKey, error) {
 	}
 
 	return nil, errors.New("crypto/tls: failed to parse private key")
+}
+
+// ParseX509Certificates parses the CA chain certificates from the DER data.
+func ParseX509Certificates(cert *tls.Certificate) ([]*x509.Certificate, error) {
+	caChain := make([]*x509.Certificate, 0, 4)
+	for _, derBytes := range cert.Certificate {
+		ca, err := x509.ParseCertificates(derBytes)
+		if err != nil {
+			return nil, err
+		}
+		caChain = append(caChain, ca...)
+	}
+	if len(caChain) == 0 {
+		return nil, fmt.Errorf("no certificates")
+	}
+	return caChain, nil
 }
