@@ -17,6 +17,7 @@ import (
 
 	gocoap "github.com/go-ocf/go-coap"
 	codecOcf "github.com/go-ocf/kit/codec/ocf"
+	"github.com/go-ocf/kit/security"
 )
 
 type Client struct {
@@ -426,10 +427,7 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 
 func DialTCPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	caPool, _ := x509.SystemCertPool()
-	if caPool == nil {
-		caPool = x509.NewCertPool()
-	}
+	caPool := security.NewDefaultCertPool(cas)
 
 	tlsConfig := tls.Config{
 		InsecureSkipVerify: true,
