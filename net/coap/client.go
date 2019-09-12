@@ -426,9 +426,9 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 
 func DialTCPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	caPool := x509.NewCertPool()
-	for _, ca := range cas {
-		caPool.AddCert(ca)
+	caPool, _ := x509.SystemCertPool()
+	if caPool == nil {
+		caPool = x509.NewCertPool()
 	}
 
 	tlsConfig := tls.Config{

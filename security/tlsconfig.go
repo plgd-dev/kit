@@ -60,7 +60,10 @@ func NewTLSConfigWithoutPeerVerification(cert tls.Certificate) *tls.Config {
 
 // NewTLSConfig creates tls.Config with veryfication of client certificate.
 func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate VerifyPeerCertificateFunc) *tls.Config {
-	caPool := x509.NewCertPool()
+	caPool, _ := x509.SystemCertPool()
+	if caPool == nil {
+		caPool = x509.NewCertPool()
+	}
 	for _, ca := range cas {
 		caPool.AddCert(ca)
 	}
