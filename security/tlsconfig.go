@@ -58,15 +58,29 @@ func NewTLSConfigWithoutPeerVerification(cert tls.Certificate) *tls.Config {
 	}
 }
 
-// NewTLSConfig creates tls.Config with veryfication of client certificate.
-func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate VerifyPeerCertificateFunc) *tls.Config {
-	caPool, _ := x509.SystemCertPool()
-	if caPool == nil {
-		caPool = x509.NewCertPool()
+// NewDefaultCertPool loads system CAs and add custom CAs to cert pool.
+func NewDefaultCertPool(cas []*x509.Certificate) *x509.CertPool {
+	pool, err := x509.SystemCertPool()
+	if err != nil {
+		pool = x509.NewCertPool()
 	}
 	for _, ca := range cas {
-		caPool.AddCert(ca)
+		pool.AddCert(ca)
 	}
+	return pool
+}
+
+// NewDefaultTLSConfig return default *tls.Config with system CAs and add custom CAs to cert pool.
+func NewDefaultTLSConfig(cas []*x509.Certificate) *tls.Config {
+	pool := NewDefaultCertPool(cas)
+	return &tls.Config{
+		RootCAs: pool,
+	}
+}
+
+// NewTLSConfig creates tls.Config with veryfication of client certificate.
+func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate VerifyPeerCertificateFunc) *tls.Config {
+	caPool := NewDefaultCertPool(cas)
 	return &tls.Config{
 		InsecureSkipVerify: true,
 		Certificates:       []tls.Certificate{cert},
