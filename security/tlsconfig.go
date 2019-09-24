@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-// Generates `func IsInsecure() bool`
-//go:generate go run generateInsecure.go security
-
 // TLSConfig set configuration.
 type TLSConfig struct {
 	Certificate    string `envconfig:"TLS_CERTIFICATE"`           // file path to PEM encoded cert/cert chain
