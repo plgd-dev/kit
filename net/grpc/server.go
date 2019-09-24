@@ -25,13 +25,11 @@ type Config struct {
 
 // NewServer instantiates a gRPC server.
 func NewServer(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
-	if !security.IsInsecure() {
-		tls, err := tlsCreds(cfg.TLSConfig)
-		if err != nil {
-			return nil, fmt.Errorf("invalid TLS configuration: %v", err)
-		}
-		opt = append(opt, tls)
+	tls, err := tlsCreds(cfg.TLSConfig)
+	if err != nil {
+		return nil, fmt.Errorf("invalid TLS configuration: %v", err)
 	}
+	opt = append(opt, tls)
 
 	lis, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
@@ -44,13 +42,11 @@ func NewServer(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
 
 // NewServerWithoutPeerVerification instantiates a gRPC server without peer verification.
 func NewServerWithoutPeerVerification(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
-	if !security.IsInsecure() {
-		cert, err := tls.LoadX509KeyPair(cfg.TLSConfig.Certificate, cfg.TLSConfig.CertificateKey)
-		if err != nil {
-			return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %v", cfg.TLSConfig.Certificate, cfg.TLSConfig.CertificateKey, err)
-		}
-		opt = append(opt, grpc.Creds(credentials.NewTLS(security.NewTLSConfigWithoutPeerVerification(cert))))
+	cert, err := tls.LoadX509KeyPair(cfg.TLSConfig.Certificate, cfg.TLSConfig.CertificateKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %v", cfg.TLSConfig.Certificate, cfg.TLSConfig.CertificateKey, err)
 	}
+	opt = append(opt, grpc.Creds(credentials.NewTLS(security.NewTLSConfigWithoutPeerVerification(cert))))
 
 	lis, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {

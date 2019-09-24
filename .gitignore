@@ -13,6 +13,7 @@ cmd/certificate-generator/certificate-generator
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.txt
 
 #golang
 .idea/
