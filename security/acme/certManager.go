@@ -228,8 +228,8 @@ func (a *CertManager) GetClientTLSConfig() *tls.Config {
 		MinVersion:               tls.VersionTLS12,
 	}
 }
-func (a *CertManager) GetServerTLSConfig() *tls.Config {
-	return &tls.Config{
+func (a *CertManager) GetServerTLSConfig() tls.Config {
+	return tls.Config{
 		ClientCAs:      a.GetCertificateAuthorities(),
 		GetCertificate: a.GetCertificate,
 		MinVersion:     tls.VersionTLS12,
@@ -288,7 +288,7 @@ func (a *CertManager) Close() {
 // Config set configuration.
 type Config struct {
 	CAPool        string        `envconfig:"ROOT_CERTIFICATE_AUTHORITY" long:"ca" env:"ROOT_CERTIFICATE_AUTHORITY" description:"file path to the root certificate"`
-	CADirURL      string        `envconfig:"ACME_DIRECTORY_URL" long:"acme-directory-url"  env:"ACME_DIRECTORY_URL" description:"the ACME directory URL for your ACME server"`
+	CADirURL      string        `envconfig:"DIRECTORY_URL" long:"acme-directory-url"  env:"ACME_DIRECTORY_URL" description:"the ACME directory URL for your ACME server"`
 	Domains       []string      `envconfig:"DOMAINS" long:"domains" env:"DOMAINS" description:"the domain's names for which we'll be getting a certificate"`
 	Email         string        `envconfig:"EMAIL" long:"email" env:"EMAIL" description:"the email address to use during ACME registration"`
 	TickFrequency time.Duration `envconfig:"TICK_FREQUENCY" long:"tick-frequency" env:"TICK_FREQUENCY" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
