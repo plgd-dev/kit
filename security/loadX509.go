@@ -16,15 +16,24 @@ func LoadX509(path string) ([]*x509.Certificate, error) {
 	if err != nil {
 		return nil, err
 	}
-	certDERBlock, _ := pem.Decode(certPEMBlock)
-	if certDERBlock == nil {
-		return nil, fmt.Errorf("cannot decode pem block")
+	data := certPEMBlock
+	var cas []*x509.Certificate
+	for {
+		certDERBlock, tmp := pem.Decode(data)
+		if certDERBlock == nil {
+			return nil, fmt.Errorf("cannot decode pem block")
+		}
+		certs, err := x509.ParseCertificates(certDERBlock.Bytes)
+		if err != nil {
+			return nil, err
+		}
+		cas = append(cas, certs...)
+		if len(tmp) == 0 {
+			break
+		}
+		data = tmp
 	}
-	certs, err := x509.ParseCertificates(certDERBlock.Bytes)
-	if err != nil {
-		return nil, err
-	}
-	return certs, nil
+	return cas, nil
 }
 
 // LoadX509PrivateKey loads private key from file in PEM format

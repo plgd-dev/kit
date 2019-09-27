@@ -50,8 +50,10 @@ func NewTLSConfigFromConfiguration(config TLSConfig, certificateVerifier VerifyP
 // NewTLSConfigWithoutPeerVerification creates tls.Config without verify client certificate.
 func NewTLSConfigWithoutPeerVerification(cert tls.Certificate) *tls.Config {
 	return &tls.Config{
-		ClientAuth:   tls.NoClientCert,
-		Certificates: []tls.Certificate{cert},
+		ClientAuth:               tls.NoClientCert,
+		Certificates:             []tls.Certificate{cert},
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
 	}
 }
 
@@ -71,7 +73,9 @@ func NewDefaultCertPool(cas []*x509.Certificate) *x509.CertPool {
 func NewDefaultTLSConfig(cas []*x509.Certificate) *tls.Config {
 	pool := NewDefaultCertPool(cas)
 	return &tls.Config{
-		RootCAs: pool,
+		RootCAs:                  pool,
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
 	}
 }
 
@@ -81,6 +85,7 @@ func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCerti
 	return &tls.Config{
 		InsecureSkipVerify: true,
 		Certificates:       []tls.Certificate{cert},
+		MinVersion:         tls.VersionTLS12,
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			intermediateCAPool := x509.NewCertPool()
 			var certificate *x509.Certificate
