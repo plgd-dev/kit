@@ -126,6 +126,7 @@ func NewCertManager(cas []*x509.Certificate, caDirURL, email string, domains []s
 	acm := &CertManager{
 		acmeClient: acmeClient,
 		domains:    domains,
+		cas:        security.NewDefaultCertPool(cas),
 	}
 
 	err = acm.ObtainCertificate()
@@ -151,17 +152,17 @@ func (a *CertManager) autoRenewCert(tickFrequency time.Duration) {
 		select {
 		case <-ticker.C:
 			if a.NeedsRenewal() {
-				log.Debug("Renewing certificate")
+				log.Debugf("Renewing certificate")
 				err := a.RenewCertificate()
 				if err != nil {
-					log.Debug("Error loading certificate and key", err)
+					log.Debugf("Error loading certificate and key", err)
 				} else {
 					leaf := a.GetLeaf()
-					log.Debug("Renewed certificate: %s [%s - %s]\n", leaf.Subject, leaf.NotBefore, leaf.NotAfter)
-					log.Debug("Next renewal at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
+					log.Debugf("Renewed certificate: %s [%s - %s]\n", leaf.Subject, leaf.NotBefore, leaf.NotAfter)
+					log.Debugf("Next renewal at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
 				}
 			} else {
-				log.Debug("Waiting to renew at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
+				log.Debugf("Waiting to renew at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
 			}
 		case <-a.done:
 			return
@@ -220,8 +221,8 @@ func (a *CertManager) GetLeaf() x509.Certificate {
 	return *a.leaf
 }
 
-func (a *CertManager) GetClientTLSConfig() *tls.Config {
-	return &tls.Config{
+func (a *CertManager) GetClientTLSConfig() tls.Config {
+	return tls.Config{
 		RootCAs:                  a.GetCertificateAuthorities(),
 		GetClientCertificate:     a.GetClientCertificate,
 		PreferServerCipherSuites: true,

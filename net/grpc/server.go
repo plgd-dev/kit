@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/go-ocf/kit/security/acme"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 )
 
 type ServerCertManager = interface {
@@ -23,27 +21,21 @@ type Server struct {
 
 // Config holds service's settings.
 type Config struct {
-	Addr       string      `envconfig:"ADDRESS" default:"0.0.0.0:9100"`
-	AcmeConfig acme.Config `envconfig:"ACME_SERVER"`
+	Addr string `envconfig:"ADDRESS" default:"0.0.0.0:9100"`
 }
 
 // NewServer instantiates a gRPC server.
-func NewServer(addr string, certManager ServerCertManager, opt ...grpc.ServerOption) (*Server, error) {
-	tlsCfg := certManager.GetServerTLSConfig()
-
-	opts := make([]grpc.ServerOption, 0, len(opt))
-	opts = append(opts, grpc.Creds(credentials.NewTLS(&tlsCfg)))
-	opts = append(opts, opt...)
-
+func NewServer(addr string, opts ...grpc.ServerOption) (*Server, error) {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return nil, fmt.Errorf("listening failed: %v", err)
 	}
 
 	srv := grpc.NewServer(opts...)
-	return &Server{Server: srv, listener: lis, certManager: certManager}, nil
+	return &Server{Server: srv, listener: lis}, nil
 }
 
+/*
 // NewServer instantiates a gRPC server.
 func NewServerWithConfig(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
 	certManager, err := acme.NewCertManagerFromConfiguration(cfg.AcmeConfig)
@@ -75,7 +67,7 @@ func NewServerWithConfigWithoutPeerVerification(cfg Config, opt ...grpc.ServerOp
 	srv := grpc.NewServer(opts...)
 	return &Server{Server: srv, listener: lis, certManager: certManager}, nil
 }
-
+*/
 // Serve starts serving and blocks.
 func (s *Server) Serve() error {
 	err := s.Server.Serve(s.listener)
@@ -83,4 +75,13 @@ func (s *Server) Serve() error {
 		return fmt.Errorf("serving failed: %v", err)
 	}
 	return nil
+}
+
+// Close stops the gRPC server. It immediately closes all open
+// connections and listeners.
+// It cancels all active RPCs on the server side and the corresponding
+// pending RPCs on the client side will get notified by connection
+// errors.
+func (s *Server) Close() {
+	s.Server.Stop()
 }
