@@ -8,7 +8,7 @@ import (
 
 func TestNewPublisher(t *testing.T) {
 	bus, err := NewPublisher(Config{
-		Endpoints: []string{"localhost:9092"},
+		BootstrapServers: []string{"localhost:9092"},
 	})
 	assert.NoError(t, err)
 	assert.NotNil(t, bus)

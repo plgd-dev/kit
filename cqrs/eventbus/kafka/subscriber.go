@@ -14,7 +14,7 @@ type Subscriber struct {
 // NewSubscriber create new subscriber with configuration and proto unmarshaller.
 func NewSubscriber(config Config, goroutinePoolGo cqrsEventBus.GoroutinePoolGoFunc, errFunc cqrsEventBus.ErrFunc) (*Subscriber, error) {
 	saramaConfig := sarama.NewConfig()
-	s, err := cqrsKafka.NewSubscriber(config.Endpoints, saramaConfig, cqrsUtils.Unmarshal, goroutinePoolGo, errFunc)
+	s, err := cqrsKafka.NewSubscriber(config.BootstrapServers, saramaConfig, cqrsUtils.Unmarshal, goroutinePoolGo, errFunc)
 	if err != nil {
 		return nil, err
 	}
