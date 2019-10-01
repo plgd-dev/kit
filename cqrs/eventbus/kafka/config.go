@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	BootstrapServers []string `envconfig:"KAFKA_BOOTSTRAP_SERVERS" default:"localhost:9092"`
+	BootstrapServers []string `envconfig:"BOOTSTRAP_SERVERS" default:"localhost:9092"`
 }
 
 //String return string representation of Config

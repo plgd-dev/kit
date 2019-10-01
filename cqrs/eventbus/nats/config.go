@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	URL     string `envconfig:"NATS_URL" default:"nats://localhost:4222"`
+	URL     string `envconfig:"URL" default:"nats://localhost:4222"`
 	Options []nats.Option
 }
 

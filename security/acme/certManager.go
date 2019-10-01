@@ -288,11 +288,11 @@ func (a *CertManager) Close() {
 
 // Config set configuration.
 type Config struct {
-	CAPool        string        `envconfig:"ACME_CA_POOL_PATH" long:"ca" description:"file path to the root certificate in PEM format"`
-	CADirURL      string        `envconfig:"ACME_DIRECTORY_URL" long:"acme-directory-url" description:"the ACME directory URL for your ACME server"`
-	Domains       []string      `envconfig:"ACME_DOMAINS" long:"domains" description:"the domain's names for which we'll be getting a certificate"`
-	Email         string        `envconfig:"ACME_REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
-	TickFrequency time.Duration `envconfig:"ACME_TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
+	CAPool        string        `envconfig:"CA_POOL_PATH" long:"ca" description:"file path to the root certificate in PEM format"`
+	CADirURL      string        `envconfig:"DIRECTORY_URL" long:"acme-directory-url" description:"the ACME directory URL for your ACME server"`
+	Domains       []string      `envconfig:"DOMAINS" long:"domains" description:"the domain's names for which we'll be getting a certificate"`
+	Email         string        `envconfig:"REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
+	TickFrequency time.Duration `envconfig:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
 }
 
 // NewCertManagerFromConfiguration creates certificate manager from config.

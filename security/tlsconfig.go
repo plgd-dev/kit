@@ -11,9 +11,9 @@ import (
 
 // TLSConfig set configuration.
 type TLSConfig struct {
-	Certificate    string `envconfig:"TLS_CERTIFICATE"`           // file path to PEM encoded cert/cert chain
-	CertificateKey string `envconfig:"TLS_CERTIFICATE_KEY"`       // file path to PEM encoded private key
-	CAPool         string `envconfig:"TLS_CERTIFICATE_AUTHORITY"` // file path to PEM encoded ca pool
+	Certificate    string `envconfig:"CERTIFICATE"`           // file path to PEM encoded cert/cert chain
+	CertificateKey string `envconfig:"CERTIFICATE_KEY"`       // file path to PEM encoded private key
+	CAPool         string `envconfig:"CERTIFICATE_AUTHORITY"` // file path to PEM encoded ca pool
 }
 
 // VerifyPeerCertificateFunc verifies content of certificate. It's called after success validation against CAs.
