@@ -21,6 +21,8 @@ build: build-testcontainer
 test: clean build-testcontainer
 	docker-compose pull
 	docker-compose up -d
+#	sudo echo 'net.ipv4.ip_unprivileged_port_start=0' > /etc/sysctl.d/50-unprivileged-ports.conf
+#	sysctl --system
 	docker run \
 		--network=host \
 		--mount type=bind,source="$(shell pwd)",target=/shared \

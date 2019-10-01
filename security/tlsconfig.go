@@ -11,9 +11,9 @@ import (
 
 // TLSConfig set configuration.
 type TLSConfig struct {
-	Certificate    string `envconfig:"TLS_CERTIFICATE"`           // file path to PEM encoded cert/cert chain
-	CertificateKey string `envconfig:"TLS_CERTIFICATE_KEY"`       // file path to PEM encoded private key
-	CAPool         string `envconfig:"TLS_CERTIFICATE_AUTHORITY"` // file path to PEM encoded ca pool
+	Certificate    string `envconfig:"CERTIFICATE"`     // file path to PEM encoded cert/cert chain
+	CertificateKey string `envconfig:"CERTIFICATE_KEY"` // file path to PEM encoded private key
+	CAPool         string `envconfig:"CA_POOL"`         // file path to PEM encoded ca pool
 }
 
 // VerifyPeerCertificateFunc verifies content of certificate. It's called after success validation against CAs.
@@ -50,8 +50,10 @@ func NewTLSConfigFromConfiguration(config TLSConfig, certificateVerifier VerifyP
 // NewTLSConfigWithoutPeerVerification creates tls.Config without verify client certificate.
 func NewTLSConfigWithoutPeerVerification(cert tls.Certificate) *tls.Config {
 	return &tls.Config{
-		ClientAuth:   tls.NoClientCert,
-		Certificates: []tls.Certificate{cert},
+		ClientAuth:               tls.NoClientCert,
+		Certificates:             []tls.Certificate{cert},
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
 	}
 }
 
@@ -71,7 +73,9 @@ func NewDefaultCertPool(cas []*x509.Certificate) *x509.CertPool {
 func NewDefaultTLSConfig(cas []*x509.Certificate) *tls.Config {
 	pool := NewDefaultCertPool(cas)
 	return &tls.Config{
-		RootCAs: pool,
+		RootCAs:                  pool,
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
 	}
 }
 
@@ -81,6 +85,7 @@ func NewTLSConfig(cert tls.Certificate, cas []*x509.Certificate, verifyPeerCerti
 	return &tls.Config{
 		InsecureSkipVerify: true,
 		Certificates:       []tls.Certificate{cert},
+		MinVersion:         tls.VersionTLS12,
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			intermediateCAPool := x509.NewCertPool()
 			var certificate *x509.Certificate

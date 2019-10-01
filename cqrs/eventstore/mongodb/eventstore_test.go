@@ -23,7 +23,7 @@ import (
 
 func TestNewEventStore(t *testing.T) {
 	bus, err := NewEventStore(Config{
-		Host: "localhost:27017",
+		URI: "mongodb://localhost:27017",
 	}, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, bus)
@@ -32,7 +32,7 @@ func TestNewEventStore(t *testing.T) {
 func TestInstanceId(t *testing.T) {
 	ctx := context.Background()
 	store, err := NewEventStore(Config{
-		Host:         "localhost:27017",
+		URI:          "mongodb://localhost:27017",
 		DatabaseName: "test",
 	}, nil)
 	defer func() {

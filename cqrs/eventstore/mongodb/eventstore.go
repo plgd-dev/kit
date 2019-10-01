@@ -16,7 +16,6 @@ package mongodb
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"time"
@@ -48,26 +47,12 @@ type EventStore struct {
 	uniqueIdIsInitialized uint64
 }
 
-type Config struct {
-	Host            string        `envconfig:"MONGO_HOST" default:"localhost:27017"`
-	DatabaseName    string        `envconfig:"MONGO_DATABASE" default:"eventStore"`
-	BatchSize       int           `envconfig:"MONGO_BATCH_SIZE" default:"16"`
-	MaxPoolSize     uint64        `envconfig:"MONGO_MAX_POOL_SIZE" default:"16"`
-	MaxConnIdleTime time.Duration `envconfig:"MONGO_MAX_CONN_IDLE_TIME" default:"240s"`
-}
-
-//String return string representation of Config
-func (c Config) String() string {
-	b, _ := json.MarshalIndent(c, "", "  ")
-	return fmt.Sprintf("config: \n%v\n", string(b))
-}
-
 //NewEventStore create a event store from configuration
 func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc) (*EventStore, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://"+config.Host).SetMaxPoolSize(config.MaxPoolSize).SetMaxConnIdleTime(config.MaxConnIdleTime))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.URI).SetMaxPoolSize(config.MaxPoolSize).SetMaxConnIdleTime(config.MaxConnIdleTime))
 	if err != nil {
 		return nil, fmt.Errorf("could not dial database: %v", err)
 	}

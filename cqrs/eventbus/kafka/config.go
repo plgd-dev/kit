@@ -1,15 +1,12 @@
-package nats
+package kafka
 
 import (
 	"encoding/json"
 	"fmt"
-
-	nats "github.com/nats-io/go-nats"
 )
 
 type Config struct {
-	URL     string `envconfig:"URL" default:"nats://localhost:4222"`
-	Options []nats.Option
+	BootstrapServers []string `envconfig:"BOOTSTRAP_SERVERS" default:"localhost:9092"`
 }
 
 //String return string representation of Config
