@@ -5,3 +5,53 @@
 
 # kit
 
+## Configuration
+### CQRS/eventbus/Kafka
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `BOOTSTRAP_SERVERS` | string | tbd | `"localhost:9092"` |
+
+
+
+### CQRS/eventbus/NATS
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `URL` | string | tbd | `"nats://localhost:4222"` |
+
+### CQRS/eventstore/MongoDB
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `URI` | string | tbd | `"mongodb://localhost:27017"` |
+| `-` | `DATABASE` | string | tbd | `"eventstore"` |
+| `-` | `BATCH_SIZE` | int | tbd | `16` |
+| `-` | `MAX_POOL_SIZE` | int | tbd | `16` |
+| `-` | `MAX_CONN_IDLE_TIME` | string | tbd | `"240s"` |
+
+### security/TLS
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `CA_POOL` | string | tbd | `""` |
+| `-` | `CERTIFICATE` | string | tbd | `""` |
+| `-` | `CERTIFICATE_KEY` | string | tbd | `""` |
+
+### security/ACME
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `CA_POOL` | string | tbd | `""` |
+| `-` | `DIRECTORY_URL` | string | tbd | `""` |
+| `-` | `DOMAINS` | string | tbd | `""` |
+| `-` | `REGISTRATION_EMAIL` | string | tbd | `""` |
+| `-` | `TICK_FREQUENCY` | string | tbd | `""` |
+
+### net/GRPC
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `ADDRESS` | string | tbd | `"0.0.0.0:9100"` |
+
+### net/CoAP
+
+### log
+| Option | ENV variable | Type | Description | Default |
+| ------ | --------- | ----------- | ------- | ------- |
+| `-` | `ENABLE_DEBUG` | bool | tbd | `false` |
+

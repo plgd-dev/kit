@@ -288,7 +288,7 @@ func (a *CertManager) Close() {
 
 // Config set configuration.
 type Config struct {
-	CAPool        string        `envconfig:"CA_POOL_PATH" long:"ca" description:"file path to the root certificate in PEM format"`
+	CAPool        string        `envconfig:"CA_POOL" long:"ca" description:"file path to the root certificate in PEM format"`
 	CADirURL      string        `envconfig:"DIRECTORY_URL" long:"acme-directory-url" description:"the ACME directory URL for your ACME server"`
 	Domains       []string      `envconfig:"DOMAINS" long:"domains" description:"the domain's names for which we'll be getting a certificate"`
 	Email         string        `envconfig:"REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
