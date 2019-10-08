@@ -35,39 +35,6 @@ func NewServer(addr string, opts ...grpc.ServerOption) (*Server, error) {
 	return &Server{Server: srv, listener: lis}, nil
 }
 
-/*
-// NewServer instantiates a gRPC server.
-func NewServerWithConfig(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
-	certManager, err := acme.NewCertManagerFromConfiguration(cfg.AcmeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("invalid TLS configuration: %v", err)
-	}
-	return NewServer(cfg.Addr, certManager, opt...)
-}
-
-// NewServerWithoutPeerVerification instantiates a gRPC server without peer verification.
-func NewServerWithConfigWithoutPeerVerification(cfg Config, opt ...grpc.ServerOption) (*Server, error) {
-	certManager, err := acme.NewCertManagerFromConfiguration(cfg.AcmeConfig)
-	if err != nil {
-		return nil, fmt.Errorf("invalid TLS configuration: %v", err)
-	}
-
-	tlsCfg := certManager.GetServerTLSConfig()
-	tlsCfg.ClientAuth = tls.NoClientCert
-	tlsCfg.ClientCAs = nil
-	opts := make([]grpc.ServerOption, 0, len(opt))
-	opts = append(opts, grpc.Creds(credentials.NewTLS(&tlsCfg)))
-	opts = append(opts, opt...)
-
-	lis, err := net.Listen("tcp", cfg.Addr)
-	if err != nil {
-		return nil, fmt.Errorf("listening failed: %v", err)
-	}
-
-	srv := grpc.NewServer(opts...)
-	return &Server{Server: srv, listener: lis, certManager: certManager}, nil
-}
-*/
 // Serve starts serving and blocks.
 func (s *Server) Serve() error {
 	err := s.Server.Serve(s.listener)
