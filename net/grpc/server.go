@@ -25,6 +25,7 @@ type Config struct {
 }
 
 // NewServer instantiates a gRPC server.
+// When passing addr with an unspecified port or ":", use Addr().
 func NewServer(addr string, opts ...grpc.ServerOption) (*Server, error) {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -33,6 +34,10 @@ func NewServer(addr string, opts ...grpc.ServerOption) (*Server, error) {
 
 	srv := grpc.NewServer(opts...)
 	return &Server{Server: srv, listener: lis}, nil
+}
+
+func (s *Server) Addr() string {
+	return s.listener.Addr().String()
 }
 
 // Serve starts serving and blocks.

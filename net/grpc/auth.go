@@ -27,10 +27,10 @@ func MakeJWTInterceptors(jwksUrl string, claims ClaimsFunc) AuthInterceptors {
 }
 
 func (f AuthInterceptors) Unary() grpc.ServerOption {
-	return grpc.UnaryInterceptor(UnaryServerInterceptor(f.authFunc))
+	return UnaryServerInterceptor(f.authFunc)
 }
 func (f AuthInterceptors) Stream() grpc.ServerOption {
-	return grpc.StreamInterceptor(StreamServerInterceptor(f.authFunc))
+	return StreamServerInterceptor(f.authFunc)
 }
 
 type ClaimsFunc = func(context.Context) Claims
