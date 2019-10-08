@@ -15,10 +15,10 @@ import (
 )
 
 type AuthInterceptors struct {
-	authFunc grpc_auth.AuthFunc
+	authFunc Interceptor
 }
 
-func MakeAuthInterceptors(authFunc grpc_auth.AuthFunc) AuthInterceptors {
+func MakeAuthInterceptors(authFunc Interceptor) AuthInterceptors {
 	return AuthInterceptors{authFunc: authFunc}
 }
 
@@ -27,18 +27,18 @@ func MakeJWTInterceptors(jwksUrl string, claims ClaimsFunc) AuthInterceptors {
 }
 
 func (f AuthInterceptors) Unary() grpc.ServerOption {
-	return grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(f.authFunc))
+	return grpc.UnaryInterceptor(UnaryServerInterceptor(f.authFunc))
 }
 func (f AuthInterceptors) Stream() grpc.ServerOption {
-	return grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(f.authFunc))
+	return grpc.StreamInterceptor(StreamServerInterceptor(f.authFunc))
 }
 
 type ClaimsFunc = func(context.Context) Claims
 type Claims = interface{ Valid() error }
 
-func ValidateJWT(jwksUrl string, claims ClaimsFunc) grpc_auth.AuthFunc {
+func ValidateJWT(jwksUrl string, claims ClaimsFunc) Interceptor {
 	validator := jwt.NewValidator(jwksUrl)
-	return func(ctx context.Context) (context.Context, error) {
+	return func(ctx context.Context, method string) (context.Context, error) {
 		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
 		if err != nil {
 			return nil, err
