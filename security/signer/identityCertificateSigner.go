@@ -53,7 +53,7 @@ func (s *IdentityCertificateSigner) Sign(ctx context.Context, csr []byte) (signe
 		Subject:            certificateRequest.Subject,
 		PublicKeyAlgorithm: certificateRequest.PublicKeyAlgorithm,
 		PublicKey:          certificateRequest.PublicKey,
-		SignatureAlgorithm: certificateRequest.SignatureAlgorithm,
+		SignatureAlgorithm: s.caCert[0].SignatureAlgorithm,
 		KeyUsage:           x509.KeyUsageDigitalSignature | x509.KeyUsageKeyAgreement,
 		UnknownExtKeyUsage: []asn1.ObjectIdentifier{kitNetCoap.ExtendedKeyUsage_IDENTITY_CERTIFICATE},
 		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},

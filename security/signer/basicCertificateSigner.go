@@ -76,7 +76,7 @@ func (s *BasicCertificateSigner) Sign(ctx context.Context, csr []byte) (signedCs
 		Subject:            certificateRequest.Subject,
 		PublicKeyAlgorithm: certificateRequest.PublicKeyAlgorithm,
 		PublicKey:          certificateRequest.PublicKey,
-		SignatureAlgorithm: certificateRequest.SignatureAlgorithm,
+		SignatureAlgorithm: s.caCert[0].SignatureAlgorithm,
 		DNSNames:           certificateRequest.DNSNames,
 		IPAddresses:        certificateRequest.IPAddresses,
 		URIs:               certificateRequest.URIs,
