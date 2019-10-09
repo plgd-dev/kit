@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
 )
 
 func TestUnaryInterceptor(t *testing.T) {
@@ -42,22 +41,4 @@ type MockInterceptor struct {
 func (i *MockInterceptor) Intercept(ctx context.Context, method string) (context.Context, error) {
 	i.Method = method
 	return ctx, nil
-}
-
-func StubGrpcServer(opts ...grpc.ServerOption) *Server {
-	svr, err := NewServer(":", opts...)
-	if err != nil {
-		panic(err)
-	}
-	handler := UnimplementedStubServiceServer{}
-	RegisterStubServiceServer(svr.Server, &handler)
-	return svr
-}
-
-func StubGrpcClient(addr string) StubServiceClient {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	return NewStubServiceClient(conn)
 }
