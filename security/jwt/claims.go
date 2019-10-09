@@ -7,6 +7,8 @@ import (
 	"github.com/go-ocf/kit/strings"
 )
 
+var TimeFunc = time.Now
+
 type Claims struct {
 	ClientID string   `json:"client_id"`
 	Email    string   `json:"email"`
@@ -30,7 +32,7 @@ func (c StandardClaims) GetAudience() []string {
 }
 
 func (c StandardClaims) Valid() error {
-	now := time.Now().Unix()
+	now := TimeFunc().Unix()
 	if now > c.ExpiresAt {
 		return fmt.Errorf("token is expired")
 	}
