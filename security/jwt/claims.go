@@ -30,7 +30,7 @@ func (c StandardClaims) GetAudience() []string {
 }
 
 func (c StandardClaims) Valid() error {
-	now := time.Now().Unix()
+	now := timeFunc().Unix()
 	if now > c.ExpiresAt {
 		return fmt.Errorf("token is expired")
 	}
@@ -41,4 +41,12 @@ func (c StandardClaims) Valid() error {
 		return fmt.Errorf("token is not valid yet")
 	}
 	return nil
+}
+
+var timeFunc = time.Now
+
+func SetTimeFunc(f func() time.Time) (restore func()) {
+	prev := timeFunc
+	timeFunc = f
+	return func() { timeFunc = prev }
 }
