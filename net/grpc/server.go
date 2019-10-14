@@ -1,22 +1,17 @@
 package grpc
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net"
 
 	"google.golang.org/grpc"
 )
 
-type ServerCertManager = interface {
-	GetServerTLSConfig() tls.Config
-}
-
 // Server handles gRPC requests to the service.
 type Server struct {
 	*grpc.Server
-	listener    net.Listener
-	certManager ServerCertManager
+	listener  net.Listener
+	closeFunc []func()
 }
 
 // Config holds service's settings.
@@ -34,6 +29,12 @@ func NewServer(addr string, opts ...grpc.ServerOption) (*Server, error) {
 
 	srv := grpc.NewServer(opts...)
 	return &Server{Server: srv, listener: lis}, nil
+}
+
+// AddCloseFunc adds a function to be called by the Close method.
+// This eliminates the need for wrapping the Server.
+func (s *Server) AddCloseFunc(f func()) {
+	s.closeFunc = append(s.closeFunc, f)
 }
 
 func (s *Server) Addr() string {
@@ -56,4 +57,7 @@ func (s *Server) Serve() error {
 // errors.
 func (s *Server) Close() {
 	s.Server.Stop()
+	for _, f := range s.closeFunc {
+		f()
+	}
 }
