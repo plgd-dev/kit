@@ -23,9 +23,9 @@ import (
 	"golang.org/x/net/http2"
 )
 
-// getHTTPSClient gets an HTTPS client configured to trust our CA's root
+// GetHTTPSClient gets an HTTPS client configured to trust our CA's root
 // certificate.
-func getHTTPSClient(cas []*x509.Certificate) (*http.Client, error) {
+func GetHTTPSClient(cas []*x509.Certificate) (*http.Client, error) {
 	tlsCfg := security.NewDefaultTLSConfig(cas)
 
 	tr := &http.Transport{
@@ -46,6 +46,17 @@ type LegoUser struct {
 	key          crypto.PrivateKey
 }
 
+func NewUser(email string, key crypto.PrivateKey) *LegoUser {
+	return &LegoUser{
+		email: email,
+		key:   key,
+	}
+}
+
+func (l *LegoUser) SetRegistration(r *registration.Resource) {
+	l.registration = r
+}
+
 func (l *LegoUser) GetEmail() string {
 	return l.email
 }
@@ -58,6 +69,15 @@ func (l *LegoUser) GetPrivateKey() crypto.PrivateKey {
 	return l.key
 }
 
+type Certifier = interface {
+	Obtain(request certificate.ObtainRequest) (*certificate.Resource, error)
+	Renew(certRes certificate.Resource, bundle, mustStaple bool) (*certificate.Resource, error)
+}
+
+type Client = interface {
+	Certificate() Certifier
+}
+
 // Uses techniques from https://diogomonica.com/2017/01/11/hitless-tls-certificate-rotation-in-go/
 // to automatically rotate certificates when they're renewed.
 
@@ -65,7 +85,7 @@ func (l *LegoUser) GetPrivateKey() crypto.PrivateKey {
 // certificates with the tls package.`
 type CertManager struct {
 	sync.RWMutex
-	acmeClient  *lego.Client
+	acmeClient  Client
 	certificate *tls.Certificate
 	cas         *x509.CertPool
 	domains     []string
@@ -78,58 +98,14 @@ type CertManager struct {
 // NewCertManager configures an ACME client, creates & registers a new ACME
 // user. After creating a client you must call ObtainCertificate and
 // RenewCertificate yourself.
-func NewCertManager(cas []*x509.Certificate, caDirURL, email string, domains []string, tickFrequency time.Duration) (*CertManager, error) {
-	// Create a new ACME user with a new key.
-	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if err != nil {
-		return nil, err
-	}
-	user := &LegoUser{
-		email: email,
-		key:   key,
-	}
-
-	// Get an HTTPS client configured to trust our root certificate.
-	httpClient, err := getHTTPSClient(cas)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create a configuration using our HTTPS client, ACME server, user details.
-	config := &lego.Config{
-		CADirURL:   caDirURL,
-		User:       user,
-		HTTPClient: httpClient,
-		Certificate: lego.CertificateConfig{
-			KeyType: certcrypto.RSA2048,
-			Timeout: 30 * time.Second,
-		},
-	}
-
-	// Create an ACME client and configure use of `http-01` challenge
-	acmeClient, err := lego.NewClient(config)
-	if err != nil {
-		return nil, err
-	}
-	err = acmeClient.Challenge.SetHTTP01Provider(http01.NewProviderServer("", "80"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Register our ACME user
-	registration, err := acmeClient.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
-	if err != nil {
-		return nil, err
-	}
-	user.registration = registration
-
+func NewCertManager(cas []*x509.Certificate, domains []string, tickFrequency time.Duration, acmeClient Client) (*CertManager, error) {
 	acm := &CertManager{
 		acmeClient: acmeClient,
 		domains:    domains,
 		cas:        security.NewDefaultCertPool(cas),
 	}
 
-	err = acm.ObtainCertificate()
+	err := acm.ObtainCertificate()
 	if err != nil {
 		return nil, fmt.Errorf("cannot load certificate and key: %v", err)
 	}
@@ -177,7 +153,7 @@ func (a *CertManager) ObtainCertificate() error {
 		Bundle:  true,
 	}
 
-	resource, err := a.acmeClient.Certificate.Obtain(request)
+	resource, err := a.acmeClient.Certificate().Obtain(request)
 	if err != nil {
 		return err
 	}
@@ -187,7 +163,7 @@ func (a *CertManager) ObtainCertificate() error {
 
 // RenewCertificate renews an existing certificate using ACME. Not thread safe.
 func (a *CertManager) RenewCertificate() error {
-	resource, err := a.acmeClient.Certificate.Renew(*a.resource, true, false)
+	resource, err := a.acmeClient.Certificate().Renew(*a.resource, true, false)
 	if err != nil {
 		return err
 	}
@@ -295,6 +271,14 @@ type Config struct {
 	TickFrequency time.Duration `envconfig:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
 }
 
+type legoClient struct {
+	c *lego.Client
+}
+
+func (c *legoClient) Certificate() Certifier {
+	return c.c.Certificate
+}
+
 // NewCertManagerFromConfiguration creates certificate manager from config.
 func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 	var cas []*x509.Certificate
@@ -305,5 +289,47 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 		}
 		cas = certs
 	}
-	return NewCertManager(cas, config.CADirURL, config.Email, config.Domains, config.TickFrequency)
+	// Create a new ACME user with a new key.
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+	user := NewUser(config.Email, key)
+
+	// Get an HTTPS client configured to trust our root certificate.
+	httpClient, err := GetHTTPSClient(cas)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a configuration using our HTTPS client, ACME server, user details.
+	cfg := &lego.Config{
+		CADirURL:   config.CADirURL,
+		User:       user,
+		HTTPClient: httpClient,
+		Certificate: lego.CertificateConfig{
+			KeyType: certcrypto.EC256,
+			Timeout: 30 * time.Second,
+		},
+	}
+
+	// Create an ACME client and configure use of `http-01` challenge
+	acmeClient, err := lego.NewClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = acmeClient.Challenge.SetHTTP01Provider(http01.NewProviderServer("", "80"))
+	if err != nil {
+		return nil, err
+	}
+
+	// Register our ACME user
+	registration, err := acmeClient.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
+	if err != nil {
+		return nil, err
+	}
+	user.SetRegistration(registration)
+
+	return NewCertManager(cas, config.Domains, config.TickFrequency, &legoClient{acmeClient})
 }

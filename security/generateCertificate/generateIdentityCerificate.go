@@ -17,11 +17,10 @@ type basicConstraints struct {
 	CA bool
 }
 
-// GenerateIdentityCSR creates identity CSR according to configuration.
-func GenerateIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.PrivateKey) ([]byte, error) {
-	//create the csr
-	subj := cfg.ToPkixName()
-	subj.CommonName = fmt.Sprintf("uuid:%v", deviceID)
+func NewIdentityCSRTemplate(deviceID string) (*x509.CertificateRequest, error) {
+	subj := pkix.Name{
+		CommonName: fmt.Sprintf("uuid:%v", deviceID),
+	}
 
 	val, err := asn1.Marshal([]asn1.ObjectIdentifier{asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}, asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 2}, asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 44924, 1, 6}})
 	if err != nil {
@@ -38,10 +37,8 @@ func GenerateIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.P
 		return nil, err
 	}
 
-	rawSubj := subj.ToRDNSequence()
-	asn1Subj, _ := asn1.Marshal(rawSubj)
 	template := x509.CertificateRequest{
-		RawSubject: asn1Subj,
+		Subject: subj,
 		ExtraExtensions: []pkix.Extension{
 			{
 				Id:       asn1.ObjectIdentifier{2, 5, 29, 19}, //basic constraints
@@ -59,10 +56,22 @@ func GenerateIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.P
 				Critical: false,
 			},
 		},
-		SignatureAlgorithm: x509.ECDSAWithSHA256,
 	}
+	return &template, nil
+}
 
-	csrDER, err := x509.CreateCertificateRequest(rand.Reader, &template, privateKey)
+// GenerateIdentityCSR creates identity CSR according to configuration.
+func GenerateIdentityCSR(cfg Configuration, deviceID string, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+	//create the csr
+	template, err := NewIdentityCSRTemplate(deviceID)
+	if err != nil {
+		return nil, err
+	}
+	subj := cfg.ToPkixName()
+	subj.CommonName = template.Subject.CommonName
+	template.Subject = subj
+
+	csrDER, err := x509.CreateCertificateRequest(rand.Reader, template, privateKey)
 	if err != nil {
 		return nil, err
 	}
