@@ -28,11 +28,11 @@ type ocfClient struct {
 }
 
 func (c *ocfClient) Certificate() acme.Certifier {
-	return c.Certificate()
+	return c.c.Certificate()
 }
 
-// NewOCFCertManagerFromConfiguration creates certificate manager from config.
-func NewOCFCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
+// NewCertManagerFromConfiguration creates certificate manager from config.
+func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)

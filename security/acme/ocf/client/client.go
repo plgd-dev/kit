@@ -6,10 +6,11 @@ import (
 	"github.com/go-acme/lego/challenge/resolver"
 	"github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
+	patcheAcmeClient "github.com/go-ocf/kit/security/acme/client"
 )
 
 type Client struct {
-	c        *lego.Client
+	c        *patcheAcmeClient.Client
 	deviceID string
 }
 
@@ -23,12 +24,13 @@ func NewClient(cfg Config) (*Client, error) {
 		return nil, fmt.Errorf("invalid DeviceID")
 	}
 
-	c, err := lego.NewClient(&cfg.Config)
+	c, err := patcheAcmeClient.NewClient(&cfg.Config)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
-		c: c,
+		c:        c,
+		deviceID: cfg.DeviceID,
 	}, nil
 }
 

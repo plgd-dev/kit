@@ -233,6 +233,7 @@ func (a *CertManager) switchCertificate(newResource *certificate.Resource) error
 	// for use with the tls package.
 	crt, err := tls.X509KeyPair(newResource.Certificate, newResource.PrivateKey)
 	if err != nil {
+		fmt.Printf("newResource.Certificate %v newResource.PrivateKey %v\n", newResource.Certificate, newResource.PrivateKey)
 		return err
 	}
 

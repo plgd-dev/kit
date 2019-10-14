@@ -1,12 +1,17 @@
 package client
 
 import (
+	"crypto"
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	"encoding/pem"
 
 	"github.com/go-acme/lego/certificate"
+	patcheAcmeClient "github.com/go-ocf/kit/security/acme/client"
 	"github.com/go-ocf/kit/security/generateCertificate"
 	"golang.org/x/crypto/ocsp"
 )
@@ -18,25 +23,26 @@ var (
 )
 
 type certifier struct {
-	c        *certificate.Certifier
-	deviceID string
+	c          *patcheAcmeClient.Certifier
+	deviceID   string
+	privateKey crypto.PrivateKey
 }
 
-func getCsr(request certificate.ObtainRequest, deviceID string) (*x509.CertificateRequest, error) {
+func getCsr(deviceID string, domains []string, mustStaple bool, privateKey crypto.PrivateKey) (*x509.CertificateRequest, error) {
 	template, err := generateCertificate.NewIdentityCSRTemplate(deviceID)
 	if err != nil {
 		return nil, err
 	}
-	template.DNSNames = request.Domains
+	template.DNSNames = domains
 
-	if request.MustStaple {
+	if mustStaple {
 		template.ExtraExtensions = append(template.ExtraExtensions, pkix.Extension{
 			Id:    tlsFeatureExtensionOID,
 			Value: ocspMustStapleFeature,
 		})
 	}
 
-	raw, err := x509.CreateCertificateRequest(rand.Reader, template, request.PrivateKey)
+	raw, err := x509.CreateCertificateRequest(rand.Reader, template, privateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -48,11 +54,33 @@ func getCsr(request certificate.ObtainRequest, deviceID string) (*x509.Certifica
 // This function will never return a partial certificate.
 // If one domain in the list fails, the whole certificate will fail.
 func (c *certifier) Obtain(request certificate.ObtainRequest) (*certificate.Resource, error) {
-	csr, err := getCsr(request, c.deviceID)
+	privateKey := request.PrivateKey
+	var err error
+	var privateKeyBuf []byte
+	if privateKey == nil {
+		ecPrivateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+		if err != nil {
+			return nil, err
+		}
+		privateKeyBuf, err = x509.MarshalECPrivateKey(ecPrivateKey)
+		if err != nil {
+			return nil, err
+		}
+		privateKey = ecPrivateKey
+		privateKeyBuf = pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privateKeyBuf})
+	}
+
+	csr, err := getCsr(c.deviceID, request.Domains, request.MustStaple, privateKey)
 	if err != nil {
 		return nil, err
 	}
-	return c.ObtainForCSR(*csr, request.Bundle)
+	res, err := c.ObtainForCSR(*csr, request.Bundle)
+	if err != nil {
+		return nil, err
+	}
+
+	res.PrivateKey = privateKeyBuf
+	return res, nil
 }
 
 // ObtainForCSR tries to obtain a certificate matching the CSR passed into it.
