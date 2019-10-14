@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 
 	"google.golang.org/grpc"
@@ -22,8 +23,8 @@ func MakeAuthInterceptors(authFunc Interceptor) AuthInterceptors {
 	return AuthInterceptors{authFunc: authFunc}
 }
 
-func MakeJWTInterceptors(jwksUrl string, claims ClaimsFunc) AuthInterceptors {
-	return MakeAuthInterceptors(ValidateJWT(jwksUrl, claims))
+func MakeJWTInterceptors(jwksUrl string, tls tls.Config, claims ClaimsFunc) AuthInterceptors {
+	return MakeAuthInterceptors(ValidateJWT(jwksUrl, tls, claims))
 }
 
 func (f AuthInterceptors) Unary() grpc.ServerOption {
@@ -36,8 +37,8 @@ func (f AuthInterceptors) Stream() grpc.ServerOption {
 type ClaimsFunc = func(ctx context.Context, method string) Claims
 type Claims = interface{ Valid() error }
 
-func ValidateJWT(jwksUrl string, claims ClaimsFunc) Interceptor {
-	validator := jwt.NewValidator(jwksUrl)
+func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor {
+	validator := jwt.NewValidator(jwksUrl, tls)
 	return func(ctx context.Context, method string) (context.Context, error) {
 		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
 		if err != nil {

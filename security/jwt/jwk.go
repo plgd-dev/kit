@@ -1,21 +1,29 @@
 package jwt
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"sync"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/lestrrat-go/jwx/jwk"
+
+	kitHttp "github.com/go-ocf/kit/http"
 )
 
 type KeyCache struct {
 	url  string
+	http *http.Client
 	m    sync.Mutex
 	keys *jwk.Set
 }
 
-func NewKeyCache(url string) *KeyCache {
-	return &KeyCache{url: url}
+func NewKeyCache(url string, tls tls.Config) *KeyCache {
+	transport := kitHttp.NewDefaultTransport()
+	transport.TLSClientConfig = &tls
+	client := http.Client{Transport: transport}
+	return &KeyCache{url: url, http: &client}
 }
 
 func (c *KeyCache) GetOrFetchKey(token *jwt.Token) (interface{}, error) {
@@ -57,7 +65,7 @@ func (c *KeyCache) LookupKey(token *jwt.Token) (jwk.Key, error) {
 }
 
 func (c *KeyCache) FetchKeys() error {
-	keys, err := jwk.FetchHTTP(c.url)
+	keys, err := jwk.FetchHTTP(c.url, jwk.WithHTTPClient(c.http))
 	if err != nil {
 		return fmt.Errorf("could not fetch JWK: %v", err)
 	}

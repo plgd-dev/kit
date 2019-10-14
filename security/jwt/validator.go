@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"crypto/tls"
 	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
@@ -10,8 +11,8 @@ type Validator struct {
 	keys *KeyCache
 }
 
-func NewValidator(jwksUrl string) *Validator {
-	return &Validator{keys: NewKeyCache(jwksUrl)}
+func NewValidator(jwksUrl string, tls tls.Config) *Validator {
+	return &Validator{keys: NewKeyCache(jwksUrl, tls)}
 }
 
 func (v *Validator) Parse(token string) (jwt.MapClaims, error) {
