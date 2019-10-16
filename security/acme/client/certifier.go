@@ -1,4 +1,4 @@
-package lego
+package client
 
 import (
 	"crypto"

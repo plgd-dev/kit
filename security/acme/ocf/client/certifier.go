@@ -11,7 +11,7 @@ import (
 	"encoding/pem"
 
 	"github.com/go-acme/lego/certificate"
-	patcheAcmeClient "github.com/go-ocf/kit/security/acme/client"
+	"github.com/go-ocf/kit/security/acme/client"
 	"github.com/go-ocf/kit/security/generateCertificate"
 	"golang.org/x/crypto/ocsp"
 )
@@ -23,7 +23,7 @@ var (
 )
 
 type certifier struct {
-	c          *patcheAcmeClient.Certifier
+	c          *client.Certifier
 	deviceID   string
 	privateKey crypto.PrivateKey
 }
