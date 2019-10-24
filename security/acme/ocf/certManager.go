@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/go-acme/lego/certcrypto"
@@ -41,6 +42,10 @@ func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 		}
 		cas = certs
 	}
+	if config.ChallengeListenPort == 0 {
+		return nil, fmt.Errorf("invalid ChallengeListenPort")
+	}
+
 	// Create a new ACME user with a new key.
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
@@ -74,7 +79,7 @@ func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 		return nil, err
 	}
 
-	err = acmeClient.Challenge().SetHTTP01Provider(http01.NewProviderServer("", "80"))
+	err = acmeClient.Challenge().SetHTTP01Provider(http01.NewProviderServer("", strconv.Itoa(int(config.ChallengeListenPort))))
 	if err != nil {
 		return nil, err
 	}
