@@ -30,6 +30,11 @@ func (r *RefCounter) Acquire() {
 	}
 }
 
+// Count returns current counter value.
+func (r *RefCounter) Count() int64 {
+	return atomic.LoadInt64(&r.count)
+}
+
 // Release decrements counter, when counter reach 0, releaseDataFunc will be called
 func (r *RefCounter) Release(ctx context.Context) error {
 	v := atomic.AddInt64(&r.count, -1)
