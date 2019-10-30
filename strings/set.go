@@ -25,6 +25,9 @@ func (set Set) Add(a ...string) {
 }
 
 func (set Set) HasOneOf(a ...string) bool {
+	if len(a) == 0 {
+		return true
+	}
 	for _, s := range a {
 		if _, ok := set[s]; ok {
 			return true

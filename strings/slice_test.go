@@ -6,6 +6,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSliceContains(t *testing.T) {
+	require.True(t, SliceContains([]string{"1", "2"}, "1"))
+}
+
+func TestSliceNotContains(t *testing.T) {
+	require.False(t, SliceContains([]string{"1", "2"}, "3"))
+}
+
 func TestNilToSlice(t *testing.T) {
 	require.Nil(t, ToSlice(nil))
 }
