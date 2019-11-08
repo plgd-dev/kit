@@ -20,6 +20,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/go-ocf/cqrs/eventstore/maintenance"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -72,20 +74,49 @@ func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc
 	}, nil
 }
 
+// Save saves events to a path.
 func (s *EventStore) Save(ctx context.Context, groupId, aggregateId string, events []event.Event) (concurrencyException bool, err error) {
 	return s.es.Save(ctx, groupId, aggregateId, events)
 }
 
+// SaveSnapshot saves snapshots to a path.
 func (s *EventStore) SaveSnapshot(ctx context.Context, groupId, aggregateId string, event event.Event) (concurrencyException bool, err error) {
 	return s.es.SaveSnapshot(ctx, groupId, aggregateId, event)
 }
 
+// LoadFromVersion loads aggragate events from a specific version.
 func (s *EventStore) LoadFromVersion(ctx context.Context, queries []eventstore.VersionQuery, eventHandler event.Handler) error {
 	return s.es.LoadFromVersion(ctx, queries, eventHandler)
 }
 
+// LoadUpToVersion loads aggragate events up to a specific version.
+func (s *EventStore) LoadUpToVersion(ctx context.Context, queries []eventstore.VersionQuery, eventHandler event.Handler) error {
+	return s.es.LoadUpToVersion(ctx, queries, eventHandler)
+}
+
+// LoadFromSnapshot loads events from begining.
 func (s *EventStore) LoadFromSnapshot(ctx context.Context, queries []eventstore.SnapshotQuery, eventHandler event.Handler) error {
 	return s.es.LoadFromSnapshot(ctx, queries, eventHandler)
+}
+
+// RemoveUpToVersion deletes the aggragates events up to a specific version.
+func (s *EventStore) RemoveUpToVersion(ctx context.Context, queries []eventstore.VersionQuery) error {
+	return s.es.RemoveUpToVersion(ctx, queries)
+}
+
+// Insert stores (or updates) the information about the latest snapshot version per aggregate into the DB
+func (s *EventStore) Insert(ctx context.Context, task maintenance.Task) error {
+	return s.es.Insert(ctx, task)
+}
+
+// Query retrieves the latest snapshot version per aggregate for thw number of aggregates specified by 'limit'
+func (s *EventStore) Query(ctx context.Context, limit int, taskHandler maintenance.TaskHandler) error {
+	return s.es.Query(ctx, limit, taskHandler)
+}
+
+// Remove deletes (the latest snapshot version) database record for a given aggregate ID
+func (s *EventStore) Remove(ctx context.Context, task maintenance.Task) error {
+	return s.es.Remove(ctx, task)
 }
 
 // Clear clears the event storage.
