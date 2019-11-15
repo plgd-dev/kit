@@ -50,9 +50,14 @@ type EventStore struct {
 }
 
 //NewEventStore create a event store from configuration
-func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc) (*EventStore, error) {
+func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc, opts ...Option) (*EventStore, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	config.unmarshalerFunc = cqrsUtils.Unmarshal
+	for _, o := range opts {
+		config = o(config)
+	}
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.URI).SetMaxPoolSize(config.MaxPoolSize).SetMaxConnIdleTime(config.MaxConnIdleTime))
 	if err != nil {
