@@ -19,11 +19,11 @@ func WithUnmmarshaler(f event.UnmarshalerFunc) Option {
 
 // Config provides Mongo DB configuration options
 type Config struct {
-	URI             string        `short: "u" long: "uri" envconfig:"URI" default:"mongodb://localhost:27017"`
-	DatabaseName    string        `short: "n" long: "dbName" envconfig:"DATABASE" default:"eventStore"`
-	BatchSize       int           `short: "b" long: "batchSize" envconfig:"BATCH_SIZE" default:"16"`
-	MaxPoolSize     uint64        `short: long: "maxPoolSize" envconfig:"MAX_POOL_SIZE" default:"16"`
-	MaxConnIdleTime time.Duration `short: long: "maxConnIdleTime" envconfig:"MAX_CONN_IDLE_TIME" default:"240s"`
+	URI             string        `short:"u" long:"uri" envconfig:"URI" default:"mongodb://localhost:27017"`
+	DatabaseName    string        `short:"n" long:"dbName" envconfig:"DATABASE" default:"eventStore"`
+	BatchSize       int           `long:"batchSize" envconfig:"BATCH_SIZE" default:"16"`
+	MaxPoolSize     uint64        `long:"maxPoolSize" envconfig:"MAX_POOL_SIZE" default:"16"`
+	MaxConnIdleTime time.Duration `long:"maxConnIdleTime" envconfig:"MAX_CONN_IDLE_TIME" default:"240s"`
 	unmarshalerFunc event.UnmarshalerFunc
 }
 
