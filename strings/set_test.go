@@ -10,7 +10,9 @@ import (
 func TestSet(t *testing.T) {
 	a := []string{"1", "2", "3"}
 	s := MakeSet(a...)
-	require.Equal(t, a, s.ToSlice())
+	slice := s.ToSlice()
+	sort.Strings(slice)
+	require.Equal(t, a, slice)
 }
 
 func TestAddingSet(t *testing.T) {
