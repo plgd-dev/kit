@@ -1,6 +1,7 @@
 package strings
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,7 +17,9 @@ func TestAddingSet(t *testing.T) {
 	a := []string{"1", "2", "3"}
 	s := MakeSet()
 	s.Add(a...)
-	require.Equal(t, a, s.ToSlice())
+	slice := s.ToSlice()
+	sort.Strings(slice)
+	require.Equal(t, a, slice)
 }
 
 func TestSetHasOneOf(t *testing.T) {
