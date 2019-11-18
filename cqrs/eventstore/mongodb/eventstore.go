@@ -54,6 +54,7 @@ func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
+	config.marshalerFunc = cqrsUtils.Marshal
 	config.unmarshalerFunc = cqrsUtils.Unmarshal
 	for _, o := range opts {
 		config = o(config)
@@ -68,7 +69,7 @@ func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc
 		return nil, fmt.Errorf("could not dial database: %v", err)
 	}
 
-	es, err := cqrsMongodb.NewEventStoreWithClient(ctx, client, config.DatabaseName, "events", config.BatchSize, goroutinePoolGo, cqrsUtils.Marshal, cqrsUtils.Unmarshal, log.Debugf)
+	es, err := cqrsMongodb.NewEventStoreWithClient(ctx, client, config.DatabaseName, "events", config.BatchSize, goroutinePoolGo, config.marshalerFunc, config.unmarshalerFunc, log.Debugf)
 	if err != nil {
 		return nil, err
 	}
