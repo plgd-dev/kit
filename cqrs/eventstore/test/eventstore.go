@@ -44,7 +44,8 @@ func (s *MockEventStore) LoadFromVersion(ctx context.Context, queries []eventsto
 	return eventHandler.Handle(ctx, &iter{events: events})
 }
 
-func (c *MockEventStore) LoadUpToVersion(ctx context.Context, queries []eventstore.VersionQuery, eventHandler event.Handler) error {
+// LoadUpToVersion loads aggragate events up to a specific version.
+func (s *MockEventStore) LoadUpToVersion(ctx context.Context, queries []eventstore.VersionQuery, eventHandler event.Handler) error {
 	return errors.New("not supported")
 }
 
@@ -104,7 +105,8 @@ func (s *MockEventStore) LoadFromSnapshot(ctx context.Context, queries []eventst
 	return s.LoadFromVersion(ctx, ret, eventHandler)
 }
 
-func (c *MockEventStore) RemoveUpToVersion(ctx context.Context, queries []eventstore.VersionQuery) error {
+// RemoveUpToVersion deletes the aggragates events up to a specific version.
+func (s *MockEventStore) RemoveUpToVersion(ctx context.Context, queries []eventstore.VersionQuery) error {
 	return errors.New("not supported")
 }
 
