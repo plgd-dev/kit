@@ -8,7 +8,7 @@ require (
 	github.com/eapache/go-resiliency v1.2.0 // indirect
 	github.com/frankban/quicktest v1.5.0 // indirect
 	github.com/go-acme/lego v2.7.2+incompatible
-	github.com/go-ocf/cqrs v0.0.0-20190925123934-fc3dcec96e06
+	github.com/go-ocf/cqrs v0.0.0-20191107150148-d3546606da81
 	github.com/go-ocf/go-coap v0.0.0-20191015202911-fb71e4849cb6
 	github.com/go-ocf/resource-aggregate v0.0.0-20191029134509-e0e86ccebf83 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible

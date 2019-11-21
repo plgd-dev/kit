@@ -44,6 +44,11 @@ func (s *MockEventStore) LoadFromVersion(ctx context.Context, queries []eventsto
 	return eventHandler.Handle(ctx, &iter{events: events})
 }
 
+// LoadUpToVersion loads aggragate events up to a specific version.
+func (s *MockEventStore) LoadUpToVersion(ctx context.Context, queries []eventstore.VersionQuery, eventHandler event.Handler) error {
+	return errors.New("not supported")
+}
+
 func makeModelId(groupId, aggregateId string) string {
 	return groupId + "." + aggregateId
 }
@@ -98,6 +103,11 @@ func (s *MockEventStore) LoadFromSnapshot(ctx context.Context, queries []eventst
 	}
 
 	return s.LoadFromVersion(ctx, ret, eventHandler)
+}
+
+// RemoveUpToVersion deletes the aggragates events up to a specific version.
+func (s *MockEventStore) RemoveUpToVersion(ctx context.Context, queries []eventstore.VersionQuery) error {
+	return errors.New("not supported")
 }
 
 type iter struct {
