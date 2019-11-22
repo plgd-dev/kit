@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/Shopify/sarama v1.24.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/eapache/go-resiliency v1.2.0 // indirect
 	github.com/frankban/quicktest v1.5.0 // indirect
 	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/go-ocf/cqrs v0.0.0-20191107150148-d3546606da81
@@ -16,7 +15,6 @@ require (
 	github.com/golang/snappy v0.0.2-0.20190904063534-ff6b7dc882cf
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
-	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/lestrrat-go/jwx v0.9.0
 	github.com/nats-io/go-nats v1.7.2
@@ -33,5 +31,4 @@ require (
 	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	google.golang.org/grpc v1.24.0
-	gopkg.in/jcmturner/gokrb5.v7 v7.3.0 // indirect
 )
