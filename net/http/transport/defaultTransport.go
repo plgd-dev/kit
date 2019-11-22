@@ -1,13 +1,13 @@
-package http
+package transport
 
 import (
-	netHttp "net/http"
+	"net/http"
 )
 
 // NewDefaultTransport creates a copy of http.DefaultTransport.
-func NewDefaultTransport() *netHttp.Transport {
-	defaultTransport := netHttp.DefaultTransport.(*netHttp.Transport)
-	return &netHttp.Transport{
+func NewDefaultTransport() *http.Transport {
+	defaultTransport := http.DefaultTransport.(*http.Transport)
+	return &http.Transport{
 		TLSClientConfig:        defaultTransport.TLSClientConfig,
 		Proxy:                  defaultTransport.Proxy,
 		DialContext:            defaultTransport.DialContext,
