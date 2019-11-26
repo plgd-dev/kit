@@ -18,7 +18,10 @@ const bearerKey = "bearer"
 const authorizationKey = "authorization"
 
 func CtxWithToken(ctx context.Context, token string) context.Context {
-	return context.WithValue(ctx, authorizationKey, fmt.Sprintf("%s %s", bearerKey, token))
+	if (!strings.HasPrefix(token, bearerKey + " ")) {
+		token =  fmt.Sprintf("%s %s", bearerKey, token)
+	}
+	return context.WithValue(ctx, authorizationKey, token)
 }
 
 func TokenFromCtx(ctx context.Context) (string, error) {
