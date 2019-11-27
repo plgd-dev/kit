@@ -16,7 +16,7 @@ func TestInvalidScope(t *testing.T) {
 	c := testScopeClaims("invalid")
 	err := c.Valid()
 	require.Error(t, err)
-	require.Contains(t, err.Error(), "must contains one of scopes")
+	require.Contains(t, err.Error(), "missing scopes")
 }
 
 func TestExpiredScope(t *testing.T) {

@@ -29,16 +29,23 @@ func (c *ScopeClaims) Valid() error {
 	if err := c.Claims.Valid(); err != nil {
 		return err
 	}
+	notMatched := make(map[string]bool)
+	for _, reg := range c.requiredScopes {
+		notMatched[reg.String()] = true
+	}
 	for _, scope := range c.GetScope() {
 		for _, requiredScope := range c.requiredScopes {
 			if (requiredScope.MatchString(scope)) {
-				return nil
+				delete(notMatched, requiredScope.String())
 			}
 		}
 	}
-	requiredScopes := make([]string, 0, len(c.requiredScopes))
-	for _, scope := range c.requiredScopes {
-		requiredScopes = append(requiredScopes, scope.String())
+	if len(notMatched) == 0 {
+		return nil
 	}
-	return fmt.Errorf("must contains one of scopes: %+v", requiredScopes)
+	requiredScopes := make([]string, 0, len(notMatched))
+	for scope := range notMatched {
+		requiredScopes = append(requiredScopes, scope)
+	}
+	return fmt.Errorf("missing scopes: %+v", requiredScopes)
 }
