@@ -8,10 +8,14 @@ import (
 )
 
 type Claims struct {
-	ClientID string   `json:"client_id"`
-	Email    string   `json:"email"`
-	Scope    []string `json:"scope"`
+	ClientID string      `json:"client_id"`
+	Email    string      `json:"email"`
+	Scope    interface{} `json:"scope"`
 	StandardClaims
+}
+
+func (c Claims) GetScope() []string {
+	return strings.ToSlice(c.Scope)
 }
 
 // https://tools.ietf.org/html/rfc7519#section-4.1

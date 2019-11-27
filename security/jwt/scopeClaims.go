@@ -22,7 +22,7 @@ func (c *ScopeClaims) Valid() error {
 	if err := c.Claims.Valid(); err != nil {
 		return err
 	}
-	if !strings.SliceContains(c.Scope, c.requiredScope) {
+	if !strings.SliceContains(c.GetScope(), c.requiredScope) {
 		return fmt.Errorf("missing scope: %s", c.requiredScope)
 	}
 	return nil
