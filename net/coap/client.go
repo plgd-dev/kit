@@ -16,7 +16,9 @@ import (
 	uuid "github.com/gofrs/uuid"
 
 	gocoap "github.com/go-ocf/go-coap"
+	"github.com/go-ocf/go-coap/codes"
 	codecOcf "github.com/go-ocf/kit/codec/ocf"
+	"github.com/go-ocf/kit/net/coap/status"
 	"github.com/go-ocf/kit/security"
 )
 
@@ -176,11 +178,11 @@ func (c *Client) UpdateResourceWithCodec(
 	if err != nil {
 		return fmt.Errorf("could not query %s: %v", href, err)
 	}
-	if resp.Code() != gocoap.Changed && resp.Code() != gocoap.Valid {
-		return fmt.Errorf("request failed: %s", codecOcf.Dump(resp))
+	if resp.Code() != codes.Changed && resp.Code() != codes.Valid {
+		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
-		return fmt.Errorf("could not decode the query %s: %v", href, err)
+		return status.Error(resp, fmt.Errorf("could not decode the query %s: %v", href, err))
 	}
 	return nil
 }
@@ -212,11 +214,11 @@ func (c *Client) GetResourceWithCodec(
 	if err != nil {
 		return fmt.Errorf("could not query %s: %v", href, err)
 	}
-	if resp.Code() != gocoap.Content {
-		return fmt.Errorf("request failed: %s", codecOcf.Dump(resp))
+	if resp.Code() != codes.Content {
+		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
-		return fmt.Errorf("could not decode the query %s: %v", href, err)
+		return status.Error(resp, fmt.Errorf("could not decode the query %s: %v", href, err))
 	}
 	return nil
 }
@@ -239,11 +241,11 @@ func (c *Client) DeleteResourceWithCodec(
 	if err != nil {
 		return fmt.Errorf("could not query %s: %v", href, err)
 	}
-	if resp.Code() != gocoap.Deleted {
-		return fmt.Errorf("request failed: %s", codecOcf.Dump(resp))
+	if resp.Code() != codes.Deleted {
+		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
-		return fmt.Errorf("could not decode the query %s: %v", href, err)
+		return status.Error(resp, fmt.Errorf("could not decode the query %s: %v", href, err))
 	}
 	return nil
 }
@@ -293,11 +295,11 @@ func observationHandler(codec Codec, handler ObservationHandler) func(*gocoap.Re
 
 func decodeObservation(codec Codec, m gocoap.Message) DecodeFunc {
 	return func(body interface{}) error {
-		if m.Code() != gocoap.Content {
-			return fmt.Errorf("observation failed: %s", codecOcf.Dump(m))
+		if m.Code() != codes.Content {
+			return status.Error(m, fmt.Errorf("observation failed: %s", codecOcf.Dump(m)))
 		}
 		if err := codec.Decode(m, body); err != nil {
-			return fmt.Errorf("could not decode observation: %v", err)
+			return status.Error(m, fmt.Errorf("could not decode observation: %v", err))
 		}
 		return nil
 	}

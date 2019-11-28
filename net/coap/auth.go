@@ -1,17 +1,17 @@
 package coap
 
 import (
-	"strings"
-	"fmt"
-	"crypto/tls"
 	"context"
-	gocoap "github.com/go-ocf/go-coap"
+	"crypto/tls"
+	"fmt"
+	"strings"
+
+	"github.com/go-ocf/go-coap/codes"
 	"github.com/go-ocf/kit/security/jwt"
 )
 
-
 type Claims = interface{ Valid() error }
-type ClaimsFunc = func(ctx context.Context, code gocoap.COAPCode, path string) Claims
+type ClaimsFunc = func(ctx context.Context, code codes.Code, path string) Claims
 
 const bearerKey = "bearer"
 const authorizationKey = "authorization"
@@ -22,7 +22,7 @@ func CtxWithToken(ctx context.Context, token string) context.Context {
 
 func TokenFromCtx(ctx context.Context) (string, error) {
 	val := ctx.Value(authorizationKey)
-	if bearer, ok := val.(string); ok && strings.HasPrefix(bearer, bearerKey + " ") {
+	if bearer, ok := val.(string); ok && strings.HasPrefix(bearer, bearerKey+" ") {
 		token := strings.TrimPrefix(bearer, bearerKey+" ")
 		if token == "" {
 			return "", fmt.Errorf("invalid token")
@@ -34,7 +34,7 @@ func TokenFromCtx(ctx context.Context) (string, error) {
 
 func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor {
 	validator := jwt.NewValidator(jwksUrl, tls)
-	return func(ctx context.Context, code gocoap.COAPCode, path string) (context.Context, error) {
+	return func(ctx context.Context, code codes.Code, path string) (context.Context, error) {
 		token, err := TokenFromCtx(ctx)
 		if err != nil {
 			return nil, err
