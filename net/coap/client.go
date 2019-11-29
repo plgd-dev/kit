@@ -14,7 +14,7 @@ import (
 	"time"
 
 	uuid "github.com/gofrs/uuid"
-	"github.com/pion/dtls"
+	dtls "github.com/pion/dtls/v2"
 	"github.com/pion/logging"
 
 	gocoap "github.com/go-ocf/go-coap"
@@ -493,8 +493,8 @@ func DialUDPSecure(ctx context.Context, addr string, cert tls.Certificate, cas [
 	tlsConfig := dtls.Config{
 		LoggerFactory:      log,
 		InsecureSkipVerify: true,
-		Certificate:        cert,
-		VerifyPeerCertificate: func(rawCerts [][]byte, verified bool) error {
+		Certificates:       []tls.Certificate{cert},
+		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			intermediateCAPool := x509.NewCertPool()
 			var certificate *x509.Certificate
 			for _, rawCert := range rawCerts {
@@ -505,8 +505,8 @@ func DialUDPSecure(ctx context.Context, addr string, cert tls.Certificate, cas [
 				if certificate == nil {
 					certificate = certs[0]
 				} else {
-					for _, cert := range certs {
-						intermediateCAPool.AddCert(cert)
+					for i := 1; i < len(certs); i++ {
+						intermediateCAPool.AddCert(certs[i])
 					}
 				}
 			}
