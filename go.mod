@@ -8,10 +8,11 @@ require (
 	github.com/frankban/quicktest v1.5.0 // indirect
 	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/go-ocf/cqrs v0.0.0-20191107150148-d3546606da81
-	github.com/go-ocf/go-coap v0.0.0-20191015202911-fb71e4849cb6
+	github.com/go-ocf/go-coap v0.0.0-20191127135503-9fb53c744e1d
 	github.com/go-ocf/resource-aggregate v0.0.0-20191029134509-e0e86ccebf83 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gogo/protobuf v1.3.1
+	github.com/golang/protobuf v1.3.2
 	github.com/golang/snappy v0.0.2-0.20190904063534-ff6b7dc882cf
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
@@ -27,8 +28,9 @@ require (
 	github.com/valyala/fasthttp v1.6.0
 	go.mongodb.org/mongo-driver v1.1.2
 	go.uber.org/zap v1.11.0
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
+	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf
 	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03
 	google.golang.org/grpc v1.24.0
 )
