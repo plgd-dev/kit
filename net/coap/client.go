@@ -437,7 +437,6 @@ func createVerifyPeerCertificate(cas []*x509.Certificate, verifyPeerCertificate 
 			return fmt.Errorf("empty certificates chain")
 		}
 		intermediateCAPool := x509.NewCertPool()
-		var certificate *x509.Certificate
 		certs := make([]*x509.Certificate, 0, len(rawCerts))
 		for _, rawCert := range rawCerts {
 			cert, err := x509.ParseCertificate(rawCert)
@@ -458,7 +457,10 @@ func createVerifyPeerCertificate(cas []*x509.Certificate, verifyPeerCertificate 
 		if err != nil {
 			return err
 		}
-		if verifyPeerCertificate(certificate) != nil {
+		if verifyPeerCertificate == nil {
+			return nil
+		}
+		if verifyPeerCertificate(certs[0]) != nil {
 			return err
 		}
 		return nil
