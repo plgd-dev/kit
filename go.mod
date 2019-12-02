@@ -7,7 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/go-ocf/cqrs v0.0.0-20191129082251-45543ddee4b1
-	github.com/go-ocf/go-coap v0.0.0-20191129090313-8c138c19b6ec
+	github.com/go-ocf/go-coap v0.0.0-20191202082900-28b53dd37265
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.3.2

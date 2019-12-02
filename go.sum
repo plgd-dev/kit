@@ -52,6 +52,8 @@ github.com/go-ocf/go-coap v0.0.0-20191127135503-9fb53c744e1d h1:C/me3wUAhFERiryp
 github.com/go-ocf/go-coap v0.0.0-20191127135503-9fb53c744e1d/go.mod h1:1sSPqpt18lLSPjJIFmb+oHKmTZ5n794pm3Iy/t8LIVY=
 github.com/go-ocf/go-coap v0.0.0-20191129090313-8c138c19b6ec h1:QCnXPqrdLptCVx0B9vxZJn/oNY/SODv2oSzdNeWFDTc=
 github.com/go-ocf/go-coap v0.0.0-20191129090313-8c138c19b6ec/go.mod h1:54s0jDaba7/rZ2/EoOxWF/5OIE4XuKjtsRTr9greoA0=
+github.com/go-ocf/go-coap v0.0.0-20191202082900-28b53dd37265 h1:yTKWhIYl3vz6hs4a2mClOGKdCOfxahv/XUVK/oSYvM8=
+github.com/go-ocf/go-coap v0.0.0-20191202082900-28b53dd37265/go.mod h1:54s0jDaba7/rZ2/EoOxWF/5OIE4XuKjtsRTr9greoA0=
 github.com/go-ocf/kit v0.0.0-20190627123507-31d82dceaba0/go.mod h1:cP9tDuWo0oq30mYGOSvpVJ6mDSUiOUCuisMnPN/AmvQ=
 github.com/go-ocf/kit v0.0.0-20191028131320-a13f1309c964/go.mod h1:cP9tDuWo0oq30mYGOSvpVJ6mDSUiOUCuisMnPN/AmvQ=
 github.com/go-ocf/kit v0.0.0-20191122203058-565314915766/go.mod h1:PyZjU7p8U5oXiCuTYfufjEsFwePni3eMr5l5qU2nkZ8=
