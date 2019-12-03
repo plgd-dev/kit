@@ -14,6 +14,8 @@ import (
 	"time"
 
 	uuid "github.com/gofrs/uuid"
+	dtls "github.com/pion/dtls/v2"
+	"github.com/pion/logging"
 
 	gocoap "github.com/go-ocf/go-coap"
 	"github.com/go-ocf/go-coap/codes"
@@ -427,43 +429,82 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	return newClientCloseHandler(c, h), nil
 }
 
-func DialTCPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
-	h := NewOnCloseHandler()
+func createVerifyPeerCertificate(cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error) func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	caPool := security.NewDefaultCertPool(cas)
 
-	tlsConfig := tls.Config{
-		InsecureSkipVerify: true,
-		Certificates:       []tls.Certificate{cert},
-		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-			intermediateCAPool := x509.NewCertPool()
-			var certificate *x509.Certificate
-			for _, rawCert := range rawCerts {
-				certs, err := x509.ParseCertificates(rawCert)
-				if err != nil {
-					return err
-				}
-				certificate = certs[0]
-				for i := 1; i < len(certs); i++ {
-					intermediateCAPool.AddCert(certs[i])
-				}
-			}
-			_, err := certificate.Verify(x509.VerifyOptions{
-				Roots:         caPool,
-				Intermediates: intermediateCAPool,
-				CurrentTime:   time.Now(),
-				KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
-			})
+	return func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+		if len(rawCerts) == 0 {
+			return fmt.Errorf("empty certificates chain")
+		}
+		intermediateCAPool := x509.NewCertPool()
+		certs := make([]*x509.Certificate, 0, len(rawCerts))
+		for _, rawCert := range rawCerts {
+			cert, err := x509.ParseCertificate(rawCert)
 			if err != nil {
 				return err
 			}
-			if verifyPeerCertificate(certificate) != nil {
-				return err
-			}
+			certs = append(certs, cert)
+		}
+		for _, cert := range certs[1:] {
+			intermediateCAPool.AddCert(cert)
+		}
+		_, err := certs[0].Verify(x509.VerifyOptions{
+			Roots:         caPool,
+			Intermediates: intermediateCAPool,
+			CurrentTime:   time.Now(),
+			KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
+		})
+		if err != nil {
+			return err
+		}
+		if verifyPeerCertificate == nil {
 			return nil
-		},
+		}
+		if verifyPeerCertificate(certs[0]) != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func DialTCPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
+	h := NewOnCloseHandler()
+	tlsConfig := tls.Config{
+		InsecureSkipVerify:    true,
+		Certificates:          []tls.Certificate{cert},
+		VerifyPeerCertificate: createVerifyPeerCertificate(cas, verifyPeerCertificate),
 	}
 	client := gocoap.Client{Net: "tcp-tls", NotifySessionEndFunc: h.OnClose,
 		TLSConfig: &tlsConfig,
+	}
+	for _, o := range opts {
+		client = o(client)
+	}
+	c, err := client.DialWithContext(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+	return newClientCloseHandler(c, h), nil
+}
+
+func DialUDPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
+	h := NewOnCloseHandler()
+	caPool := x509.NewCertPool()
+	for _, ca := range cas {
+		caPool.AddCert(ca)
+	}
+
+	log := logging.NewDefaultLoggerFactory()
+	log.DefaultLogLevel = logging.LogLevelTrace
+
+	tlsConfig := dtls.Config{
+		LoggerFactory:         log,
+		InsecureSkipVerify:    true,
+		Certificates:          []tls.Certificate{cert},
+		VerifyPeerCertificate: createVerifyPeerCertificate(cas, verifyPeerCertificate),
+	}
+	client := gocoap.Client{Net: "udp-dtls", NotifySessionEndFunc: h.OnClose,
+		DTLSConfig: &tlsConfig,
 	}
 	for _, o := range opts {
 		client = o(client)

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	nats "github.com/nats-io/go-nats"
+	nats "github.com/nats-io/nats.go"
 )
 
 type Config struct {
