@@ -46,7 +46,7 @@ func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor 
 		}
 		err = validator.ParseWithClaims(token, claims(ctx, method))
 		if err != nil {
-			return nil, grpc.Errorf(codes.Unauthenticated, "invalid token: %v", err)
+			return nil, grpc.Errorf(codes.Unauthenticated, "invalid token: %w", err)
 		}
 		return ctx, nil
 	}

@@ -41,7 +41,7 @@ func Build(config Config) error {
 	}
 	logger, err := cfg.Build()
 	if err != nil {
-		return fmt.Errorf("logger creation failed: %v", err)
+		return fmt.Errorf("logger creation failed: %w", err)
 	}
 	log = logger.Sugar()
 	return nil

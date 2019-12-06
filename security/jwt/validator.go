@@ -21,11 +21,11 @@ func (v *Validator) Parse(token string) (jwt.MapClaims, error) {
 	}
 	t, err := jwt.Parse(token, v.keys.GetOrFetchKey)
 	if t == nil {
-		return nil, fmt.Errorf("could not parse token: %v", err)
+		return nil, fmt.Errorf("could not parse token: %w", err)
 	}
 	c := t.Claims.(jwt.MapClaims)
 	if err != nil {
-		return c, fmt.Errorf("could not parse token: %v", err)
+		return c, fmt.Errorf("could not parse token: %w", err)
 	}
 	return c, nil
 }
@@ -36,7 +36,7 @@ func (v *Validator) ParseWithClaims(token string, claims jwt.Claims) error {
 	}
 	_, err := jwt.ParseWithClaims(token, claims, v.keys.GetOrFetchKey)
 	if err != nil {
-		return fmt.Errorf("could not parse token: %v", err)
+		return fmt.Errorf("could not parse token: %w", err)
 	}
 	return nil
 }

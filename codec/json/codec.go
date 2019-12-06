@@ -16,7 +16,7 @@ func WriteTo(w io.Writer, v interface{}) error {
 	h.BasicHandle.Canonical = true
 	err := codec.NewEncoder(w, &h).Encode(v)
 	if err != nil {
-		return fmt.Errorf("JSON encoder failed: %v", err)
+		return fmt.Errorf("JSON encoder failed: %w", err)
 	}
 	return nil
 }
@@ -36,7 +36,7 @@ func ReadFrom(w io.Reader, v interface{}) error {
 	var h codec.JsonHandle
 	err := codec.NewDecoder(w, &h).Decode(v)
 	if err != nil {
-		return fmt.Errorf("JSON decoder failed: %v", err)
+		return fmt.Errorf("JSON decoder failed: %w", err)
 	}
 	return nil
 }

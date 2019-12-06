@@ -44,7 +44,7 @@ func Marshal(v interface{}) ([]byte, error) {
 	if p, ok := v.(ProtobufMarshaler); ok {
 		src, err := p.Marshal()
 		if err != nil {
-			return nil, fmt.Errorf("cannot marshal event: %v", err)
+			return nil, fmt.Errorf("cannot marshal event: %w", err)
 		}
 		dst := make([]byte, 1024)
 		return snappy.Encode(dst, src), nil
@@ -57,7 +57,7 @@ func Unmarshal(b []byte, v interface{}) error {
 		dst := make([]byte, 1024)
 		dst, err := snappy.Decode(dst, b)
 		if err != nil {
-			return fmt.Errorf("cannot decode buffer: %v", err)
+			return fmt.Errorf("cannot decode buffer: %w", err)
 		}
 		return p.Unmarshal(dst)
 	}

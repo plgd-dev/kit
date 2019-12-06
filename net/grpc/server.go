@@ -24,7 +24,7 @@ type Config struct {
 func NewServer(addr string, opts ...grpc.ServerOption) (*Server, error) {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		return nil, fmt.Errorf("listening failed: %v", err)
+		return nil, fmt.Errorf("listening failed: %w", err)
 	}
 
 	srv := grpc.NewServer(opts...)
@@ -45,7 +45,7 @@ func (s *Server) Addr() string {
 func (s *Server) Serve() error {
 	err := s.Server.Serve(s.listener)
 	if err != nil {
-		return fmt.Errorf("serving failed: %v", err)
+		return fmt.Errorf("serving failed: %w", err)
 	}
 	return nil
 }

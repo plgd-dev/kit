@@ -301,7 +301,7 @@ func decodeObservation(codec Codec, m gocoap.Message) DecodeFunc {
 			return status.Error(m, fmt.Errorf("observation failed: %s", codecOcf.Dump(m)))
 		}
 		if err := codec.Decode(m, body); err != nil {
-			return status.Error(m, fmt.Errorf("could not decode observation: %v", err))
+			return status.Error(m, fmt.Errorf("could not decode observation: %w", err))
 		}
 		return nil
 	}

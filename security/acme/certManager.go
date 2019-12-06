@@ -108,7 +108,7 @@ func NewCertManager(cas []*x509.Certificate, domains []string, tickFrequency tim
 
 	err := acm.ObtainCertificate()
 	if err != nil {
-		return nil, fmt.Errorf("cannot load certificate and key: %v", err)
+		return nil, fmt.Errorf("cannot load certificate and key: %w", err)
 	}
 
 	if tickFrequency > 0 {
