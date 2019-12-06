@@ -1,4 +1,4 @@
-package grpconv
+package grpcconv
 
 import (
 	"net/http"
