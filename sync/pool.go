@@ -74,7 +74,7 @@ func (p *Pool) GetOrCreate(ctx context.Context, key string) (interface{}, error)
 	}
 	item, err := p.create(ctx, key)
 	if err != nil {
-		return nil, fmt.Errorf("could not create pool item %s: %v", key, err)
+		return nil, fmt.Errorf("could not create pool item %s: %w", key, err)
 	}
 	p.store[key] = item
 	return item, nil

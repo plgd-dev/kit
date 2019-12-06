@@ -23,13 +23,13 @@ type VerifyPeerCertificateFunc func(verifyPeerCertificate *x509.Certificate) err
 func NewTLSConfigFromConfiguration(config TLSConfig, certificateVerifier VerifyPeerCertificateFunc) (*tls.Config, error) {
 	cert, err := tls.LoadX509KeyPair(config.Certificate, config.CertificateKey)
 	if err != nil {
-		return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %v", config.Certificate, config.CertificateKey, err)
+		return nil, fmt.Errorf("cannot load x509 key pair('%v', '%v'): %w", config.Certificate, config.CertificateKey, err)
 	}
 
 	var caRootPool []*x509.Certificate
 	certPEMBlock, err := ioutil.ReadFile(config.CAPool)
 	if err != nil {
-		return nil, fmt.Errorf("cannot load ca '%v': %v", config.CAPool, err)
+		return nil, fmt.Errorf("cannot load ca '%v': %w", config.CAPool, err)
 	}
 	rest := certPEMBlock
 	var block *pem.Block

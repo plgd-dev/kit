@@ -38,7 +38,7 @@ func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
 		if err != nil {
-			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %v", config.CAPool, err)
+			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %w", config.CAPool, err)
 		}
 		cas = certs
 	}
