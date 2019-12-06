@@ -108,7 +108,7 @@ func NewCertManager(cas []*x509.Certificate, domains []string, tickFrequency tim
 
 	err := acm.ObtainCertificate()
 	if err != nil {
-		return nil, fmt.Errorf("cannot load certificate and key: %v", err)
+		return nil, fmt.Errorf("cannot load certificate and key: %w", err)
 	}
 
 	if tickFrequency > 0 {
@@ -288,7 +288,7 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
 		if err != nil {
-			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %v", config.CAPool, err)
+			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %w", config.CAPool, err)
 		}
 		cas = certs
 	}

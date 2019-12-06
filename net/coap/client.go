@@ -68,7 +68,7 @@ func GetDeviceIDFromIndetityCertificate(cert *x509.Certificate) (string, error) 
 	}
 	deviceId, err := uuid.FromString(cn[1])
 	if err != nil {
-		return "", fmt.Errorf("invalid subject common name %v: %v", cert.Subject.CommonName, err)
+		return "", fmt.Errorf("invalid subject common name %v: %w", cert.Subject.CommonName, err)
 	}
 	return deviceId.String(), nil
 }
@@ -167,24 +167,24 @@ func (c *Client) UpdateResourceWithCodec(
 ) error {
 	body, err := codec.Encode(request)
 	if err != nil {
-		return fmt.Errorf("could not encode the query %s: %v", href, err)
+		return fmt.Errorf("could not encode the query %s: %w", href, err)
 	}
 	req, err := c.conn.NewPostRequest(href, codec.ContentFormat(), bytes.NewReader(body))
 	if err != nil {
-		return fmt.Errorf("could create request %s: %v", href, err)
+		return fmt.Errorf("could create request %s: %w", href, err)
 	}
 	for _, option := range options {
 		option(req)
 	}
 	resp, err := c.conn.ExchangeWithContext(ctx, req)
 	if err != nil {
-		return fmt.Errorf("could not query %s: %v", href, err)
+		return fmt.Errorf("could not query %s: %w", href, err)
 	}
 	if resp.Code() != codes.Changed && resp.Code() != codes.Valid {
 		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
-		return status.Error(resp, fmt.Errorf("could not decode the query %s: %v", href, err))
+		return status.Error(resp, fmt.Errorf("could not decode the query %s: %w", href, err))
 	}
 	return nil
 }
@@ -207,20 +207,20 @@ func (c *Client) GetResourceWithCodec(
 ) error {
 	req, err := c.conn.NewGetRequest(href)
 	if err != nil {
-		return fmt.Errorf("could create request %s: %v", href, err)
+		return fmt.Errorf("could create request %s: %w", href, err)
 	}
 	for _, option := range options {
 		option(req)
 	}
 	resp, err := c.conn.ExchangeWithContext(ctx, req)
 	if err != nil {
-		return fmt.Errorf("could not query %s: %v", href, err)
+		return fmt.Errorf("could not query %s: %w", href, err)
 	}
 	if resp.Code() != codes.Content {
 		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
-		return status.Error(resp, fmt.Errorf("could not decode the query %s: %v", href, err))
+		return status.Error(resp, fmt.Errorf("could not decode the query %s: %w", href, err))
 	}
 	return nil
 }
@@ -234,20 +234,20 @@ func (c *Client) DeleteResourceWithCodec(
 ) error {
 	req, err := c.conn.NewDeleteRequest(href)
 	if err != nil {
-		return fmt.Errorf("could create request %s: %v", href, err)
+		return fmt.Errorf("could create request %s: %w", href, err)
 	}
 	for _, option := range options {
 		option(req)
 	}
 	resp, err := c.conn.ExchangeWithContext(ctx, req)
 	if err != nil {
-		return fmt.Errorf("could not query %s: %v", href, err)
+		return fmt.Errorf("could not query %s: %w", href, err)
 	}
 	if resp.Code() != codes.Deleted {
 		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
-		return status.Error(resp, fmt.Errorf("could not decode the query %s: %v", href, err))
+		return status.Error(resp, fmt.Errorf("could not decode the query %s: %w", href, err))
 	}
 	return nil
 }
@@ -284,7 +284,7 @@ func (c *Client) Observe(
 ) (*gocoap.Observation, error) {
 	obs, err := c.conn.ObserveWithContext(ctx, href, observationHandler(codec, handler), options...)
 	if err != nil {
-		return nil, fmt.Errorf("could not observe %s: %v", href, err)
+		return nil, fmt.Errorf("could not observe %s: %w", href, err)
 	}
 	return obs, nil
 }
@@ -301,7 +301,7 @@ func decodeObservation(codec Codec, m gocoap.Message) DecodeFunc {
 			return status.Error(m, fmt.Errorf("observation failed: %s", codecOcf.Dump(m)))
 		}
 		if err := codec.Decode(m, body); err != nil {
-			return status.Error(m, fmt.Errorf("could not decode observation: %v", err))
+			return status.Error(m, fmt.Errorf("could not decode observation: %w", err))
 		}
 		return nil
 	}

@@ -67,7 +67,7 @@ func (c *KeyCache) LookupKey(token *jwt.Token) (jwk.Key, error) {
 func (c *KeyCache) FetchKeys() error {
 	keys, err := jwk.FetchHTTP(c.url, jwk.WithHTTPClient(c.http))
 	if err != nil {
-		return fmt.Errorf("could not fetch JWK: %v", err)
+		return fmt.Errorf("could not fetch JWK: %w", err)
 	}
 
 	c.m.Lock()

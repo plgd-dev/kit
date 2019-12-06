@@ -45,7 +45,7 @@ func ParseString(scheme, addr string) (Addr, error) {
 	}
 	portNum, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
-		return Addr{}, fmt.Errorf("invalid port number: %v", err)
+		return Addr{}, fmt.Errorf("invalid port number: %w", err)
 	}
 	return MakeAddr(scheme, hostname, uint16(portNum)), nil
 }

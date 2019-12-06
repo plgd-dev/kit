@@ -23,7 +23,7 @@ func WriteTo(w io.Writer, v interface{}) error {
 	var h codec.CborHandle
 	err := codec.NewEncoder(w, &h).Encode(v)
 	if err != nil {
-		return fmt.Errorf("CBOR encoder failed: %v", err)
+		return fmt.Errorf("CBOR encoder failed: %w", err)
 	}
 	return nil
 }
@@ -43,7 +43,7 @@ func ReadFrom(w io.Reader, v interface{}) error {
 	var h codec.CborHandle
 	err := codec.NewDecoder(w, &h).Decode(v)
 	if err != nil {
-		return fmt.Errorf("CBOR decoder failed: %v", err)
+		return fmt.Errorf("CBOR decoder failed: %w", err)
 	}
 	return nil
 }

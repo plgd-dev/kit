@@ -20,7 +20,7 @@ type Projection struct {
 func NewProjection(ctx context.Context, name string, store eventstore.EventStore, subscriber eventbus.Subscriber, factoryModel eventstore.FactoryModelFunc, getTopics GetTopicsFunc) (*Projection, error) {
 	cqrsProjection, err := cqrs.NewProjection(ctx, store, name, subscriber, factoryModel, log.Debugf)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create Projection: %v", err)
+		return nil, fmt.Errorf("cannot create Projection: %w", err)
 	}
 	return &Projection{
 		cqrsProjection: cqrsProjection,
@@ -32,16 +32,16 @@ func NewProjection(ctx context.Context, name string, store eventstore.EventStore
 func (p *Projection) ForceUpdate(ctx context.Context, registrationId string, query []eventstore.SnapshotQuery) error {
 	_, err := p.refCountMap.Inc(registrationId, false)
 	if err != nil {
-		return fmt.Errorf("cannot force update projection: %v", err)
+		return fmt.Errorf("cannot force update projection: %w", err)
 	}
 
 	err = p.cqrsProjection.Project(ctx, query)
 	if err != nil {
-		return fmt.Errorf("cannot force update projection: %v", err)
+		return fmt.Errorf("cannot force update projection: %w", err)
 	}
 	_, err = p.refCountMap.Dec(registrationId)
 	if err != nil {
-		return fmt.Errorf("cannot force update projection: %v", err)
+		return fmt.Errorf("cannot force update projection: %w", err)
 	}
 	return nil
 }
@@ -53,7 +53,7 @@ func (p *Projection) Models(query []eventstore.SnapshotQuery) []eventstore.Model
 func (p *Projection) Register(ctx context.Context, registrationId string, query []eventstore.SnapshotQuery) (loaded bool, err error) {
 	created, err := p.refCountMap.Inc(registrationId, true)
 	if err != nil {
-		return false, fmt.Errorf("cannot register device: %v", err)
+		return false, fmt.Errorf("cannot register device: %w", err)
 	}
 	if !created {
 		return false, nil
@@ -65,13 +65,13 @@ func (p *Projection) Register(ctx context.Context, registrationId string, query 
 		err := p.cqrsProjection.SubscribeTo(topics)
 		if err != nil {
 			p.refCountMap.Dec(registrationId)
-			return false, fmt.Errorf("cannot register device: %v", err)
+			return false, fmt.Errorf("cannot register device: %w", err)
 		}
 	}
 
 	err = p.cqrsProjection.Project(ctx, query)
 	if err != nil {
-		return false, fmt.Errorf("cannot register device: %v", err)
+		return false, fmt.Errorf("cannot register device: %w", err)
 	}
 
 	return true, nil
@@ -80,7 +80,7 @@ func (p *Projection) Register(ctx context.Context, registrationId string, query 
 func (p *Projection) Unregister(registrationId string) error {
 	deleted, err := p.refCountMap.Dec(registrationId)
 	if err != nil {
-		return fmt.Errorf("cannot unregister device from projection: %v", err)
+		return fmt.Errorf("cannot unregister device from projection: %w", err)
 	}
 	if !deleted {
 		return nil
@@ -91,7 +91,7 @@ func (p *Projection) Unregister(registrationId string) error {
 	if updateSubscriber {
 		err := p.cqrsProjection.SubscribeTo(topics)
 		if err != nil {
-			log.Errorf("cannot change topics for projection: %v", err)
+			log.Errorf("cannot change topics for projection: %w", err)
 		}
 	}
 	return p.cqrsProjection.Forget([]eventstore.SnapshotQuery{

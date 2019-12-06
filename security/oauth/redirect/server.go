@@ -35,7 +35,7 @@ type Handler struct {
 func (h *Handler) RedirectResult(w http.ResponseWriter, r *http.Request, redirectURI string, errRes error) {
 	u, err := url.Parse(redirectURI)
 	if err != nil {
-		h.errors(fmt.Errorf("cannot redirect result: %v", err))
+		h.errors(fmt.Errorf("cannot redirect result: %w", err))
 		return
 	}
 	q := u.Query()

@@ -39,7 +39,7 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	}
 
 	if err := req.Unmarshal(ctx.Request.Body()); err != nil {
-		t.Fatalf("Cannot unmarshal request: %v", err)
+		t.Fatalf("Cannot unmarshal request: %w", err)
 	}
 
 	if req.StringVal != strReq {
@@ -64,7 +64,7 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	}
 
 	if err != nil {
-		t.Fatalf("Cannot marshal response: %v", err)
+		t.Fatalf("Cannot marshal response: %w", err)
 	}
 
 	ctx.Response.SetBody(out)
@@ -121,7 +121,7 @@ func TestRequestCtx_PostProto(t *testing.T) {
 
 			got, err := ctx.PostProto(client, "http://localhost", tt.args.in, tt.args.out)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("RequestCtx.PostProto() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("RequestCtx.PostProto() error = %v, wantErr %w", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {

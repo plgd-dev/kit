@@ -62,11 +62,11 @@ func NewEventStore(config Config, goroutinePoolGo eventstore.GoroutinePoolGoFunc
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.URI).SetMaxPoolSize(config.MaxPoolSize).SetMaxConnIdleTime(config.MaxConnIdleTime))
 	if err != nil {
-		return nil, fmt.Errorf("could not dial database: %v", err)
+		return nil, fmt.Errorf("could not dial database: %w", err)
 	}
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		return nil, fmt.Errorf("could not dial database: %v", err)
+		return nil, fmt.Errorf("could not dial database: %w", err)
 	}
 
 	es, err := cqrsMongodb.NewEventStoreWithClient(ctx, client, config.DatabaseName, "events", config.BatchSize, goroutinePoolGo, config.marshalerFunc, config.unmarshalerFunc, log.Debugf)
@@ -158,7 +158,7 @@ func (s *EventStore) GetInstanceId(ctx context.Context, aggregateId string) (int
 			if cqrsMongodb.IsDup(err) {
 				rand.Seed(time.Now().UTC().UnixNano())
 			} else {
-				return -1, fmt.Errorf("cannot generate instance id: %v", err)
+				return -1, fmt.Errorf("cannot generate instance id: %w", err)
 			}
 		} else {
 			break
@@ -170,7 +170,7 @@ func (s *EventStore) GetInstanceId(ctx context.Context, aggregateId string) (int
 
 func (s *EventStore) RemoveInstanceId(ctx context.Context, instanceId int64) error {
 	if _, err := s.client.Database(s.es.DBName()).Collection(instanceIdsCollection).DeleteOne(ctx, bson.M{"_id": instanceId}); err != nil {
-		return fmt.Errorf("cannot remove instance id: %v", err)
+		return fmt.Errorf("cannot remove instance id: %w", err)
 	}
 	return nil
 }
