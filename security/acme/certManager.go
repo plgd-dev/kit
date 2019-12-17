@@ -85,7 +85,7 @@ type Client = interface {
 // CertManager manages ACME certificate renewals and makes it easy to use
 // certificates with the tls package.`
 type CertManager struct {
-	sync.RWMutex
+	mutex       sync.Mutex
 	acmeClient  Client
 	certificate *tls.Certificate
 	cas         *x509.CertPool
@@ -174,15 +174,15 @@ func (a *CertManager) RenewCertificate() error {
 
 // GetCertificate locks around returning a tls.Certificate; use as tls.Config.GetCertificate.
 func (a *CertManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	a.RLock()
-	defer a.RUnlock()
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	return a.certificate, nil
 }
 
 // GetClientCertificate locks around returning a tls.ClientCertificate; use as tls.Config.GetClientCertificate.
 func (a *CertManager) GetClientCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
-	a.RLock()
-	defer a.RUnlock()
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	return a.certificate, nil
 }
 
@@ -192,10 +192,10 @@ func (a *CertManager) GetCertificateAuthorities() *x509.CertPool {
 }
 
 // GetLeaf returns the currently valid leaf x509.Certificate
-func (a *CertManager) GetLeaf() x509.Certificate {
-	a.RLock()
-	defer a.RUnlock()
-	return *a.leaf
+func (a *CertManager) GetLeaf() *x509.Certificate {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	return a.leaf
 }
 
 func (a *CertManager) GetClientTLSConfig() tls.Config {
@@ -247,8 +247,8 @@ func (a *CertManager) switchCertificate(newResource *certificate.Resource) error
 	}
 	crt.Leaf = leaf
 
-	a.Lock()
-	defer a.Unlock()
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	a.resource = newResource
 	a.certificate = &crt
 	a.leaf = leaf
