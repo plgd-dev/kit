@@ -12,7 +12,7 @@ import (
 
 // FileCertManager holds certificates from filesystem watched for changes
 type FileCertManager struct {
-	sync.RWMutex
+	mutex sync.Mutex
 	tlsKey []byte
 	tlsCert []byte
 	tlsKeyPair tls.Certificate
@@ -104,14 +104,14 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 }
 
 func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
-	a.RLock()
-	defer a.RUnlock()
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
 func (a *FileCertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	a.RLock()
-	defer a.RUnlock()
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
