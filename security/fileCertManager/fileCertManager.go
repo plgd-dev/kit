@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// FileCertManager holds certificates from filesystem watched for changes
 type FileCertManager struct {
 	tlsKey []byte
 	tlsCert []byte
@@ -20,7 +21,7 @@ type FileCertManager struct {
 	tlsCertFileName string
 }
 
-// Close the certificate watching
+// CloseManager ends watching certificates
 func (a *FileCertManager) CloseManager() {
 	_ = a.watcher.Close()
 }
@@ -63,7 +64,7 @@ func (a *FileCertManager) watchFiles() {
 	}
 }
 
-// Create a new certificate manager which watches for certs in a filesystem
+// NewFileCertManager creates a new certificate manager which watches for certs in a filesystem
 func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName string, tlsCertFileName string) (_ *FileCertManager, mgrErr error) {
 
 	watcher, err := fsnotify.NewWatcher()
@@ -88,32 +89,33 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 	return fileCertMgr,nil
 }
 
-func (a *FileCertManager) GetCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
 	return &a.tlsKeyPair, nil
 }
 
-// GetCertificate locks around returning a tls.Certificate; use as tls.Config.GetCertificate.
-func (a *FileCertManager) GetCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+func (a *FileCertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	return &a.tlsKeyPair, nil
 }
 
-func (a *FileCertManager) GetCertificateAuthorities() *x509.CertPool {
+func (a *FileCertManager) getCertificateAuthorities() *x509.CertPool {
 	return a.caAuthorities
 }
 
-
+// GetClientTLSConfig returns tls configuration for clients
 func (a *FileCertManager) GetClientTLSConfig() tls.Config {
 	return tls.Config {
-		RootCAs:                  a.GetCertificateAuthorities(),
-		GetClientCertificate:     a.GetCertificate,
+		RootCAs:                  a.getCertificateAuthorities(),
+		GetClientCertificate:     a.getCertificate,
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
 	}
 }
+
+// GetServerTLSConfig returns tls configuration for servers
 func (a *FileCertManager) GetServerTLSConfig() tls.Config {
 	return tls.Config{
-		ClientCAs:      a.GetCertificateAuthorities(),
-		GetCertificate: a.GetCertificate2,
+		ClientCAs:      a.getCertificateAuthorities(),
+		GetCertificate: a.getCertificate2,
 		MinVersion:     tls.VersionTLS12,
 		ClientAuth:     tls.RequireAndVerifyClientCert,
 	}
