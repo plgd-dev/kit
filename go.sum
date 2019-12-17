@@ -41,6 +41,8 @@ github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/go-acme/lego v2.7.2+incompatible h1:ThhpPBgf6oa9X/vRd0kEmWOsX7+vmYdckmGZSb+FEp0=
 github.com/go-acme/lego v2.7.2+incompatible/go.mod h1:yzMNe9CasVUhkquNvti5nAtPmG94USbYxYrZfTkIn0M=
+github.com/go-fsnotify/fsnotify v0.0.0-20180321022601-755488143dae h1:PeVNzgTRtWGm6fVic5i21t+n5ptPGCZuMcSPVMyTWjs=
+github.com/go-fsnotify/fsnotify v0.0.0-20180321022601-755488143dae/go.mod h1:BbhqyaehKPCLD83cqfRYdm177Ylm1cdGHu3txjbQSQI=
 github.com/go-ocf/authorization v0.0.0-20191029080559-c0f072d9ae27/go.mod h1:HMIKVo6NWv3GIif0rYDx6UTK+DqRj3Ha7c8qoE7beGI=
 github.com/go-ocf/cqrs v0.0.0-20190925123934-fc3dcec96e06/go.mod h1:kV/m0T0vn3lWBZTx2u/PVmXO/uRKSHmzWfQL2Us1Vv0=
 github.com/go-ocf/cqrs v0.0.0-20191107150148-d3546606da81/go.mod h1:+clS9NgOOp6PvrgH5yJ/paxggQnS4bhgIajH7Zq4mTA=

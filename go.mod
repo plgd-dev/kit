@@ -5,7 +5,9 @@ go 1.13
 require (
 	github.com/Shopify/sarama v1.24.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego v2.7.2+incompatible
+	github.com/go-fsnotify/fsnotify v0.0.0-20180321022601-755488143dae // indirect
 	github.com/go-ocf/cqrs v0.0.0-20191129082251-45543ddee4b1
 	github.com/go-ocf/go-coap v0.0.0-20191202082900-28b53dd37265
 	github.com/gofrs/uuid v3.2.0+incompatible
