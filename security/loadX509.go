@@ -16,7 +16,12 @@ func LoadX509(path string) ([]*x509.Certificate, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := certPEMBlock
+	return ParseX509FromPEM(certPEMBlock)
+}
+
+// ParseX509FromPEM loads certificates from PEM format
+func ParseX509FromPEM(pemBlock []byte) ([]*x509.Certificate, error) {
+	data := pemBlock
 	var cas []*x509.Certificate
 	for {
 		certDERBlock, tmp := pem.Decode(data)

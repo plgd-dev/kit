@@ -35,7 +35,7 @@ func (c *ScopeClaims) Valid() error {
 	}
 	for _, scope := range c.GetScope() {
 		for _, requiredScope := range c.requiredScopes {
-			if (requiredScope.MatchString(scope)) {
+			if requiredScope.MatchString(scope) {
 				delete(notMatched, requiredScope.String())
 			}
 		}

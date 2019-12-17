@@ -1,11 +1,11 @@
 package http
 
-import(
+import (
 	"errors"
-	coapStatus "github.com/go-ocf/kit/net/coap/status"
-	grpcStatus "google.golang.org/grpc/status"
 	"github.com/go-ocf/kit/coapconv"
 	"github.com/go-ocf/kit/grpcconv"
+	coapStatus "github.com/go-ocf/kit/net/coap/status"
+	grpcStatus "google.golang.org/grpc/status"
 	netHttp "net/http"
 )
 

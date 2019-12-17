@@ -4,14 +4,14 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"regexp"
 	"github.com/go-ocf/kit/security/jwt"
+	"regexp"
 )
 
 type Interceptor = func(ctx context.Context, method, uri string) (context.Context, error)
 
-type AuthArgs struct{
-	URI *regexp.Regexp
+type AuthArgs struct {
+	URI    *regexp.Regexp
 	Scopes []*regexp.Regexp
 }
 
@@ -26,7 +26,7 @@ func MakeClaimsFunc(methods map[string][]AuthArgs) ClaimsFunc {
 			return &DeniedClaims{fmt.Errorf("inaccessible method: %v", method)}
 		}
 		for _, arg := range args {
-			if (arg.URI.Match([]byte(uri))) {
+			if arg.URI.Match([]byte(uri)) {
 				return jwt.NewRegexpScopeClaims(arg.Scopes...)
 			}
 		}

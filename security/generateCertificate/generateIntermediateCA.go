@@ -27,7 +27,7 @@ func newCert(cfg Configuration) (*x509.Certificate, error) {
 		NotAfter:              notAfter,
 		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
 		BasicConstraintsValid: true,
-		IsCA: true,
+		IsCA:                  true,
 	}
 
 	if cfg.BasicConstraints.MaxPathLen >= 0 {
