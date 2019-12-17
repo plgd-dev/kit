@@ -12,17 +12,17 @@ import (
 
 // FileCertManager holds certificates from filesystem watched for changes
 type FileCertManager struct {
-	mutex sync.Mutex
-	tlsKey []byte
-	tlsCert []byte
-	tlsKeyPair tls.Certificate
-	caAuthorities *x509.CertPool
-	watcher *fsnotify.Watcher
-	tlsKeyFileName string
-	dirPath string
+	mutex           sync.Mutex
+	tlsKey          []byte
+	tlsCert         []byte
+	tlsKeyPair      tls.Certificate
+	caAuthorities   *x509.CertPool
+	watcher         *fsnotify.Watcher
+	tlsKeyFileName  string
+	dirPath         string
 	tlsCertFileName string
-	doneWg sync.WaitGroup
-	done chan struct{}
+	doneWg          sync.WaitGroup
+	done            chan struct{}
 }
 
 // Close ends watching certificates
@@ -38,39 +38,36 @@ func (a *FileCertManager) watchFiles() {
 	defer a.doneWg.Done()
 	for {
 		select {
-		// watch for events
-		case event := <-a.watcher.Events:
-			{
-				if event.Op == fsnotify.Create {
-					if strings.Contains(event.Name, a.tlsKeyFileName) {
-						a.tlsKey, _ = ioutil.ReadFile(a.dirPath + "/" + a.tlsKeyFileName)
-					}
-
-					if strings.Contains(event.Name, a.tlsCertFileName) {
-						a.tlsCert, _ = ioutil.ReadFile(a.dirPath + "/" + a.tlsCertFileName)
-					}
-				}
-
-				if event.Op == fsnotify.Remove {
-					if strings.Contains(event.Name, a.tlsKeyFileName) {
-						a.tlsKey = nil
-					}
-
-					if strings.Contains(event.Name, a.tlsCertFileName) {
-						a.tlsCert = nil
-					}
-				}
-
-
-				if a.tlsCert != nil && a.tlsKey != nil {
-					cert, ert := tls.X509KeyPair(a.tlsCert, a.tlsKey)
-					if ert == nil {
-						a.tlsKeyPair = cert
-					}
-				}
-			}
 		case <-a.done:
 			return
+		// watch for events
+		case event := <-a.watcher.Events:
+			switch event.Op {
+			case fsnotify.Create:
+				if strings.Contains(event.Name, a.tlsKeyFileName) {
+					a.tlsKey, _ = ioutil.ReadFile(a.dirPath + "/" + a.tlsKeyFileName)
+				}
+
+				if strings.Contains(event.Name, a.tlsCertFileName) {
+					a.tlsCert, _ = ioutil.ReadFile(a.dirPath + "/" + a.tlsCertFileName)
+				}
+
+			case fsnotify.Remove:
+				if strings.Contains(event.Name, a.tlsKeyFileName) {
+					a.tlsKey = nil
+				}
+
+				if strings.Contains(event.Name, a.tlsCertFileName) {
+					a.tlsCert = nil
+				}
+			}
+
+			if a.tlsCert != nil && a.tlsKey != nil {
+				cert, ert := tls.X509KeyPair(a.tlsCert, a.tlsKey)
+				if ert == nil {
+					a.tlsKeyPair = cert
+				}
+			}
 		}
 	}
 }
@@ -88,11 +85,11 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 		tlsKeyFileName:  tlsKeyFileName,
 		dirPath:         dirPath,
 		tlsCertFileName: tlsCertFileName,
-		caAuthorities: security.NewDefaultCertPool(cas),
+		caAuthorities:   security.NewDefaultCertPool(cas),
 	}
 
 	if err := fileCertMgr.watcher.Add(dirPath); err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	fileCertMgr.done = make(chan struct{})
@@ -100,7 +97,7 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 
 	go fileCertMgr.watchFiles()
 
-	return fileCertMgr,nil
+	return fileCertMgr, nil
 }
 
 func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
@@ -121,7 +118,7 @@ func (a *FileCertManager) getCertificateAuthorities() *x509.CertPool {
 
 // GetClientTLSConfig returns tls configuration for clients
 func (a *FileCertManager) GetClientTLSConfig() tls.Config {
-	return tls.Config {
+	return tls.Config{
 		RootCAs:                  a.getCertificateAuthorities(),
 		GetClientCertificate:     a.getCertificate,
 		PreferServerCipherSuites: true,
