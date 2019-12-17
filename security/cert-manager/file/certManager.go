@@ -1,4 +1,4 @@
-package fileCertManager
+package file
 
 import (
 	"crypto/tls"
@@ -10,8 +10,8 @@ import (
 	"sync"
 )
 
-// FileCertManager holds certificates from filesystem watched for changes
-type FileCertManager struct {
+// CertManager holds certificates from filesystem watched for changes
+type CertManager struct {
 	mutex           sync.Mutex
 	tlsKey          []byte
 	tlsCert         []byte
@@ -26,7 +26,7 @@ type FileCertManager struct {
 }
 
 // Close ends watching certificates
-func (a *FileCertManager) Close() {
+func (a *CertManager) Close() {
 	if a.done != nil {
 		_ = a.watcher.Close()
 		close(a.done)
@@ -34,7 +34,7 @@ func (a *FileCertManager) Close() {
 	}
 }
 
-func (a *FileCertManager) watchFiles() {
+func (a *CertManager) watchFiles() {
 	defer a.doneWg.Done()
 	for {
 		select {
@@ -73,14 +73,14 @@ func (a *FileCertManager) watchFiles() {
 }
 
 // NewFileCertManager creates a new certificate manager which watches for certs in a filesystem
-func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName string, tlsCertFileName string) (_ *FileCertManager, mgrErr error) {
+func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName string, tlsCertFileName string) (_ *CertManager, mgrErr error) {
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
 	}
 
-	fileCertMgr := &FileCertManager{
+	fileCertMgr := &CertManager{
 		watcher:         watcher,
 		tlsKeyFileName:  tlsKeyFileName,
 		dirPath:         dirPath,
@@ -100,24 +100,24 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 	return fileCertMgr, nil
 }
 
-func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+func (a *CertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
-func (a *FileCertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+func (a *CertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
-func (a *FileCertManager) getCertificateAuthorities() *x509.CertPool {
+func (a *CertManager) getCertificateAuthorities() *x509.CertPool {
 	return a.caAuthorities
 }
 
 // GetClientTLSConfig returns tls configuration for clients
-func (a *FileCertManager) GetClientTLSConfig() tls.Config {
+func (a *CertManager) GetClientTLSConfig() tls.Config {
 	return tls.Config{
 		RootCAs:                  a.getCertificateAuthorities(),
 		GetClientCertificate:     a.getCertificate,
@@ -127,7 +127,7 @@ func (a *FileCertManager) GetClientTLSConfig() tls.Config {
 }
 
 // GetServerTLSConfig returns tls configuration for servers
-func (a *FileCertManager) GetServerTLSConfig() tls.Config {
+func (a *CertManager) GetServerTLSConfig() tls.Config {
 	return tls.Config{
 		ClientCAs:      a.getCertificateAuthorities(),
 		GetCertificate: a.getCertificate2,
