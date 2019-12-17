@@ -7,10 +7,12 @@ import (
 	"github.com/go-ocf/kit/security"
 	"io/ioutil"
 	"strings"
+	"sync"
 )
 
 // FileCertManager holds certificates from filesystem watched for changes
 type FileCertManager struct {
+	sync.RWMutex
 	tlsKey []byte
 	tlsCert []byte
 	tlsKeyPair tls.Certificate
@@ -19,14 +21,21 @@ type FileCertManager struct {
 	tlsKeyFileName string
 	dirPath string
 	tlsCertFileName string
+	doneWg sync.WaitGroup
+	done chan struct{}
 }
 
-// CloseManager ends watching certificates
-func (a *FileCertManager) CloseManager() {
-	_ = a.watcher.Close()
+// Close ends watching certificates
+func (a *FileCertManager) Close() {
+	if a.done != nil {
+		_ = a.watcher.Close()
+		close(a.done)
+		a.doneWg.Wait()
+	}
 }
 
 func (a *FileCertManager) watchFiles() {
+	defer a.doneWg.Done()
 	for {
 		select {
 		// watch for events
@@ -60,6 +69,8 @@ func (a *FileCertManager) watchFiles() {
 					}
 				}
 			}
+		case <-a.done:
+			return
 		}
 	}
 }
@@ -84,16 +95,23 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 		return nil,err
 	}
 
+	fileCertMgr.done = make(chan struct{})
+	fileCertMgr.doneWg.Add(1)
+
 	go fileCertMgr.watchFiles()
 
 	return fileCertMgr,nil
 }
 
 func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+	a.RLock()
+	defer a.RUnlock()
 	return &a.tlsKeyPair, nil
 }
 
 func (a *FileCertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+	a.RLock()
+	defer a.RUnlock()
 	return &a.tlsKeyPair, nil
 }
 
