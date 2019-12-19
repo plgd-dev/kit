@@ -6,7 +6,7 @@ import (
 	"github.com/go-acme/lego/challenge/resolver"
 	"github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
-	patcheAcmeClient "github.com/go-ocf/kit/security/acme/client"
+	patcheAcmeClient "github.com/go-ocf/kit/security/cert-manager/acme/client"
 )
 
 type Client struct {

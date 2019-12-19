@@ -11,7 +11,7 @@ import (
 	"encoding/pem"
 
 	"github.com/go-acme/lego/certificate"
-	"github.com/go-ocf/kit/security/acme/client"
+	"github.com/go-ocf/kit/security/cert-manager/acme/client"
 	"github.com/go-ocf/kit/security/generateCertificate"
 	"golang.org/x/crypto/ocsp"
 )

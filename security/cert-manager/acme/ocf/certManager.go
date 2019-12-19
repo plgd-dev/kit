@@ -14,8 +14,8 @@ import (
 	origLego "github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
 	"github.com/go-ocf/kit/security"
-	"github.com/go-ocf/kit/security/acme"
-	"github.com/go-ocf/kit/security/acme/ocf/client"
+	"github.com/go-ocf/kit/security/cert-manager/acme"
+	"github.com/go-ocf/kit/security/cert-manager/acme/ocf/client"
 )
 
 // Config set configuration.
