@@ -128,19 +128,17 @@ func (a *CertManager) autoRenewCert(tickFrequency time.Duration) {
 		nextRenewal := a.NextRenewal()
 		select {
 		case <-ticker.C:
-			if a.NeedsRenewal() {
-				log.Debugf("Renewing certificate")
-				err := a.RenewCertificate()
-				if err != nil {
-					log.Debugf("Error loading certificate and key", err)
-				} else {
-					leaf := a.GetLeaf()
-					log.Debugf("Renewed certificate: %s [%s - %s]\n", leaf.Subject, leaf.NotBefore, leaf.NotAfter)
-					log.Debugf("Next renewal at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
-				}
-			} else {
-				log.Debugf("Waiting to renew at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
+			if !a.NeedsRenewal() {
+				continue
 			}
+			err := a.RenewCertificate()
+			if err != nil {
+				log.Errorf("Error loading certificate and key", err)
+				continue
+			}
+			leaf := a.GetLeaf()
+			log.Infof("Renewed certificate: %s [%s - %s]\n", leaf.Subject, leaf.NotBefore, leaf.NotAfter)
+			log.Infof("Next renewal at %s (%s)\n", nextRenewal, nextRenewal.Sub(time.Now()))
 		case <-a.done:
 			return
 		}
