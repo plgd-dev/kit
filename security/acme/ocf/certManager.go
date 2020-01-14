@@ -21,7 +21,7 @@ import (
 // Config set configuration.
 type Config struct {
 	acme.Config
-	DeviceID string `envconfig:"DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
+	DeviceID string `envconfig:"DEVICE_ID" env:"DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
 }
 
 type ocfClient struct {
