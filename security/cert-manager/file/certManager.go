@@ -15,9 +15,9 @@ import (
 // Config provides configuration of a file based Certificate manager
 type Config struct {
 	CAPool          string `envconfig:"CA_POOL" long:"tls-file_ca-pool" description:"file path to the root certificate in PEM format"`
-	TLSKeyFileName  string `envconfig:"CRT_KEY_NAME" long:"tls-file-crt-key-name" description:"file name of private key in PEM format"`
-	DirPath         string `envconfig:"CRT_DIR_PATH" long:"tls-file-crt-dir-path" description:"dir path where cert/key pair are saved"`
-	TLSCertFileName string `envconfig:"CRT_NAME" long:"tls-file-crt-name" description:"file name of certificate in PEM format"`
+	TLSKeyFileName  string `envconfig:"CERT_KEY_NAME" long:"tls-file-cert-key-name" description:"file name of private key in PEM format"`
+	DirPath         string `envconfig:"CERT_DIR_PATH" long:"tls-file-cert-dir-path" description:"dir path where cert/key pair are saved"`
+	TLSCertFileName string `envconfig:"CERT_NAME" long:"tls-file-cert-name" description:"file name of certificate in PEM format"`
 }
 
 // CertManager holds certificates from filesystem watched for changes
