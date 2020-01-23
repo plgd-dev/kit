@@ -3,6 +3,7 @@ package file
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"sync"
@@ -13,9 +14,10 @@ import (
 
 // Config provides configuration of a file based Certificate manager
 type Config struct {
-	TLSKeyFileName  string
-	DirPath         string
-	TLSCertFileName string
+	CAPool          string `envconfig:"CA_POOL" long:"tls-file_ca-pool" description:"file path to the root certificate in PEM format"`
+	TLSKeyFileName  string `envconfig:"CRT_KEY_NAME" long:"tls-file-crt-key-name" description:"file name of private key in PEM format"`
+	DirPath         string `envconfig:"CRT_DIR_PATH" long:"tls-file-crt-dir-path" description:"dir path where cert/key pair are saved"`
+	TLSCertFileName string `envconfig:"CRT_NAME" long:"tls-file-crt-name" description:"file name of certificate in PEM format"`
 }
 
 // CertManager holds certificates from filesystem watched for changes
@@ -79,17 +81,18 @@ func (a *CertManager) watchFiles() {
 }
 
 // NewFileCertManager creates a new certificate manager which watches for certs in a filesystem
-func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName string, tlsCertFileName string) (_ *CertManager, mgrErr error) {
-
+func NewFileCertManagerFromConfiguration(config Config) (*CertManager, error) {
+	var cas []*x509.Certificate
+	if config.CAPool != "" {
+		certs, err := security.LoadX509(config.CAPool)
+		if err != nil {
+			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %w", config.CAPool, err)
+		}
+		cas = certs
+	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
-	}
-
-	config := Config{
-		TLSKeyFileName:  tlsKeyFileName,
-		DirPath:         dirPath,
-		TLSCertFileName: tlsCertFileName,
 	}
 
 	fileCertMgr := &CertManager{
@@ -98,7 +101,7 @@ func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName 
 		caAuthorities: security.NewDefaultCertPool(cas),
 	}
 
-	if err := fileCertMgr.watcher.Add(dirPath); err != nil {
+	if err := fileCertMgr.watcher.Add(config.DirPath); err != nil {
 		return nil, err
 	}
 
