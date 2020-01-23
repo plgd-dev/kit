@@ -4,14 +4,12 @@ go 1.13
 
 require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
-	github.com/cloudflare/cfssl v1.4.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/go-ocf/go-coap v0.0.0-20191205091034-1fba24d18397
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/snappy v0.0.2-0.20190904063534-ff6b7dc882cf
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/jessevdk/go-flags v1.4.0
