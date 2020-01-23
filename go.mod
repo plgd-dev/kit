@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
+	github.com/cloudflare/cfssl v1.4.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego v2.7.2+incompatible
