@@ -6,6 +6,8 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
+	acme2 "github.com/go-ocf/kit/security/certManager/acme"
+	client2 "github.com/go-ocf/kit/security/certManager/acme/ocf/client"
 	"strconv"
 	"time"
 
@@ -14,26 +16,24 @@ import (
 	origLego "github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
 	"github.com/go-ocf/kit/security"
-	"github.com/go-ocf/kit/security/acme"
-	"github.com/go-ocf/kit/security/acme/ocf/client"
 )
 
 // Config set configuration.
 type Config struct {
-	acme.Config
+	acme2.Config
 	DeviceID string `envconfig:"DEVICE_ID" env:"DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
 }
 
 type ocfClient struct {
-	c *client.Client
+	c *client2.Client
 }
 
-func (c *ocfClient) Certificate() acme.Certifier {
+func (c *ocfClient) Certificate() acme2.Certifier {
 	return c.c.Certificate()
 }
 
 // NewCertManagerFromConfiguration creates certificate manager from config.
-func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
+func NewCertManagerFromConfiguration(config Config) (*acme2.CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
@@ -51,16 +51,16 @@ func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	if err != nil {
 		return nil, err
 	}
-	user := acme.NewUser(config.Email, key)
+	user := acme2.NewUser(config.Email, key)
 
 	// Get an HTTPS client configured to trust our root certificate.
-	httpClient, err := acme.GetHTTPSClient(cas)
+	httpClient, err := acme2.GetHTTPSClient(cas)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create a configuration using our HTTPS client, ACME server, user details.
-	cfg := client.Config{
+	cfg := client2.Config{
 		Config: origLego.Config{
 			CADirURL:   config.CADirURL,
 			User:       user,
@@ -74,7 +74,7 @@ func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	}
 
 	// Create an ACME client and configure use of `http-01` challenge
-	acmeClient, err := client.NewClient(cfg)
+	acmeClient, err := client2.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -91,5 +91,5 @@ func NewCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	}
 	user.SetRegistration(registration)
 
-	return acme.NewCertManager(cas, config.Domains, config.TickFrequency, &ocfClient{acmeClient})
+	return acme2.NewCertManager(cas, config.Domains, config.TickFrequency, &ocfClient{acmeClient})
 }

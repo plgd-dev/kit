@@ -3,26 +3,34 @@ package file
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/fsnotify/fsnotify"
-	"github.com/go-ocf/kit/security"
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"sync"
+
+	"github.com/fsnotify/fsnotify"
+	"github.com/go-ocf/kit/security"
 )
+
+// Config provides configuration of a file based Certificate manager
+type Config struct {
+	CAPool          string `envconfig:"CA_POOL" long:"tls-file_ca-pool" description:"file path to the root certificate in PEM format"`
+	TLSKeyFileName  string `envconfig:"CERT_KEY_NAME" long:"tls-file-cert-key-name" description:"file name of private key in PEM format"`
+	DirPath         string `envconfig:"CERT_DIR_PATH" long:"tls-file-cert-dir-path" description:"dir path where cert/key pair are saved"`
+	TLSCertFileName string `envconfig:"CERT_NAME" long:"tls-file-cert-name" description:"file name of certificate in PEM format"`
+}
 
 // CertManager holds certificates from filesystem watched for changes
 type CertManager struct {
-	mutex           sync.Mutex
-	tlsKey          []byte
-	tlsCert         []byte
-	tlsKeyPair      tls.Certificate
-	caAuthorities   *x509.CertPool
-	watcher         *fsnotify.Watcher
-	tlsKeyFileName  string
-	dirPath         string
-	tlsCertFileName string
-	doneWg          sync.WaitGroup
-	done            chan struct{}
+	mutex         sync.Mutex
+	config        Config
+	tlsKey        []byte
+	tlsCert       []byte
+	tlsKeyPair    tls.Certificate
+	caAuthorities *x509.CertPool
+	watcher       *fsnotify.Watcher
+	doneWg        sync.WaitGroup
+	done          chan struct{}
 }
 
 // Close ends watching certificates
@@ -44,20 +52,20 @@ func (a *CertManager) watchFiles() {
 		case event := <-a.watcher.Events:
 			switch event.Op {
 			case fsnotify.Create:
-				if strings.Contains(event.Name, a.tlsKeyFileName) {
-					a.tlsKey, _ = ioutil.ReadFile(a.dirPath + "/" + a.tlsKeyFileName)
+				if strings.Contains(event.Name, a.config.TLSKeyFileName) {
+					a.tlsKey, _ = ioutil.ReadFile(a.config.DirPath + "/" + a.config.TLSKeyFileName)
 				}
 
-				if strings.Contains(event.Name, a.tlsCertFileName) {
-					a.tlsCert, _ = ioutil.ReadFile(a.dirPath + "/" + a.tlsCertFileName)
+				if strings.Contains(event.Name, a.config.TLSCertFileName) {
+					a.tlsCert, _ = ioutil.ReadFile(a.config.DirPath + "/" + a.config.TLSCertFileName)
 				}
 
 			case fsnotify.Remove:
-				if strings.Contains(event.Name, a.tlsKeyFileName) {
+				if strings.Contains(event.Name, a.config.TLSKeyFileName) {
 					a.tlsKey = nil
 				}
 
-				if strings.Contains(event.Name, a.tlsCertFileName) {
+				if strings.Contains(event.Name, a.config.TLSCertFileName) {
 					a.tlsCert = nil
 				}
 			}
@@ -72,23 +80,28 @@ func (a *CertManager) watchFiles() {
 	}
 }
 
-// NewFileCertManager creates a new certificate manager which watches for certs in a filesystem
-func NewFileCertManager(cas []*x509.Certificate, dirPath string, tlsKeyFileName string, tlsCertFileName string) (_ *CertManager, mgrErr error) {
-
+// NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
+func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
+	var cas []*x509.Certificate
+	if config.CAPool != "" {
+		certs, err := security.LoadX509(config.CAPool)
+		if err != nil {
+			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %w", config.CAPool, err)
+		}
+		cas = certs
+	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
 	}
 
 	fileCertMgr := &CertManager{
-		watcher:         watcher,
-		tlsKeyFileName:  tlsKeyFileName,
-		dirPath:         dirPath,
-		tlsCertFileName: tlsCertFileName,
-		caAuthorities:   security.NewDefaultCertPool(cas),
+		watcher:       watcher,
+		config:        config,
+		caAuthorities: security.NewDefaultCertPool(cas),
 	}
 
-	if err := fileCertMgr.watcher.Add(dirPath); err != nil {
+	if err := fileCertMgr.watcher.Add(config.DirPath); err != nil {
 		return nil, err
 	}
 
