@@ -9,9 +9,9 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/pem"
+	client2 "github.com/go-ocf/kit/security/certManager/acme/client"
 
 	"github.com/go-acme/lego/certificate"
-	"github.com/go-ocf/kit/security/acme/client"
 	"github.com/go-ocf/kit/security/generateCertificate"
 	"golang.org/x/crypto/ocsp"
 )
@@ -23,7 +23,7 @@ var (
 )
 
 type certifier struct {
-	c          *client.Certifier
+	c          *client2.Certifier
 	deviceID   string
 	privateKey crypto.PrivateKey
 }

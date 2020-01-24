@@ -3,12 +3,14 @@ package certManager
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/go-ocf/kit/security/acme"
+	"github.com/go-ocf/kit/security/certManager/acme"
 	"github.com/go-ocf/kit/security/certManager/file"
 )
 
-const acmeType = "acme"
-const fileType = "file"
+// AcmeType define acme type certificate manager
+const AcmeType = "acme"
+// FileType define static file type certificate manager
+const FileType = "file"
 
 // Config provides configuration of a file based Certificate manager
 type Config struct {
@@ -26,10 +28,10 @@ type CertManager interface {
 
 // NewCertManager create new CertManager
 func NewCertManager(config Config) (CertManager, error) {
-	if config.Type == acmeType {
+	if config.Type == AcmeType {
 		return acme.NewCertManagerFromConfiguration(config.Acme)
-	} else if config.Type == fileType {
-		return file.NewFileCertManagerFromConfiguration(config.File)
+	} else if config.Type == FileType {
+		return file.NewCertManagerFromConfiguration(config.File)
 	}
 	return nil, fmt.Errorf("unable to create cert manager. Invalid tls config type: %s", config.Type)
 }

@@ -80,8 +80,8 @@ func (a *CertManager) watchFiles() {
 	}
 }
 
-// NewFileCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewFileCertManagerFromConfiguration(config Config) (*CertManager, error) {
+// NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
+func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)

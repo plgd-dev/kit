@@ -2,15 +2,15 @@ package client
 
 import (
 	"fmt"
+	"github.com/go-ocf/kit/security/certManager/acme/client"
 
 	"github.com/go-acme/lego/challenge/resolver"
 	"github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
-	patcheAcmeClient "github.com/go-ocf/kit/security/acme/client"
 )
 
 type Client struct {
-	c        *patcheAcmeClient.Client
+	c        *client.Client
 	deviceID string
 }
 
@@ -24,7 +24,7 @@ func NewClient(cfg Config) (*Client, error) {
 		return nil, fmt.Errorf("invalid DeviceID")
 	}
 
-	c, err := patcheAcmeClient.NewClient(&cfg.Config)
+	c, err := client.NewClient(&cfg.Config)
 	if err != nil {
 		return nil, err
 	}
