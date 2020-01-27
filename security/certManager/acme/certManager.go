@@ -167,6 +167,11 @@ func (a *CertManager) RenewCertificate() error {
 		return err
 	}
 
+	// renew via CSR doesn't fill private key
+	if len(resource.PrivateKey) == 0 {
+		resource.PrivateKey = a.resource.PrivateKey
+	}
+
 	return a.switchCertificate(resource)
 }
 
