@@ -6,7 +6,10 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
-	acme2 "github.com/go-ocf/kit/security/certManager/acme"
+	"github.com/go-ocf/kit/security/certManager"
+	"github.com/go-ocf/kit/security/certManager/acme"
+	"github.com/go-ocf/kit/security/certManager/file"
+
 	client2 "github.com/go-ocf/kit/security/certManager/acme/ocf/client"
 	"strconv"
 	"time"
@@ -20,20 +23,32 @@ import (
 
 // Config set configuration.
 type Config struct {
-	acme2.Config
-	DeviceID string `envconfig:"DEVICE_ID" env:"DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
+	certManager.Config
+	DeviceID string `envconfig:"ACME_DEVICE_ID" env:"ACME_DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
 }
+
+// NewCertManager create new CertManager
+func NewOcfCertManager(config Config) (certManager.CertManager, error) {
+	if config.Type == certManager.FileType {
+		return file.NewCertManagerFromConfiguration(config.File)
+	}
+	if config.Type == certManager.AcmeType {
+		return newAcmeCertManagerFromConfiguration(config.Acme, config.DeviceID)
+	}
+	return nil, fmt.Errorf("unable to create ocf cert manager. Invalid tls config type: %s", config.Type)
+}
+
 
 type ocfClient struct {
 	c *client2.Client
 }
 
-func (c *ocfClient) Certificate() acme2.Certifier {
+func (c *ocfClient) Certificate() acme.Certifier {
 	return c.c.Certificate()
 }
 
 // NewCertManagerFromConfiguration creates certificate manager from config.
-func NewCertManagerFromConfiguration(config Config) (*acme2.CertManager, error) {
+func newAcmeCertManagerFromConfiguration(config acme.Config, deviceID string) (certManager.CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
@@ -51,10 +66,10 @@ func NewCertManagerFromConfiguration(config Config) (*acme2.CertManager, error) 
 	if err != nil {
 		return nil, err
 	}
-	user := acme2.NewUser(config.Email, key)
+	user := acme.NewUser(config.Email, key)
 
 	// Get an HTTPS client configured to trust our root certificate.
-	httpClient, err := acme2.GetHTTPSClient(cas)
+	httpClient, err := acme.GetHTTPSClient(cas)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +85,7 @@ func NewCertManagerFromConfiguration(config Config) (*acme2.CertManager, error) 
 				Timeout: 30 * time.Second,
 			},
 		},
-		DeviceID: config.DeviceID,
+		DeviceID: deviceID,
 	}
 
 	// Create an ACME client and configure use of `http-01` challenge
@@ -91,5 +106,5 @@ func NewCertManagerFromConfiguration(config Config) (*acme2.CertManager, error) 
 	}
 	user.SetRegistration(registration)
 
-	return acme2.NewCertManager(cas, config.Domains, config.TickFrequency, &ocfClient{acmeClient})
+	return acme.NewCertManager(cas, config.Domains, config.TickFrequency, &ocfClient{acmeClient})
 }
