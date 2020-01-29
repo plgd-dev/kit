@@ -31,8 +31,7 @@ type Config struct {
 func NewOcfCertManager(config Config) (certManager.CertManager, error) {
 	if config.Type == certManager.FileType {
 		return file.NewCertManagerFromConfiguration(config.File)
-	}
-	if config.Type == certManager.AcmeType {
+	} else if config.Type == certManager.AcmeType {
 		return newAcmeCertManagerFromConfiguration(config.Acme, config.DeviceID)
 	}
 	return nil, fmt.Errorf("unable to create ocf cert manager. Invalid tls config type: %s", config.Type)
