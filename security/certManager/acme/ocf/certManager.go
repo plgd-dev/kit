@@ -27,7 +27,7 @@ type Config struct {
 	DeviceID string `envconfig:"ACME_DEVICE_ID" env:"ACME_DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
 }
 
-// NewCertManager create new CertManager
+// NewOcfCertManager create new CertManager
 func NewOcfCertManager(config Config) (certManager.CertManager, error) {
 	if config.Type == certManager.FileType {
 		return file.NewCertManagerFromConfiguration(config.File)
@@ -47,7 +47,7 @@ func (c *ocfClient) Certificate() acme.Certifier {
 	return c.c.Certificate()
 }
 
-// NewCertManagerFromConfiguration creates certificate manager from config.
+// newAcmeCertManagerFromConfiguration creates certificate manager from config.
 func newAcmeCertManagerFromConfiguration(config acme.Config, deviceID string) (certManager.CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
