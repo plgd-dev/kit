@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
-	"github.com/go-ocf/kit/security/certManager"
 	"github.com/go-ocf/kit/security/certManager/acme"
 	client2 "github.com/go-ocf/kit/security/certManager/acme/ocf/client"
 	"strconv"
@@ -39,7 +38,7 @@ func (c *ocfClient) Certificate() acme.Certifier {
 }
 
 // NewAcmeCertManagerFromConfiguration creates certificate manager from config.
-func NewAcmeCertManagerFromConfiguration(config Config) (certManager.CertManager, error) {
+func NewAcmeCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
