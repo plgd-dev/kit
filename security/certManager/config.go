@@ -14,13 +14,14 @@ const AcmeType = "acme"
 // FileType define static file type certificate manager
 const FileType = "file"
 
-// Config provides configuration of a file based Certificate manager
+// Config provides configuration of a file/acme based Certificate manager
 type Config struct {
 	Type string      `envconfig:"TYPE" default:"acme"`
 	Acme acme.Config `envconfig:"ACME"`
 	File file.Config `envconfig:"FILE"`
 }
 
+// OcfConfig provides configuration of a file/acme based Certificate manager
 type OcfConfig struct {
 	Type string      `envconfig:"TYPE" default:"acme"`
 	Acme ocf.Config  `envconfig:"ACME"`
