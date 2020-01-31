@@ -6,10 +6,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
-	"github.com/go-ocf/kit/security/certManager"
 	"github.com/go-ocf/kit/security/certManager/acme"
-	"github.com/go-ocf/kit/security/certManager/file"
-
 	client2 "github.com/go-ocf/kit/security/certManager/acme/ocf/client"
 	"strconv"
 	"time"
@@ -23,20 +20,14 @@ import (
 
 // Config set configuration.
 type Config struct {
-	certManager.Config
-	DeviceID string `envconfig:"ACME_DEVICE_ID" env:"ACME_DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
+	CAPool              string        `envconfig:"CA_POOL" env:"CA_POOL" long:"ca" description:"file path to the root certificate in PEM format"`
+	CADirURL            string        `envconfig:"DIRECTORY_URL" env:"DIRECTORY_URL" long:"acme-directory-url" description:"the ACME directory URL for your ACME server"`
+	Domains             []string      `envconfig:"DOMAINS" env:"DOMAINS" long:"domains" description:"the domain's names for which we'll be getting a certificate"`
+	Email               string        `envconfig:"REGISTRATION_EMAIL" env:"REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
+	TickFrequency       time.Duration `envconfig:"TICK_FREQUENCY" env:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
+	ChallengeListenPort uint16        `envconfig:"CHALLENGE_LISTEN_PORT" env:"CHALLENGE_LISTEN_PORT" long:"challenge-listen-port" default:"80" description:"listen port to accept challenge requests from acme server"`
+	DeviceID            string        `envconfig:"DEVICE_ID" env:"DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
 }
-
-// NewOcfCertManager create new CertManager
-func NewOcfCertManager(config Config) (certManager.CertManager, error) {
-	if config.Type == certManager.FileType {
-		return file.NewCertManagerFromConfiguration(config.File)
-	} else if config.Type == certManager.AcmeType {
-		return newAcmeCertManagerFromConfiguration(config.Acme, config.DeviceID)
-	}
-	return nil, fmt.Errorf("unable to create ocf cert manager. Invalid tls config type: %s", config.Type)
-}
-
 
 type ocfClient struct {
 	c *client2.Client
@@ -46,8 +37,8 @@ func (c *ocfClient) Certificate() acme.Certifier {
 	return c.c.Certificate()
 }
 
-// newAcmeCertManagerFromConfiguration creates certificate manager from config.
-func newAcmeCertManagerFromConfiguration(config acme.Config, deviceID string) (certManager.CertManager, error) {
+// NewAcmeCertManagerFromConfiguration creates certificate manager from config.
+func NewAcmeCertManagerFromConfiguration(config Config) (*acme.CertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
@@ -84,7 +75,7 @@ func newAcmeCertManagerFromConfiguration(config acme.Config, deviceID string) (c
 				Timeout: 30 * time.Second,
 			},
 		},
-		DeviceID: deviceID,
+		DeviceID: config.DeviceID,
 	}
 
 	// Create an ACME client and configure use of `http-01` challenge
