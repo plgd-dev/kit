@@ -130,9 +130,15 @@ func (a *CertManager) loadCerts() error {
 		if err != nil {
 			return fmt.Errorf("cannot load certificate pair: %w", err)
 		}
-		a.tlsKeyPair = cert
+		a.setTlsKeyPair(cert)
 	}
 	return nil
+}
+
+func (a *CertManager) setTlsKeyPair(cert tls.Certificate) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	a.tlsKeyPair = cert
 }
 
 func (a *CertManager) watchFiles() {
@@ -166,7 +172,7 @@ func (a *CertManager) watchFiles() {
 			if a.tlsCert != nil && a.tlsKey != nil {
 				cert, err := tls.X509KeyPair(a.tlsCert, a.tlsKey)
 				if err == nil {
-					a.tlsKeyPair = cert
+					a.setTlsKeyPair(cert)
 				}
 			}
 		}
