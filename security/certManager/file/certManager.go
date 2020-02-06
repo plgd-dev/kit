@@ -33,6 +33,62 @@ type CertManager struct {
 	done          chan struct{}
 }
 
+// NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
+func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
+	var cas []*x509.Certificate
+	if config.CAPool != "" {
+		certs, err := security.LoadX509(config.CAPool)
+		if err != nil {
+			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %w", config.CAPool, err)
+		}
+		cas = certs
+	}
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return nil, err
+	}
+
+	fileCertMgr := &CertManager{
+		watcher:       watcher,
+		config:        config,
+		caAuthorities: security.NewDefaultCertPool(cas),
+	}
+	err = fileCertMgr.loadCerts()
+	if err != nil {
+		return nil, err
+	}
+	if err := fileCertMgr.watcher.Add(config.DirPath); err != nil {
+		return nil, err
+	}
+
+	fileCertMgr.done = make(chan struct{})
+	fileCertMgr.doneWg.Add(1)
+
+	go fileCertMgr.watchFiles()
+
+	return fileCertMgr, nil
+}
+
+// GetClientTLSConfig returns tls configuration for clients
+func (a *CertManager) GetClientTLSConfig() tls.Config {
+	return tls.Config{
+		RootCAs:                  a.getCertificateAuthorities(),
+		GetClientCertificate:     a.getCertificate,
+		PreferServerCipherSuites: true,
+		MinVersion:               tls.VersionTLS12,
+	}
+}
+
+// GetServerTLSConfig returns tls configuration for servers
+func (a *CertManager) GetServerTLSConfig() tls.Config {
+	return tls.Config{
+		ClientCAs:      a.getCertificateAuthorities(),
+		GetCertificate: a.getCertificate2,
+		MinVersion:     tls.VersionTLS12,
+		ClientAuth:     tls.RequireAndVerifyClientCert,
+	}
+}
+
 // Close ends watching certificates
 func (a *CertManager) Close() {
 	if a.done != nil {
@@ -40,6 +96,49 @@ func (a *CertManager) Close() {
 		close(a.done)
 		a.doneWg.Wait()
 	}
+}
+
+func (a *CertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	return &a.tlsKeyPair, nil
+}
+
+func (a *CertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	return &a.tlsKeyPair, nil
+}
+
+func (a *CertManager) getCertificateAuthorities() *x509.CertPool {
+	return a.caAuthorities
+}
+
+func (a *CertManager) loadCerts() error {
+	if a.config.DirPath != "" && a.config.TLSKeyFileName != "" && a.config.TLSCertFileName != "" {
+		keyPath := a.config.DirPath + "/" + a.config.TLSKeyFileName
+		tlsKey, err := ioutil.ReadFile(keyPath)
+		if err != nil {
+			return fmt.Errorf("cannot load certificate key from '%v': %w", keyPath, err)
+		}
+		certPath := a.config.DirPath + "/" + a.config.TLSCertFileName
+		tlsCert, err := ioutil.ReadFile(certPath)
+		if err != nil {
+			return fmt.Errorf("cannot load certificate from '%v': %w", certPath, err)
+		}
+		cert, err := tls.X509KeyPair(tlsCert, tlsKey)
+		if err != nil {
+			return fmt.Errorf("cannot load certificate pair: %w", err)
+		}
+		a.setTlsKeyPair(cert)
+	}
+	return nil
+}
+
+func (a *CertManager) setTlsKeyPair(cert tls.Certificate) {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+	a.tlsKeyPair = cert
 }
 
 func (a *CertManager) watchFiles() {
@@ -71,80 +170,11 @@ func (a *CertManager) watchFiles() {
 			}
 
 			if a.tlsCert != nil && a.tlsKey != nil {
-				cert, ert := tls.X509KeyPair(a.tlsCert, a.tlsKey)
-				if ert == nil {
-					a.tlsKeyPair = cert
+				cert, err := tls.X509KeyPair(a.tlsCert, a.tlsKey)
+				if err == nil {
+					a.setTlsKeyPair(cert)
 				}
 			}
 		}
-	}
-}
-
-// NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
-	var cas []*x509.Certificate
-	if config.CAPool != "" {
-		certs, err := security.LoadX509(config.CAPool)
-		if err != nil {
-			return nil, fmt.Errorf("cannot load certificate authorities from '%v': %w", config.CAPool, err)
-		}
-		cas = certs
-	}
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, err
-	}
-
-	fileCertMgr := &CertManager{
-		watcher:       watcher,
-		config:        config,
-		caAuthorities: security.NewDefaultCertPool(cas),
-	}
-
-	if err := fileCertMgr.watcher.Add(config.DirPath); err != nil {
-		return nil, err
-	}
-
-	fileCertMgr.done = make(chan struct{})
-	fileCertMgr.doneWg.Add(1)
-
-	go fileCertMgr.watchFiles()
-
-	return fileCertMgr, nil
-}
-
-func (a *CertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	return &a.tlsKeyPair, nil
-}
-
-func (a *CertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	return &a.tlsKeyPair, nil
-}
-
-func (a *CertManager) getCertificateAuthorities() *x509.CertPool {
-	return a.caAuthorities
-}
-
-// GetClientTLSConfig returns tls configuration for clients
-func (a *CertManager) GetClientTLSConfig() tls.Config {
-	return tls.Config{
-		RootCAs:                  a.getCertificateAuthorities(),
-		GetClientCertificate:     a.getCertificate,
-		PreferServerCipherSuites: true,
-		MinVersion:               tls.VersionTLS12,
-	}
-}
-
-// GetServerTLSConfig returns tls configuration for servers
-func (a *CertManager) GetServerTLSConfig() tls.Config {
-	return tls.Config{
-		ClientCAs:      a.getCertificateAuthorities(),
-		GetCertificate: a.getCertificate2,
-		MinVersion:     tls.VersionTLS12,
-		ClientAuth:     tls.RequireAndVerifyClientCert,
 	}
 }
