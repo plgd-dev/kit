@@ -403,6 +403,8 @@ func WithDialDisablePeerTCPSignalMessageCSMs() DialOptionFunc {
 	}
 }
 
+// WithKeepAlive sets a policy that detects dropped connections within the connTimeout limit
+// while attempting to make 3 pings during that period.
 func WithKeepAlive(connectionTimeout time.Duration) DialOptionFunc {
 	return func(c gocoap.Client) gocoap.Client {
 		c.KeepAlive = gocoap.MustMakeKeepAlive(connectionTimeout)
