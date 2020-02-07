@@ -386,11 +386,11 @@ func newClientCloseHandler(conn *gocoap.ClientConn, onClose *OnCloseHandler) *Cl
 
 type DialOptionFunc func(gocoap.Client) gocoap.Client
 
-func WithDialDisableTCPSignalMessages() DialOptionFunc {
+func WithDialDisableTCPSignalMessageCSM() DialOptionFunc {
 	// Iotivity 1.3 close connection when it gets signal messages,
 	// but Iotivity 2.0 requires them.
 	return func(c gocoap.Client) gocoap.Client {
-		c.DisableTCPSignalMessages = true
+		c.DisableTCPSignalMessageCSM = true
 		return c
 	}
 }
@@ -399,6 +399,15 @@ func WithDialDisablePeerTCPSignalMessageCSMs() DialOptionFunc {
 	return func(c gocoap.Client) gocoap.Client {
 		// Disable processes Capabilities and Settings Messages from client - iotivity sends max message size without blockwise.
 		c.DisablePeerTCPSignalMessageCSMs = true
+		return c
+	}
+}
+
+// WithKeepAlive sets a policy that detects dropped connections within the connTimeout limit
+// while attempting to make 3 pings during that period.
+func WithKeepAlive(connectionTimeout time.Duration) DialOptionFunc {
+	return func(c gocoap.Client) gocoap.Client {
+		c.KeepAlive = gocoap.MustMakeKeepAlive(connectionTimeout)
 		return c
 	}
 }

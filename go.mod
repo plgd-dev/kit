@@ -7,7 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-acme/lego v2.7.2+incompatible
-	github.com/go-ocf/go-coap v0.0.0-20200102085052-de56d321b864
+	github.com/go-ocf/go-coap v0.0.0-20200207111708-e8caffdb9036
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gogo/protobuf v1.3.1
 	github.com/gorilla/mux v1.7.3
