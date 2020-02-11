@@ -24,6 +24,8 @@ github.com/go-ocf/go-coap v0.0.0-20200207075424-42a4dfa573e2 h1:mQ14Cn1GNLbla4fA
 github.com/go-ocf/go-coap v0.0.0-20200207075424-42a4dfa573e2/go.mod h1:4M5psGWXKgBr5EEiHBE4goezyqfCSAqk9C1UaKi5t+Y=
 github.com/go-ocf/go-coap v0.0.0-20200207111708-e8caffdb9036 h1:CqyGTB9etaSPnk7rpVQiOhyRVAsTCqDxMx6AaRX7Vic=
 github.com/go-ocf/go-coap v0.0.0-20200207111708-e8caffdb9036/go.mod h1:4M5psGWXKgBr5EEiHBE4goezyqfCSAqk9C1UaKi5t+Y=
+github.com/go-ocf/go-coap v0.0.0-20200210123238-6ad5eb48985c h1:vHBpwuXsaMI535Ijjhv9QSELW9f/K85qMefAp/YOrMQ=
+github.com/go-ocf/go-coap v0.0.0-20200210123238-6ad5eb48985c/go.mod h1:4M5psGWXKgBr5EEiHBE4goezyqfCSAqk9C1UaKi5t+Y=
 github.com/gofrs/uuid v3.2.0+incompatible h1:y12jRkkFxsd7GpqdSZ+/KCs/fJbqpEXSGd4+jfEaewE=
 github.com/gofrs/uuid v3.2.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
