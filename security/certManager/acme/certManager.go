@@ -282,7 +282,7 @@ type Config struct {
 	Email                        string        `envconfig:"REGISTRATION_EMAIL" env:"REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
 	TickFrequency                time.Duration `envconfig:"TICK_FREQUENCY" env:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
 	ChallengeListenPort          uint16        `envconfig:"CHALLENGE_LISTEN_PORT" env:"CHALLENGE_LISTEN_PORT" long:"challenge-listen-port" default:"80" description:"listen port to accept challenge requests from acme server"`
-	DisableVerifyPeerCertificate bool          `envconfig:"DISABLE_VERIFY_PEER_CERTIFICATE" env:"DISABLE_VERIFY_PEER_CERTIFICATE" long:"disable-verify-peer-certificate" default:"true" description:"disable verify peer ceritificate"`
+	DisableVerifyPeerCertificate bool          `envconfig:"DISABLE_VERIFY_PEER_CERTIFICATE" env:"DISABLE_VERIFY_PEER_CERTIFICATE" long:"disable-verify-peer-certificate" description:"disable verify peer ceritificate"`
 }
 
 type legoClient struct {
