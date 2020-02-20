@@ -85,25 +85,31 @@ type Client = interface {
 // CertManager manages ACME certificate renewals and makes it easy to use
 // certificates with the tls package.`
 type CertManager struct {
-	mutex       sync.Mutex
-	acmeClient  Client
-	certificate *tls.Certificate
-	cas         *x509.CertPool
-	domains     []string
-	leaf        *x509.Certificate
-	resource    *certificate.Resource
-	done        chan struct{}
-	doneWg      sync.WaitGroup
+	mutex                 sync.Mutex
+	acmeClient            Client
+	certificate           *tls.Certificate
+	cas                   *x509.CertPool
+	domains               []string
+	leaf                  *x509.Certificate
+	resource              *certificate.Resource
+	done                  chan struct{}
+	doneWg                sync.WaitGroup
+	verifyPeerCertificate tls.ClientAuthType
 }
 
 // NewCertManager configures an ACME client, creates & registers a new ACME
 // user. After creating a client you must call ObtainCertificate and
 // RenewCertificate yourself.
-func NewCertManager(cas []*x509.Certificate, domains []string, tickFrequency time.Duration, acmeClient Client) (*CertManager, error) {
+func NewCertManager(cas []*x509.Certificate, disableVerifyPeerCertificate bool, domains []string, tickFrequency time.Duration, acmeClient Client) (*CertManager, error) {
+	tlsVerifyPeerCertificate := tls.RequireAndVerifyClientCert
+	if disableVerifyPeerCertificate {
+		tlsVerifyPeerCertificate = tls.NoClientCert
+	}
 	acm := &CertManager{
-		acmeClient: acmeClient,
-		domains:    domains,
-		cas:        security.NewDefaultCertPool(cas),
+		acmeClient:            acmeClient,
+		domains:               domains,
+		cas:                   security.NewDefaultCertPool(cas),
+		verifyPeerCertificate: tlsVerifyPeerCertificate,
 	}
 
 	err := acm.ObtainCertificate()
@@ -207,6 +213,7 @@ func (a *CertManager) GetClientTLSConfig() tls.Config {
 		GetClientCertificate:     a.GetClientCertificate,
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
+		InsecureSkipVerify:       a.verifyPeerCertificate == tls.NoClientCert,
 	}
 }
 func (a *CertManager) GetServerTLSConfig() tls.Config {
@@ -214,7 +221,7 @@ func (a *CertManager) GetServerTLSConfig() tls.Config {
 		ClientCAs:      a.GetCertificateAuthorities(),
 		GetCertificate: a.GetCertificate,
 		MinVersion:     tls.VersionTLS12,
-		ClientAuth:     tls.RequireAndVerifyClientCert,
+		ClientAuth:     a.verifyPeerCertificate,
 	}
 }
 
@@ -269,12 +276,13 @@ func (a *CertManager) Close() {
 
 // Config set configuration.
 type Config struct {
-	CAPool              string        `envconfig:"CA_POOL" env:"CA_POOL" long:"ca" description:"file path to the root certificate in PEM format"`
-	CADirURL            string        `envconfig:"DIRECTORY_URL" env:"DIRECTORY_URL" long:"acme-directory-url" description:"the ACME directory URL for your ACME server"`
-	Domains             []string      `envconfig:"DOMAINS" env:"DOMAINS" long:"domains" description:"the domain's names for which we'll be getting a certificate"`
-	Email               string        `envconfig:"REGISTRATION_EMAIL" env:"REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
-	TickFrequency       time.Duration `envconfig:"TICK_FREQUENCY" env:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
-	ChallengeListenPort uint16        `envconfig:"CHALLENGE_LISTEN_PORT" env:"CHALLENGE_LISTEN_PORT" long:"challenge-listen-port" default:"80" description:"listen port to accept challenge requests from acme server"`
+	CAPool                       string        `envconfig:"CA_POOL" env:"CA_POOL" long:"ca" description:"file path to the root certificate in PEM format"`
+	CADirURL                     string        `envconfig:"DIRECTORY_URL" env:"DIRECTORY_URL" long:"acme-directory-url" description:"the ACME directory URL for your ACME server"`
+	Domains                      []string      `envconfig:"DOMAINS" env:"DOMAINS" long:"domains" description:"the domain's names for which we'll be getting a certificate"`
+	Email                        string        `envconfig:"REGISTRATION_EMAIL" env:"REGISTRATION_EMAIL" long:"email" description:"the email address to use during ACME registration"`
+	TickFrequency                time.Duration `envconfig:"TICK_FREQUENCY" env:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
+	ChallengeListenPort          uint16        `envconfig:"CHALLENGE_LISTEN_PORT" env:"CHALLENGE_LISTEN_PORT" long:"challenge-listen-port" default:"80" description:"listen port to accept challenge requests from acme server"`
+	DisableVerifyPeerCertificate bool          `envconfig:"DISABLE_VERIFY_PEER_CERTIFICATE" env:"DISABLE_VERIFY_PEER_CERTIFICATE" long:"disable-verify-peer-certificate" default:"true" description:"disable verify peer ceritificate"`
 }
 
 type legoClient struct {
@@ -342,5 +350,5 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 	}
 	user.SetRegistration(registration)
 
-	return NewCertManager(cas, config.Domains, config.TickFrequency, &legoClient{acmeClient})
+	return NewCertManager(cas, config.DisableVerifyPeerCertificate, config.Domains, config.TickFrequency, &legoClient{acmeClient})
 }

@@ -14,23 +14,25 @@ import (
 
 // Config provides configuration of a file based Certificate manager
 type Config struct {
-	CAPool          string `envconfig:"CA_POOL" long:"tls-file_ca-pool" description:"file path to the root certificate in PEM format"`
-	TLSKeyFileName  string `envconfig:"CERT_KEY_NAME" long:"tls-file-cert-key-name" description:"file name of private key in PEM format"`
-	DirPath         string `envconfig:"CERT_DIR_PATH" long:"tls-file-cert-dir-path" description:"dir path where cert/key pair are saved"`
-	TLSCertFileName string `envconfig:"CERT_NAME" long:"tls-file-cert-name" description:"file name of certificate in PEM format"`
+	CAPool                       string `envconfig:"CA_POOL" long:"tls-file_ca-pool" description:"file path to the root certificate in PEM format"`
+	TLSKeyFileName               string `envconfig:"CERT_KEY_NAME" long:"tls-file-cert-key-name" description:"file name of private key in PEM format"`
+	DirPath                      string `envconfig:"CERT_DIR_PATH" long:"tls-file-cert-dir-path" description:"dir path where cert/key pair are saved"`
+	TLSCertFileName              string `envconfig:"CERT_NAME" long:"tls-file-cert-name" description:"file name of certificate in PEM format"`
+	DisableVerifyPeerCertificate bool   `envconfig:"DISABLE_VERIFY_PEER_CERTIFICATE" env:"DISABLE_VERIFY_PEER_CERTIFICATE" long:"disable-verify-peer-certificate" default:"true" description:"disable verify peer ceritificate"`
 }
 
 // CertManager holds certificates from filesystem watched for changes
 type CertManager struct {
-	mutex         sync.Mutex
-	config        Config
-	tlsKey        []byte
-	tlsCert       []byte
-	tlsKeyPair    tls.Certificate
-	caAuthorities *x509.CertPool
-	watcher       *fsnotify.Watcher
-	doneWg        sync.WaitGroup
-	done          chan struct{}
+	mutex                 sync.Mutex
+	config                Config
+	tlsKey                []byte
+	tlsCert               []byte
+	tlsKeyPair            tls.Certificate
+	caAuthorities         *x509.CertPool
+	watcher               *fsnotify.Watcher
+	doneWg                sync.WaitGroup
+	done                  chan struct{}
+	verifyPeerCertificate tls.ClientAuthType
 }
 
 // NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
@@ -48,10 +50,16 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 		return nil, err
 	}
 
+	verifyPeerCertificate := tls.RequireAndVerifyClientCert
+	if config.DisableVerifyPeerCertificate {
+		verifyPeerCertificate = tls.NoClientCert
+	}
+
 	fileCertMgr := &CertManager{
-		watcher:       watcher,
-		config:        config,
-		caAuthorities: security.NewDefaultCertPool(cas),
+		watcher:               watcher,
+		config:                config,
+		caAuthorities:         security.NewDefaultCertPool(cas),
+		verifyPeerCertificate: verifyPeerCertificate,
 	}
 	err = fileCertMgr.loadCerts()
 	if err != nil {
@@ -76,6 +84,7 @@ func (a *CertManager) GetClientTLSConfig() tls.Config {
 		GetClientCertificate:     a.getCertificate,
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
+		InsecureSkipVerify:       a.verifyPeerCertificate == tls.NoClientCert,
 	}
 }
 
@@ -85,7 +94,7 @@ func (a *CertManager) GetServerTLSConfig() tls.Config {
 		ClientCAs:      a.getCertificateAuthorities(),
 		GetCertificate: a.getCertificate2,
 		MinVersion:     tls.VersionTLS12,
-		ClientAuth:     tls.RequireAndVerifyClientCert,
+		ClientAuth:     a.verifyPeerCertificate,
 	}
 }
 
