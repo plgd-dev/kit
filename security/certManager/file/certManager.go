@@ -18,7 +18,7 @@ type Config struct {
 	TLSKeyFileName               string `envconfig:"CERT_KEY_NAME" long:"tls-file-cert-key-name" description:"file name of private key in PEM format"`
 	DirPath                      string `envconfig:"CERT_DIR_PATH" long:"tls-file-cert-dir-path" description:"dir path where cert/key pair are saved"`
 	TLSCertFileName              string `envconfig:"CERT_NAME" long:"tls-file-cert-name" description:"file name of certificate in PEM format"`
-	DisableVerifyPeerCertificate bool   `envconfig:"DISABLE_VERIFY_PEER_CERTIFICATE" env:"DISABLE_VERIFY_PEER_CERTIFICATE" long:"disable-verify-peer-certificate" default:"true" description:"disable verify peer ceritificate"`
+	DisableVerifyPeerCertificate bool   `envconfig:"DISABLE_VERIFY_PEER_CERTIFICATE" env:"DISABLE_VERIFY_PEER_CERTIFICATE" long:"disable-verify-peer-certificate" description:"disable verify peer ceritificate"`
 }
 
 // CertManager holds certificates from filesystem watched for changes
