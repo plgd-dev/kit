@@ -29,6 +29,7 @@ type Config struct {
 	ChallengeListenPort            uint16        `envconfig:"CHALLENGE_LISTEN_PORT" env:"CHALLENGE_LISTEN_PORT" long:"challenge-listen-port" default:"80" description:"listen port to accept challenge requests from acme server"`
 	DisableVerifyClientCertificate bool          `envconfig:"DISABLE_VERIFY_CLIENT_CERTIFICATE" env:"DISABLE_VERIFY_CLIENT_CERTIFICATE" long:"disable-verify-client-certificate" description:"disable verify client ceritificate"`
 	DeviceID                       string        `envconfig:"DEVICE_ID" env:"DEVICE_ID" long:"device_id" description:"DeviceID for OCF Identity Certificate"`
+	UseSystemCertPool              bool          `envconfig:"USE_SYSTEM_CERTIFICATION_POOL" env:"USE_SYSTEM_CERTIFICATION_POOL"  long:"use-system-certification-pool" description:"use system certifcation pool"`
 }
 
 type ocfClient struct {
@@ -98,5 +99,5 @@ func NewAcmeCertManagerFromConfiguration(config Config) (*acme.CertManager, erro
 	}
 	user.SetRegistration(registration)
 
-	return acme.NewCertManager(cas, config.DisableVerifyClientCertificate, config.Domains, config.TickFrequency, &ocfClient{acmeClient})
+	return acme.NewCertManager(cas, config.DisableVerifyClientCertificate, config.UseSystemCertPool, config.Domains, config.TickFrequency, &ocfClient{acmeClient})
 }
