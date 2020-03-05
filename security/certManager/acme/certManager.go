@@ -88,28 +88,44 @@ type CertManager struct {
 	mutex                   sync.Mutex
 	acmeClient              Client
 	certificate             *tls.Certificate
-	cas                     *x509.CertPool
+	certificateAuthorities  []*x509.Certificate
 	domains                 []string
 	leaf                    *x509.Certificate
 	resource                *certificate.Resource
 	done                    chan struct{}
 	doneWg                  sync.WaitGroup
 	verifyClientCertificate tls.ClientAuthType
+	newCaCertPoolFunc       func() *x509.CertPool
 }
 
 // NewCertManager configures an ACME client, creates & registers a new ACME
 // user. After creating a client you must call ObtainCertificate and
 // RenewCertificate yourself.
-func NewCertManager(cas []*x509.Certificate, disableVerifyClientCertificate bool, domains []string, tickFrequency time.Duration, acmeClient Client) (*CertManager, error) {
+func NewCertManager(cas []*x509.Certificate, disableVerifyClientCertificate, useSystemCertPool bool, domains []string, tickFrequency time.Duration, acmeClient Client) (*CertManager, error) {
 	tlsVerifyClientCertificate := tls.RequireAndVerifyClientCert
 	if disableVerifyClientCertificate {
 		tlsVerifyClientCertificate = tls.NoClientCert
 	}
+
+	newCaCertPool := func() *x509.CertPool {
+		p := x509.NewCertPool()
+		for _, c := range cas {
+			p.AddCert(c)
+		}
+		return p
+	}
+	if useSystemCertPool {
+		newCaCertPool = func() *x509.CertPool {
+			return security.NewDefaultCertPool(cas)
+		}
+	}
+
 	acm := &CertManager{
 		acmeClient:              acmeClient,
 		domains:                 domains,
-		cas:                     security.NewDefaultCertPool(cas),
+		certificateAuthorities:  cas,
 		verifyClientCertificate: tlsVerifyClientCertificate,
+		newCaCertPoolFunc:       newCaCertPool,
 	}
 
 	err := acm.ObtainCertificate()
@@ -196,8 +212,8 @@ func (a *CertManager) GetClientCertificate(*tls.CertificateRequestInfo) (*tls.Ce
 }
 
 // GetCertificateAuthorities returns certificates authorities
-func (a *CertManager) GetCertificateAuthorities() *x509.CertPool {
-	return a.cas
+func (a *CertManager) GetCertificateAuthorities() []*x509.Certificate {
+	return a.certificateAuthorities
 }
 
 // GetLeaf returns the currently valid leaf x509.Certificate
@@ -209,7 +225,7 @@ func (a *CertManager) GetLeaf() *x509.Certificate {
 
 func (a *CertManager) GetClientTLSConfig() tls.Config {
 	return tls.Config{
-		RootCAs:                  a.GetCertificateAuthorities(),
+		RootCAs:                  a.newCaCertPoolFunc(),
 		GetClientCertificate:     a.GetClientCertificate,
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
@@ -217,7 +233,7 @@ func (a *CertManager) GetClientTLSConfig() tls.Config {
 }
 func (a *CertManager) GetServerTLSConfig() tls.Config {
 	return tls.Config{
-		ClientCAs:      a.GetCertificateAuthorities(),
+		ClientCAs:      a.newCaCertPoolFunc(),
 		GetCertificate: a.GetCertificate,
 		MinVersion:     tls.VersionTLS12,
 		ClientAuth:     a.verifyClientCertificate,
@@ -282,6 +298,7 @@ type Config struct {
 	TickFrequency                  time.Duration `envconfig:"TICK_FREQUENCY" env:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our cert needs renewal" default:"15s"`
 	ChallengeListenPort            uint16        `envconfig:"CHALLENGE_LISTEN_PORT" env:"CHALLENGE_LISTEN_PORT" long:"challenge-listen-port" default:"80" description:"listen port to accept challenge requests from acme server"`
 	DisableVerifyClientCertificate bool          `envconfig:"DISABLE_VERIFY_CLIENT_CERTIFICATE" env:"DISABLE_VERIFY_CLIENT_CERTIFICATE" long:"disable-verify-client-certificate" description:"disable verify client ceritificate"`
+	UseSystemCertPool              bool          `envconfig:"USE_SYSTEM_CERTIFICATION_POOL" env:"USE_SYSTEM_CERTIFICATION_POOL"  long:"use-system-certification-pool" description:"use system certifcation pool"`
 }
 
 type legoClient struct {
@@ -349,5 +366,5 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 	}
 	user.SetRegistration(registration)
 
-	return NewCertManager(cas, config.DisableVerifyClientCertificate, config.Domains, config.TickFrequency, &legoClient{acmeClient})
+	return NewCertManager(cas, config.DisableVerifyClientCertificate, config.UseSystemCertPool, config.Domains, config.TickFrequency, &legoClient{acmeClient})
 }
