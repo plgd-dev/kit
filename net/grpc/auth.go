@@ -56,3 +56,8 @@ func CtxWithToken(ctx context.Context, token string) context.Context {
 	md := metadata.Pairs("authorization", fmt.Sprintf("%s %s", "bearer", token))
 	return metautils.NiceMD(md).ToOutgoing(ctx)
 }
+
+func CtxWithIncomingToken(ctx context.Context, token string) context.Context {
+	md := metadata.Pairs("authorization", fmt.Sprintf("%s %s", "bearer", token))
+	return metautils.NiceMD(md).ToIncoming(ctx)
+}
