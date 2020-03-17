@@ -1,8 +1,8 @@
 package manager
 
 import (
-	"golang.org/x/oauth2/clientcredentials"
 	"context"
+	"golang.org/x/oauth2/clientcredentials"
 	"sync"
 	"time"
 
@@ -12,13 +12,13 @@ import (
 
 // Manager holds certificates from filesystem watched for changes
 type Manager struct {
-	mutex  sync.Mutex
-	config clientcredentials.Config
+	mutex          sync.Mutex
+	config         clientcredentials.Config
 	requestTimeout time.Duration
-	token  *oauth2.Token
-	tokenErr error
-	doneWg sync.WaitGroup
-	done   chan struct{}
+	token          *oauth2.Token
+	tokenErr       error
+	doneWg         sync.WaitGroup
+	done           chan struct{}
 }
 
 // NewManagerFromConfiguration creates a new oauth manager which refreshing token.
@@ -32,8 +32,8 @@ func NewManagerFromConfiguration(config Config) (*Manager, error) {
 		config: cfg,
 		token:  token,
 
-		requestTimeout:  config.RequestTimeout,
-		done:   make(chan struct{}),
+		requestTimeout: config.RequestTimeout,
+		done:           make(chan struct{}),
 	}
 	mgr.doneWg.Add(1)
 
