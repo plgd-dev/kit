@@ -17,7 +17,6 @@ type Config struct {
 	Scopes         []string      `envconfig:"SCOPES" env:"SCOPES"`
 	Endpoint       Endpoint      `envconfig:"ENDPOINT" env:"ENDPOINT"`
 	Audience       string        `envconfig:"AUDIENCE" env:"AUDIENCE"`
-	ResponseMode   string        `envconfig:"RESPONSE_MODE" env:"RESPONSE_MODE"`
 	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" default:"10s"`
 }
 
@@ -26,9 +25,6 @@ func (c Config) ToClientCrendtials() clientcredentials.Config {
 	v := make(url.Values)
 	if c.Audience != "" {
 		v.Set("audience", c.Audience)
-	}
-	if c.ResponseMode != "" {
-		v.Set("response_mode", c.ResponseMode)
 	}
 
 	return clientcredentials.Config{
