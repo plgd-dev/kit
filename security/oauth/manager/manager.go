@@ -2,11 +2,15 @@ package manager
 
 import (
 	"context"
-	"golang.org/x/oauth2/clientcredentials"
+	"crypto/tls"
+	"net/http"
 	"sync"
 	"time"
 
+	"golang.org/x/oauth2/clientcredentials"
+
 	"github.com/go-ocf/kit/log"
+	"github.com/go-ocf/kit/net/http/transport"
 	"golang.org/x/oauth2"
 )
 
@@ -14,6 +18,7 @@ import (
 type Manager struct {
 	mutex          sync.Mutex
 	config         clientcredentials.Config
+	tlsCfg         *tls.Config
 	requestTimeout time.Duration
 	token          *oauth2.Token
 	tokenErr       error
@@ -22,15 +27,16 @@ type Manager struct {
 }
 
 // NewManagerFromConfiguration creates a new oauth manager which refreshing token.
-func NewManagerFromConfiguration(config Config) (*Manager, error) {
+func NewManagerFromConfiguration(config Config, tlsCfg *tls.Config) (*Manager, error) {
 	cfg := config.ToClientCrendtials()
-	token, err := getToken(cfg, config.RequestTimeout)
+	token, err := getToken(cfg, tlsCfg, config.RequestTimeout)
 	if err != nil {
 		return nil, err
 	}
 	mgr := &Manager{
 		config: cfg,
 		token:  token,
+		tlsCfg: tlsCfg,
 
 		requestTimeout: config.RequestTimeout,
 		done:           make(chan struct{}),
@@ -67,14 +73,20 @@ func (a *Manager) nextRenewal() time.Duration {
 	return lifetime
 }
 
-func getToken(cfg clientcredentials.Config, requestTimeout time.Duration) (*oauth2.Token, error) {
+func getToken(cfg clientcredentials.Config, tlsCfg *tls.Config, requestTimeout time.Duration) (*oauth2.Token, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancel()
+
+	t := transport.NewDefaultTransport()
+	t.TLSClientConfig = tlsCfg
+	httpClient := &http.Client{Transport: t}
+	ctx = context.WithValue(ctx, oauth2.HTTPClient, httpClient)
+
 	return cfg.Token(ctx)
 }
 
 func (a *Manager) refreshToken() {
-	token, err := getToken(a.config, a.requestTimeout)
+	token, err := getToken(a.config, a.tlsCfg, a.requestTimeout)
 	if err != nil {
 		log.Errorf("cannot refresh token: %v", err)
 	}
