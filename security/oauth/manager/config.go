@@ -17,7 +17,7 @@ type Config struct {
 	Scopes         []string      `envconfig:"SCOPES" env:"SCOPES"`
 	Endpoint       Endpoint      `envconfig:"ENDPOINT" env:"ENDPOINT"`
 	Audience       string        `envconfig:"AUDIENCE" env:"AUDIENCE"`
-	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" default:"10s"`
+	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" env:"REQUEST_TIMEOUT" default:"10s"`
 }
 
 // ToClientCrendtials converts to clientcredentials.Config
