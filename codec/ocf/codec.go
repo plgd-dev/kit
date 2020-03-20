@@ -64,9 +64,10 @@ func (c NoCodec) Decode(m coap.Message, v interface{}) error {
 		if len(m.Payload()) == 0 {
 			return nil
 		}
-		if mt != c.ContentFormat() {
-			return fmt.Errorf("unexpected content format: %v", cf)
-		}
+		return fmt.Errorf("unknown content type")
+	}
+	if mt != c.ContentFormat() {
+		return fmt.Errorf("unexpected content format: %v", cf)
 	}
 
 	p, ok := v.(*[]byte)
