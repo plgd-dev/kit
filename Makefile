@@ -29,7 +29,7 @@ test: clean build-testcontainer
 
 clean:
 
-.PHONY: build-testcontainer build-servicecontainer build test push clean proto/generate
+.PHONY: build-testcontainer build-servicecontainer build test push clean
 
 
 
