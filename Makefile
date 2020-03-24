@@ -27,12 +27,9 @@ test: clean build-testcontainer
 		ocfcloud/$(SERVICE_NAME):$(VERSION_TAG) \
 		go test -v ./... -covermode=atomic -coverprofile=/shared/coverage.txt
 
-proto/generate:
-	protoc -I=. -I=${GOPATH}/src -I=${GOPATH}/src/github.com/gogo/protobuf/protobuf --go_out=${GOPATH}/src net/grpc/errorDetail.proto
-
 clean:
 
-.PHONY: build-testcontainer build-servicecontainer build test push clean proto/generate
+.PHONY: build-testcontainer build-servicecontainer build test push clean
 
 
 
