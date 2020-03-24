@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package ocf.cloud.kit.net.grpc.pb;
+option go_package = "github.com/go-ocf/kit/net/grpc;grpc";
+
+// must be generated with without gogo protobuf because it is used in grpc status details.
+
+message Content {
+    bytes data  = 1;
+    string content_type  = 2;
+}
+
+message ErrorDetail {
+    string domain  = 1;
+    Content content = 2;
+}
