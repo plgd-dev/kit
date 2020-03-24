@@ -77,24 +77,6 @@ func TestForwardErrorf(t *testing.T) {
 			},
 			wantMessage: "abc: rpc error: code = Internal desc = ghi 1",
 		},
-		{
-			name: "with custom details",
-			args: args{
-				code:      codes.OK,
-				formatter: "abc: %v",
-				args: []interface{}{func() error {
-					s := status.Newf(codes.Internal, "ghi %v", 1)
-					s, err := s.WithDetails(&ErrorDetail{Domain: "custom-dbg"})
-					require.NoError(t, err)
-					return s.Err()
-				}()},
-			},
-			wantCode: codes.Internal,
-			wantDetails: []interface{}{
-				&ErrorDetail{Domain: "custom-dbg"},
-			},
-			wantMessage: "abc: rpc error: code = Internal desc = ghi 1",
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
