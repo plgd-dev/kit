@@ -36,6 +36,48 @@ func (VNDOCFCBORCodec) Decode(m coap.Message, v interface{}) error {
 	return nil
 }
 
+// RawVNDOCFCBORCodec performes no encoding/decoding but
+// it propagates/validates the CoAP content format/media type.
+type RawVNDOCFCBORCodec struct{}
+
+// ContentFormat used for encoding.
+func (RawVNDOCFCBORCodec) ContentFormat() coap.MediaType { return coap.AppOcfCbor }
+
+// Encode propagates the payload without any conversions.
+func (c RawVNDOCFCBORCodec) Encode(v interface{}) ([]byte, error) {
+	p, ok := v.([]byte)
+	if !ok {
+		return nil, fmt.Errorf("expected []byte")
+	}
+	return p, nil
+}
+
+// Decode validates the content format and
+// propagates the payload to v as *[]byte without any conversions.
+func (c RawVNDOCFCBORCodec) Decode(m coap.Message, v interface{}) error {
+	if v == nil {
+		return nil
+	}
+	cf := m.Option(coap.ContentFormat)
+	mt, ok := cf.(coap.MediaType)
+	if !ok {
+		if len(m.Payload()) == 0 {
+			return nil
+		}
+		return fmt.Errorf("unknown content type")
+	}
+	if !ok || (mt != coap.AppCBOR && mt != coap.AppOcfCbor) {
+		return fmt.Errorf("not a CBOR content format: %v", cf)
+	}
+
+	p, ok := v.(*[]byte)
+	if !ok {
+		return fmt.Errorf("expected *[]byte")
+	}
+	*p = m.Payload()
+	return nil
+}
+
 // NoCodec performes no encoding/decoding but
 // it propagates/validates the CoAP content format/media type.
 type NoCodec struct{ MediaType uint16 }
