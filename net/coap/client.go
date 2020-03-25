@@ -35,6 +35,16 @@ type Codec interface {
 	Decode(m gocoap.Message, v interface{}) error
 }
 
+// GetRawCodec returns raw codec depends on contentFormat.
+func GetRawCodec(contentFormat gocoap.MediaType) Codec {
+	if contentFormat == gocoap.AppCBOR || contentFormat == gocoap.AppOcfCbor {
+		return codecOcf.RawVNDOCFCBORCodec{}
+	}
+	return codecOcf.NoCodec{
+		MediaType: uint16(contentFormat),
+	}
+}
+
 var ExtendedKeyUsage_IDENTITY_CERTIFICATE = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 44924, 1, 6}
 
 func GetDeviceIDFromIndetityCertificate(cert *x509.Certificate) (string, error) {
