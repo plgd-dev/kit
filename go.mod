@@ -20,7 +20,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pion/dtls/v2 v2.0.0-rc.5
 	github.com/pion/logging v0.2.2
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/ugorji/go/codec v1.1.7
 	github.com/valyala/fasthttp v1.7.1
 	go.uber.org/zap v1.13.0
