@@ -6,6 +6,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
+	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/go-ocf/go-coap v0.0.0-20200210123238-6ad5eb48985c
 	github.com/gofrs/uuid v3.2.0+incompatible
