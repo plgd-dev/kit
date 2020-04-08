@@ -15,13 +15,11 @@ import (
 
 	uuid "github.com/gofrs/uuid"
 	dtls "github.com/pion/dtls/v2"
-	"github.com/pion/logging"
 
 	gocoap "github.com/go-ocf/go-coap"
 	"github.com/go-ocf/go-coap/codes"
 	codecOcf "github.com/go-ocf/kit/codec/ocf"
 	"github.com/go-ocf/kit/net/coap/status"
-	"github.com/go-ocf/kit/security"
 )
 
 type Client struct {
@@ -448,9 +446,7 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	return newClientCloseHandler(c, h), nil
 }
 
-func createVerifyPeerCertificate(cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error) func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-	caPool := security.NewDefaultCertPool(cas)
-
+func NewVerifyPeerCertificate(rootCAs *x509.CertPool, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error) func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	return func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 		if len(rawCerts) == 0 {
 			return fmt.Errorf("empty certificates chain")
@@ -468,7 +464,7 @@ func createVerifyPeerCertificate(cas []*x509.Certificate, verifyPeerCertificate 
 			intermediateCAPool.AddCert(cert)
 		}
 		_, err := certs[0].Verify(x509.VerifyOptions{
-			Roots:         caPool,
+			Roots:         rootCAs,
 			Intermediates: intermediateCAPool,
 			CurrentTime:   time.Now(),
 			KeyUsages:     []x509.ExtKeyUsage{x509.ExtKeyUsageAny},
@@ -486,15 +482,10 @@ func createVerifyPeerCertificate(cas []*x509.Certificate, verifyPeerCertificate 
 	}
 }
 
-func DialTCPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
+func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	tlsConfig := tls.Config{
-		InsecureSkipVerify:    true,
-		Certificates:          []tls.Certificate{cert},
-		VerifyPeerCertificate: createVerifyPeerCertificate(cas, verifyPeerCertificate),
-	}
 	client := gocoap.Client{Net: "tcp-tls", NotifySessionEndFunc: h.OnClose,
-		TLSConfig: &tlsConfig,
+		TLSConfig: tlsCfg,
 	}
 	for _, o := range opts {
 		client = o(client)
@@ -506,24 +497,10 @@ func DialTCPSecure(ctx context.Context, addr string, cert tls.Certificate, cas [
 	return newClientCloseHandler(c, h), nil
 }
 
-func DialUDPSecure(ctx context.Context, addr string, cert tls.Certificate, cas []*x509.Certificate, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
+func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *dtls.Config, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	caPool := x509.NewCertPool()
-	for _, ca := range cas {
-		caPool.AddCert(ca)
-	}
-
-	log := logging.NewDefaultLoggerFactory()
-	log.DefaultLogLevel = logging.LogLevelTrace
-
-	tlsConfig := dtls.Config{
-		LoggerFactory:         log,
-		InsecureSkipVerify:    true,
-		Certificates:          []tls.Certificate{cert},
-		VerifyPeerCertificate: createVerifyPeerCertificate(cas, verifyPeerCertificate),
-	}
 	client := gocoap.Client{Net: "udp-dtls", NotifySessionEndFunc: h.OnClose,
-		DTLSConfig: &tlsConfig,
+		DTLSConfig: dtlsCfg,
 	}
 	for _, o := range opts {
 		client = o(client)
