@@ -15,11 +15,10 @@ require (
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/lestrrat-go/jwx v0.9.0
+	github.com/lestrrat-go/jwx v0.9.2
 	github.com/miekg/dns v1.1.25 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pion/dtls/v2 v2.0.0-rc.9
-	github.com/pion/logging v0.2.2
 	github.com/stretchr/testify v1.5.1
 	github.com/ugorji/go/codec v1.1.7
 	github.com/valyala/fasthttp v1.7.1
