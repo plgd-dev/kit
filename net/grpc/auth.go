@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"regexp"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,16 +19,11 @@ type AuthInterceptors struct {
 	authFunc Interceptor
 }
 
-// RequestMatcher allows request without token validation.
-type RequestMatcher struct {
-	Method *regexp.Regexp
-}
-
-func MakeAuthInterceptors(authFunc Interceptor, whiteList ...RequestMatcher) AuthInterceptors {
+func MakeAuthInterceptors(authFunc Interceptor, whiteListedMethods ...string) AuthInterceptors {
 	return AuthInterceptors{
 		authFunc: func(ctx context.Context, method string) (context.Context, error) {
-			for _, wa := range whiteList {
-				if wa.Method.MatchString(method) {
+			for _, wa := range whiteListedMethods {
+				if wa == method {
 					return ctx, nil
 				}
 			}
@@ -38,8 +32,8 @@ func MakeAuthInterceptors(authFunc Interceptor, whiteList ...RequestMatcher) Aut
 	}
 }
 
-func MakeJWTInterceptors(jwksURL string, tls *tls.Config, claims ClaimsFunc, whiteList ...RequestMatcher) AuthInterceptors {
-	return MakeAuthInterceptors(ValidateJWT(jwksURL, tls, claims), whiteList...)
+func MakeJWTInterceptors(jwksURL string, tls *tls.Config, claims ClaimsFunc, whiteListedMethods ...string) AuthInterceptors {
+	return MakeAuthInterceptors(ValidateJWT(jwksURL, tls, claims), whiteListedMethods...)
 }
 
 func (f AuthInterceptors) Unary() grpc.ServerOption {
