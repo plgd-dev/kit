@@ -17,14 +17,14 @@ type AuthArgs struct {
 	Scopes []*regexp.Regexp
 }
 
-// WhiteRequest allows request without token validation.
-type WhiteRequest struct {
+// RequestMatcher allows request without token validation.
+type RequestMatcher struct {
 	Method string
 	URI    *regexp.Regexp
 }
 
 // NewInterceptor authorizes HTTP request.
-func NewInterceptor(jwksURL string, tls *tls.Config, auths map[string][]AuthArgs, whiteList ...WhiteRequest) Interceptor {
+func NewInterceptor(jwksURL string, tls *tls.Config, auths map[string][]AuthArgs, whiteList ...RequestMatcher) Interceptor {
 	validateJWT := ValidateJWT(jwksURL, tls, MakeClaimsFunc(auths))
 	return func(ctx context.Context, method, uri string) (context.Context, error) {
 		for _, wa := range whiteList {

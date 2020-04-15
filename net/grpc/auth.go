@@ -20,12 +20,12 @@ type AuthInterceptors struct {
 	authFunc Interceptor
 }
 
-// WhiteRequest allows request without token validation.
-type WhiteRequest struct {
+// RequestMatcher allows request without token validation.
+type RequestMatcher struct {
 	Method *regexp.Regexp
 }
 
-func MakeAuthInterceptors(authFunc Interceptor, whiteList ...WhiteRequest) AuthInterceptors {
+func MakeAuthInterceptors(authFunc Interceptor, whiteList ...RequestMatcher) AuthInterceptors {
 	return AuthInterceptors{
 		authFunc: func(ctx context.Context, method string) (context.Context, error) {
 			for _, wa := range whiteList {
@@ -38,7 +38,7 @@ func MakeAuthInterceptors(authFunc Interceptor, whiteList ...WhiteRequest) AuthI
 	}
 }
 
-func MakeJWTInterceptors(jwksURL string, tls *tls.Config, claims ClaimsFunc, whiteList ...WhiteRequest) AuthInterceptors {
+func MakeJWTInterceptors(jwksURL string, tls *tls.Config, claims ClaimsFunc, whiteList ...RequestMatcher) AuthInterceptors {
 	return MakeAuthInterceptors(ValidateJWT(jwksURL, tls, claims), whiteList...)
 }
 
