@@ -1,11 +1,10 @@
 package grpc
 
 import (
+	"context"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc/credentials"
-	"context"
 )
-
 
 type OAuthGetTokenFunc = func(ctx context.Context) (*oauth2.Token, error)
 

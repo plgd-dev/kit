@@ -19,7 +19,7 @@ func NewClientConn(host string, tls security.TLSConfig, opt ...grpc.DialOption) 
 	var opts []grpc.DialOption
 	tlsCfg, err := security.NewTLSConfigFromConfiguration(tls, security.VerifyServerCertificate)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid TLS config: %w", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid TLS config: %v", err)
 	}
 	opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsCfg)))
 	opts = append(opts, opt...)

@@ -9,8 +9,7 @@ import (
 	"testing"
 )
 
-var TestCaCrt =
-`-----BEGIN CERTIFICATE-----
+var TestCaCrt = `-----BEGIN CERTIFICATE-----
 MIIBvzCCAWSgAwIBAgIRAKhVk049hVtC24ohZqzXSHAwCgYIKoZIzj0EAwIwTjEN
 MAsGA1UEBhMEVGVzdDENMAsGA1UEBxMEVGVzdDENMAsGA1UEChMEVGVzdDENMAsG
 A1UECxMEVGVzdDEQMA4GA1UEAxMHVGVzdCBDQTAeFw0yMDAyMDYxMTA1NTRaFw0z
@@ -24,8 +23,7 @@ HQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNJADBGAiEA
 -----END CERTIFICATE-----
 `
 
-var TestCrt =
-`-----BEGIN CERTIFICATE-----
+var TestCrt = `-----BEGIN CERTIFICATE-----
 MIIB2jCCAYGgAwIBAgIRAP5nV3phj3WbAHFiT/cY7vwwCgYIKoZIzj0EAwIwTjEN
 MAsGA1UEBhMEVGVzdDENMAsGA1UEBxMEVGVzdDENMAsGA1UEChMEVGVzdDENMAsG
 A1UECxMEVGVzdDEQMA4GA1UEAxMHVGVzdCBDQTAeFw0yMDAyMDYxMTA2MzZaFw0z
@@ -38,8 +36,7 @@ CCsGAQUFBwMBMAoGCCqGSM49BAMCA0cAMEQCIAOm/45P8C/njZZrs8iYEotOk3oQ
 f7d8FwSKAagbNWomAiABQBEb9CvfG3so04yKmIMd/2XB5LXM2SQfBKdg/nMD8A==
 -----END CERTIFICATE-----
 `
-var TestCrtKey =
-`-----BEGIN EC PRIVATE KEY-----
+var TestCrtKey = `-----BEGIN EC PRIVATE KEY-----
 MHcCAQEEIAqNQjvFqI95fIE/2UOMBM+mOJq0mCCkZTj/clWsa5VCoAoGCCqGSM49
 AwEHoUQDQgAEJ/uXouda+6VDbVSn59q0bFLC0TpNKwzkBvaBL86owEYmcBhBLpkp
 AnQ1eTGKTGLdAZsV+NnZPL17nit1cbiN2g==
@@ -56,7 +53,7 @@ func TestNewCertManagerFromConfiguration(t *testing.T) {
 	caFile.WriteString(TestCaCrt)
 	caFile.Close()
 
-	config := createTmpCertFiles(t,caFile.Name(),tmpDir)
+	config := createTmpCertFiles(t, caFile.Name(), tmpDir)
 
 	//cert manager
 	mng, err := file.NewCertManagerFromConfiguration(config)
@@ -70,7 +67,7 @@ func TestNewCertManagerFromConfiguration(t *testing.T) {
 	//delete crt/key files
 	deleteTmpCertFiles(t, config)
 	//create new crt/key files
-	createTmpCertFiles(t,caFile.Name(), tmpDir)
+	createTmpCertFiles(t, caFile.Name(), tmpDir)
 
 	require.NotNil(t, tlsConfig.GetCertificate)
 	secondCrt, err := tlsConfig.GetCertificate(nil)
@@ -80,7 +77,7 @@ func TestNewCertManagerFromConfiguration(t *testing.T) {
 
 }
 
-func createTmpCertFiles(t *testing.T,caFile, tmpDir string) file.Config {
+func createTmpCertFiles(t *testing.T, caFile, tmpDir string) file.Config {
 	// crt
 	crtFile, err := ioutil.TempFile(tmpDir, "crt")
 	require.NoError(t, err)
@@ -101,7 +98,7 @@ func createTmpCertFiles(t *testing.T,caFile, tmpDir string) file.Config {
 	return cfg
 }
 
-func deleteTmpCertFiles(t *testing.T,cfg file.Config) {
+func deleteTmpCertFiles(t *testing.T, cfg file.Config) {
 	err := os.Remove(cfg.DirPath + "/" + cfg.TLSCertFileName)
 	require.NoError(t, err)
 	err = os.Remove(cfg.DirPath + "/" + cfg.TLSKeyFileName)
@@ -111,5 +108,3 @@ func deleteTmpCertFiles(t *testing.T,cfg file.Config) {
 func deleteTmpDir(tmpDir string) {
 	os.RemoveAll(tmpDir)
 }
-
-

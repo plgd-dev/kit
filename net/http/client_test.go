@@ -5,6 +5,7 @@ import (
 	"net"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttputil"
 )
@@ -39,7 +40,7 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	}
 
 	if err := req.Unmarshal(ctx.Request.Body()); err != nil {
-		t.Fatalf("Cannot unmarshal request: %w", err)
+		t.Fatalf("Cannot unmarshal request: %v", err)
 	}
 
 	if req.StringVal != strReq {
@@ -64,7 +65,7 @@ func testHandler(t *testing.T, ctx *fasthttp.RequestCtx) {
 	}
 
 	if err != nil {
-		t.Fatalf("Cannot marshal response: %w", err)
+		t.Fatalf("Cannot marshal response: %v", err)
 	}
 
 	ctx.Response.SetBody(out)
@@ -120,13 +121,12 @@ func TestRequestCtx_PostProto(t *testing.T) {
 			defer ReleaseRequestCtx(ctx)
 
 			got, err := ctx.PostProto(client, "http://localhost", tt.args.in, tt.args.out)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("RequestCtx.PostProto() error = %v, wantErr %w", err, tt.wantErr)
+			if tt.wantErr {
+				require.Error(t, err)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("RequestCtx.PostProto() = %v, want %v", got, tt.want)
-			}
+			require.NoError(t, err)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

@@ -11,8 +11,8 @@ type Validator struct {
 	keys *KeyCache
 }
 
-func NewValidator(jwksUrl string, tls tls.Config) *Validator {
-	return &Validator{keys: NewKeyCache(jwksUrl, tls)}
+func NewValidator(jwksURL string, tls *tls.Config) *Validator {
+	return &Validator{keys: NewKeyCache(jwksURL, tls)}
 }
 
 func (v *Validator) Parse(token string) (jwt.MapClaims, error) {

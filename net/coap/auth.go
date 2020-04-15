@@ -32,8 +32,8 @@ func TokenFromCtx(ctx context.Context) (string, error) {
 	return "", fmt.Errorf("token not found")
 }
 
-func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor {
-	validator := jwt.NewValidator(jwksUrl, tls)
+func ValidateJWT(jwksURL string, tls *tls.Config, claims ClaimsFunc) Interceptor {
+	validator := jwt.NewValidator(jwksURL, tls)
 	return func(ctx context.Context, code codes.Code, path string) (context.Context, error) {
 		token, err := TokenFromCtx(ctx)
 		if err != nil {

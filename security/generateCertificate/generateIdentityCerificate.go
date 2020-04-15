@@ -22,7 +22,7 @@ func NewIdentityCSRTemplate(deviceID string) (*x509.CertificateRequest, error) {
 		CommonName: fmt.Sprintf("uuid:%v", deviceID),
 	}
 
-	val, err := asn1.Marshal([]asn1.ObjectIdentifier{asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 1}, asn1.ObjectIdentifier{1, 3, 6, 1, 5, 5, 7, 3, 2}, asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 44924, 1, 6}})
+	val, err := asn1.Marshal([]asn1.ObjectIdentifier{{1, 3, 6, 1, 5, 5, 7, 3, 1}, {1, 3, 6, 1, 5, 5, 7, 3, 2}, {1, 3, 6, 1, 4, 1, 44924, 1, 6}})
 	if err != nil {
 		return nil, err
 	}

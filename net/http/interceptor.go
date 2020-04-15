@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/go-ocf/kit/security/jwt"
 	"regexp"
+	"strings"
+
+	"github.com/go-ocf/kit/security/jwt"
 )
 
 type Interceptor = func(ctx context.Context, method, uri string) (context.Context, error)
@@ -15,8 +17,23 @@ type AuthArgs struct {
 	Scopes []*regexp.Regexp
 }
 
-func NewInterceptor(jwksUrl string, tls tls.Config, auths map[string][]AuthArgs) Interceptor {
-	return ValidateJWT(jwksUrl, tls, MakeClaimsFunc(auths))
+// RequestMatcher allows request without token validation.
+type RequestMatcher struct {
+	Method string
+	URI    *regexp.Regexp
+}
+
+// NewInterceptor authorizes HTTP request.
+func NewInterceptor(jwksURL string, tls *tls.Config, auths map[string][]AuthArgs, whiteList ...RequestMatcher) Interceptor {
+	validateJWT := ValidateJWT(jwksURL, tls, MakeClaimsFunc(auths))
+	return func(ctx context.Context, method, uri string) (context.Context, error) {
+		for _, wa := range whiteList {
+			if strings.ToLower(method) == strings.ToLower(wa.Method) && wa.URI.MatchString(uri) {
+				return ctx, nil
+			}
+		}
+		return validateJWT(ctx, method, uri)
+	}
 }
 
 func MakeClaimsFunc(methods map[string][]AuthArgs) ClaimsFunc {
@@ -26,7 +43,7 @@ func MakeClaimsFunc(methods map[string][]AuthArgs) ClaimsFunc {
 			return &DeniedClaims{fmt.Errorf("inaccessible method: %v", method)}
 		}
 		for _, arg := range args {
-			if arg.URI.Match([]byte(uri)) {
+			if arg.URI.MatchString(uri) {
 				return jwt.NewRegexpScopeClaims(arg.Scopes...)
 			}
 		}
