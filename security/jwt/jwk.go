@@ -19,9 +19,9 @@ type KeyCache struct {
 	keys *jwk.Set
 }
 
-func NewKeyCache(url string, tls tls.Config) *KeyCache {
+func NewKeyCache(url string, tls *tls.Config) *KeyCache {
 	transport := transport.NewDefaultTransport()
-	transport.TLSClientConfig = &tls
+	transport.TLSClientConfig = tls
 	client := http.Client{Transport: transport}
 	return &KeyCache{url: url, http: &client}
 }

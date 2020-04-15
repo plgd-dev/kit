@@ -4,9 +4,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/go-ocf/kit/security/jwt"
 	netHttp "net/http"
 	"strings"
+
+	"github.com/go-ocf/kit/security/jwt"
 )
 
 type Claims = interface{ Valid() error }
@@ -35,8 +36,8 @@ func TokenFromCtx(ctx context.Context) (string, error) {
 	return "", fmt.Errorf("token not found")
 }
 
-func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor {
-	validator := jwt.NewValidator(jwksUrl, tls)
+func ValidateJWT(jwksURL string, tls *tls.Config, claims ClaimsFunc) Interceptor {
+	validator := jwt.NewValidator(jwksURL, tls)
 	return func(ctx context.Context, method, uri string) (context.Context, error) {
 		token, err := TokenFromCtx(ctx)
 		if err != nil {
@@ -50,6 +51,7 @@ func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor 
 	}
 }
 
+// CreateAuthMiddleware creates middleware for authorization
 func CreateAuthMiddleware(authInterceptor Interceptor, onUnauthorizedAccessFunc OnUnauthorizedAccessFunc) func(next netHttp.Handler) netHttp.Handler {
 	return func(next netHttp.Handler) netHttp.Handler {
 		return netHttp.HandlerFunc(func(w netHttp.ResponseWriter, r *netHttp.Request) {

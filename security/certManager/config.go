@@ -3,6 +3,7 @@ package certManager
 import (
 	"crypto/tls"
 	"fmt"
+
 	"github.com/go-ocf/kit/security/certManager/acme"
 	"github.com/go-ocf/kit/security/certManager/acme/ocf"
 	"github.com/go-ocf/kit/security/certManager/file"
@@ -30,8 +31,8 @@ type OcfConfig struct {
 
 // CertManager represent general CertManager in use
 type CertManager interface {
-	GetClientTLSConfig() tls.Config
-	GetServerTLSConfig() tls.Config
+	GetClientTLSConfig() *tls.Config
+	GetServerTLSConfig() *tls.Config
 	Close()
 }
 

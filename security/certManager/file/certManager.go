@@ -99,8 +99,8 @@ func (a *CertManager) GetCertificateAuthorities() []*x509.Certificate {
 }
 
 // GetClientTLSConfig returns tls configuration for clients
-func (a *CertManager) GetClientTLSConfig() tls.Config {
-	return tls.Config{
+func (a *CertManager) GetClientTLSConfig() *tls.Config {
+	return &tls.Config{
 		RootCAs:                  a.newCaCertPoolFunc(),
 		GetClientCertificate:     a.getCertificate,
 		PreferServerCipherSuites: true,
@@ -109,8 +109,8 @@ func (a *CertManager) GetClientTLSConfig() tls.Config {
 }
 
 // GetServerTLSConfig returns tls configuration for servers
-func (a *CertManager) GetServerTLSConfig() tls.Config {
-	return tls.Config{
+func (a *CertManager) GetServerTLSConfig() *tls.Config {
+	return &tls.Config{
 		ClientCAs:      a.newCaCertPoolFunc(),
 		GetCertificate: a.getCertificate2,
 		MinVersion:     tls.VersionTLS12,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"regexp"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -19,12 +20,26 @@ type AuthInterceptors struct {
 	authFunc Interceptor
 }
 
-func MakeAuthInterceptors(authFunc Interceptor) AuthInterceptors {
-	return AuthInterceptors{authFunc: authFunc}
+// WhiteRequest allows request without token validation.
+type WhiteRequest struct {
+	Method *regexp.Regexp
 }
 
-func MakeJWTInterceptors(jwksUrl string, tls tls.Config, claims ClaimsFunc) AuthInterceptors {
-	return MakeAuthInterceptors(ValidateJWT(jwksUrl, tls, claims))
+func MakeAuthInterceptors(authFunc Interceptor, whiteList ...WhiteRequest) AuthInterceptors {
+	return AuthInterceptors{
+		authFunc: func(ctx context.Context, method string) (context.Context, error) {
+			for _, wa := range whiteList {
+				if wa.Method.MatchString(method) {
+					return ctx, nil
+				}
+			}
+			return authFunc(ctx, method)
+		},
+	}
+}
+
+func MakeJWTInterceptors(jwksURL string, tls *tls.Config, claims ClaimsFunc, whiteList ...WhiteRequest) AuthInterceptors {
+	return MakeAuthInterceptors(ValidateJWT(jwksURL, tls, claims), whiteList...)
 }
 
 func (f AuthInterceptors) Unary() grpc.ServerOption {
@@ -37,8 +52,8 @@ func (f AuthInterceptors) Stream() grpc.ServerOption {
 type ClaimsFunc = func(ctx context.Context, method string) Claims
 type Claims = interface{ Valid() error }
 
-func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor {
-	validator := jwt.NewValidator(jwksUrl, tls)
+func ValidateJWT(jwksURL string, tls *tls.Config, claims ClaimsFunc) Interceptor {
+	validator := jwt.NewValidator(jwksURL, tls)
 	return func(ctx context.Context, method string) (context.Context, error) {
 		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
 		if err != nil {
@@ -46,7 +61,7 @@ func ValidateJWT(jwksUrl string, tls tls.Config, claims ClaimsFunc) Interceptor 
 		}
 		err = validator.ParseWithClaims(token, claims(ctx, method))
 		if err != nil {
-			return nil, grpc.Errorf(codes.Unauthenticated, "invalid token: %w", err)
+			return nil, grpc.Errorf(codes.Unauthenticated, "invalid token: %v", err)
 		}
 		return ctx, nil
 	}

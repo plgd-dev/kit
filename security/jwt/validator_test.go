@@ -17,7 +17,7 @@ func TestValidator(t *testing.T) {
 	server := newTestJwks()
 	defer server.Close()
 
-	v := jwt.NewValidator(server.URL+uri, noTLS)
+	v := jwt.NewValidator(server.URL+uri, &noTLS)
 	var c testClaims
 	err := v.ParseWithClaims(token, &c)
 	require.NoError(t, err)
@@ -31,7 +31,7 @@ func TestClaims(t *testing.T) {
 	server := newTestJwks()
 	defer server.Close()
 
-	v := jwt.NewValidator(server.URL+uri, noTLS)
+	v := jwt.NewValidator(server.URL+uri, &noTLS)
 	var c jwt.Claims
 	err := v.ParseWithClaims(token, &c)
 	require.Error(t, err)
@@ -55,7 +55,7 @@ func TestParser(t *testing.T) {
 	server := newTestJwks()
 	defer server.Close()
 
-	v := jwt.NewValidator(server.URL+uri, noTLS)
+	v := jwt.NewValidator(server.URL+uri, &noTLS)
 	c, err := v.Parse(token)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "Token is expired")
@@ -80,7 +80,7 @@ func TestEmptyToken(t *testing.T) {
 	server := newTestJwks()
 	defer server.Close()
 
-	v := jwt.NewValidator(server.URL+uri, noTLS)
+	v := jwt.NewValidator(server.URL+uri, &noTLS)
 	_, err := v.Parse("")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "missing token")
@@ -95,7 +95,7 @@ func TestInvalidToken(t *testing.T) {
 	server := newTestJwks()
 	defer server.Close()
 
-	v := jwt.NewValidator(server.URL+uri, noTLS)
+	v := jwt.NewValidator(server.URL+uri, &noTLS)
 	_, err := v.Parse("invalid")
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "could not parse token")

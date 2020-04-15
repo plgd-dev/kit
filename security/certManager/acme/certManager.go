@@ -223,16 +223,16 @@ func (a *CertManager) GetLeaf() *x509.Certificate {
 	return a.leaf
 }
 
-func (a *CertManager) GetClientTLSConfig() tls.Config {
-	return tls.Config{
+func (a *CertManager) GetClientTLSConfig() *tls.Config {
+	return &tls.Config{
 		RootCAs:                  a.newCaCertPoolFunc(),
 		GetClientCertificate:     a.GetClientCertificate,
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
 	}
 }
-func (a *CertManager) GetServerTLSConfig() tls.Config {
-	return tls.Config{
+func (a *CertManager) GetServerTLSConfig() *tls.Config {
+	return &tls.Config{
 		ClientCAs:      a.newCaCertPoolFunc(),
 		GetCertificate: a.GetCertificate,
 		MinVersion:     tls.VersionTLS12,
