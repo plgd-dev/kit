@@ -28,6 +28,6 @@ require (
 	golang.org/x/net v0.0.0-20200320220750-118fecf932d8
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
-	google.golang.org/grpc v1.26.0
+	google.golang.org/grpc v1.29.1
 	gopkg.in/square/go-jose.v2 v2.4.0 // indirect
 )
