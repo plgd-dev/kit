@@ -2,11 +2,12 @@ package http
 
 import (
 	"errors"
+	netHttp "net/http"
+
 	"github.com/go-ocf/kit/coapconv"
 	"github.com/go-ocf/kit/grpcconv"
 	coapStatus "github.com/go-ocf/kit/net/coap/status"
 	grpcStatus "google.golang.org/grpc/status"
-	netHttp "net/http"
 )
 
 type grpcErr interface {
@@ -20,7 +21,7 @@ func ErrToStatusWithDef(err error, def int) int {
 	}
 	var coapStatus coapStatus.Status
 	if errors.As(err, &coapStatus) {
-		return coapconv.ToHTTPCode(coapStatus.Message().Code(), def)
+		return coapconv.ToHTTPCode(coapStatus.Message().Code, def)
 	}
 	var grpcErr grpcErr
 	if errors.As(err, &grpcErr) {
