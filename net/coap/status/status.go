@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	coap "github.com/go-ocf/go-coap"
-	"github.com/go-ocf/go-coap/codes"
+	"github.com/go-ocf/go-coap/v2/message"
+	"github.com/go-ocf/go-coap/v2/message/codes"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 // Status holds error of coap
 type Status struct {
 	err  error
-	msg  coap.Message
+	msg  *message.Message
 	code codes.Code
 }
 
@@ -37,20 +37,19 @@ func CodeToString(c codes.Code) string {
 }
 
 func (se Status) Error() string {
-
-	return fmt.Sprintf("coap error: code = %s desc = %v", CodeToString(se.msg.Code()), se.err)
+	return fmt.Sprintf("coap error: code = %s desc = %v", CodeToString(se.msg.Code), se.err)
 }
 
 // Code returns the status code contained in se.
 func (se Status) Code() codes.Code {
 	if se.msg != nil {
-		se.msg.Code()
+		return se.msg.Code
 	}
 	return se.code
 }
 
 // Message returns a coap message.
-func (se Status) Message() coap.Message {
+func (se Status) Message() *message.Message {
 	return se.msg
 }
 
@@ -60,7 +59,7 @@ func (se Status) COAPError() Status {
 }
 
 // Error returns an error representing c and msg.  If c is OK, returns nil.
-func Error(msg coap.Message, err error) Status {
+func Error(msg *message.Message, err error) Status {
 	return Status{
 		msg: msg,
 		err: err,
@@ -68,7 +67,7 @@ func Error(msg coap.Message, err error) Status {
 }
 
 // Errorf returns Error(c, fmt.Sprintf(format, a...)).
-func Errorf(msg coap.Message, format string, a ...interface{}) Status {
+func Errorf(msg *message.Message, format string, a ...interface{}) Status {
 	return Error(msg, fmt.Errorf(format, a...))
 }
 

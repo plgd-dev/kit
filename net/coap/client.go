@@ -7,35 +7,53 @@ import (
 	"crypto/x509"
 	"encoding/asn1"
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-ocf/go-coap/v2/dtls"
+	"github.com/go-ocf/go-coap/v2/keepalive"
+	"github.com/go-ocf/go-coap/v2/tcp"
+	"github.com/go-ocf/go-coap/v2/udp"
 	uuid "github.com/gofrs/uuid"
 	dtls "github.com/pion/dtls/v2"
 
-	gocoap "github.com/go-ocf/go-coap"
-	"github.com/go-ocf/go-coap/codes"
+	"github.com/go-ocf/go-coap/v2/message"
+	"github.com/go-ocf/go-coap/v2/message/codes"
 	codecOcf "github.com/go-ocf/kit/codec/ocf"
 	"github.com/go-ocf/kit/net/coap/status"
 )
 
+type Observation = interface {
+	Cancel(context.Context) error
+}
+
+type ClientConn = interface {
+	Post(ctx context.Context, path string, contentFormat message.MediaType, payload io.ReadSeeker, opts ...message.Option) (*message.Message, error)
+	Get(ctx context.Context, path string, opts ...message.Option) (*message.Message, error)
+	Delete(ctx context.Context, path string, opts ...message.Option) (*message.Message, error)
+	Observe(ctx context.Context, path string, observeFunc func(notification *message.Message), opts ...message.Option) (Observation, error)
+	RemoteAddr() net.Addr
+	Close() error
+}
+
 type Client struct {
-	conn *gocoap.ClientConn
+	conn ClientConn
 }
 
 // Codec encodes/decodes according to the CoAP content format/media type.
 type Codec interface {
-	ContentFormat() gocoap.MediaType
+	ContentFormat() message.MediaType
 	Encode(v interface{}) ([]byte, error)
-	Decode(m gocoap.Message, v interface{}) error
+	Decode(m *message.Message, v interface{}) error
 }
 
 // GetRawCodec returns raw codec depends on contentFormat.
-func GetRawCodec(contentFormat gocoap.MediaType) Codec {
-	if contentFormat == gocoap.AppCBOR || contentFormat == gocoap.AppOcfCbor {
+func GetRawCodec(contentFormat message.MediaType) Codec {
+	if contentFormat == message.AppCBOR || contentFormat == message.AppOcfCbor {
 		return codecOcf.RawVNDOCFCBORCodec{}
 	}
 	return codecOcf.NoCodec{
@@ -107,51 +125,71 @@ func VerifyIndetityCertificate(cert *x509.Certificate) error {
 	return nil
 }
 
-func NewClient(conn *gocoap.ClientConn) *Client {
+func NewClient(conn ClientConn) *Client {
 	return &Client{conn: conn}
 }
 
-type OptionFunc = func(gocoap.Message)
+type OptionFunc = func(message.Options) message.Options
 
 func WithInterface(in string) OptionFunc {
-	return func(req gocoap.Message) {
-		req.AddOption(gocoap.URIQuery, "if="+in)
+	return func(opts message.Options) message.Options {
+		v := "if=" + in
+		buf := make([]byte, len(v))
+		opts, _, _ = opts.AddString(buf, message.URIQuery, v)
+		return opts
 	}
 }
 
 func WithResourceType(in string) OptionFunc {
-	return func(req gocoap.Message) {
-		req.AddOption(gocoap.URIQuery, "rt="+in)
+	return func(opts message.Options) message.Options {
+		v := "rt=" + in
+		buf := make([]byte, len(v))
+		opts, _, _ = opts.AddString(buf, message.URIQuery, v)
+		return opts
 	}
 }
 
 func WithInstanceID(in int) OptionFunc {
-	return func(req gocoap.Message) {
-		req.AddOption(gocoap.URIQuery, "ins="+strconv.Itoa(in))
+	return func(opts message.Options) message.Options {
+		v := "ins=" + strconv.Itoa(in)
+		buf := make([]byte, len(v))
+		opts, _, _ = opts.AddString(buf, message.URIQuery, v)
+		return opts
 	}
 }
 
 func WithDeviceID(in string) OptionFunc {
-	return func(req gocoap.Message) {
-		req.AddOption(gocoap.URIQuery, "di="+in)
+	return func(opts message.Options) message.Options {
+		v := "di=" + in
+		buf := make([]byte, len(v))
+		opts, _, _ = opts.AddString(buf, message.URIQuery, v)
+		return opts
 	}
 }
 
 func WithCredentialId(in int) OptionFunc {
-	return func(req gocoap.Message) {
-		req.AddOption(gocoap.URIQuery, "credid="+strconv.Itoa(in))
+	return func(opts message.Options) message.Options {
+		v := "credid=" + strconv.Itoa(in)
+		buf := make([]byte, len(v))
+		opts, _, _ = opts.AddString(buf, message.URIQuery, v)
+		return opts
 	}
 }
 
 func WithCredentialSubject(in string) OptionFunc {
-	return func(req gocoap.Message) {
-		req.AddOption(gocoap.URIQuery, "subjectuuid="+in)
+	return func(opts message.Options) message.Options {
+		v := "subjectuuid=" + in
+		buf := make([]byte, len(v))
+		opts, _, _ = opts.AddString(buf, message.URIQuery, v)
+		return opts
 	}
 }
 
-func WithAccept(contentFormat gocoap.MediaType) OptionFunc {
-	return func(req gocoap.Message) {
-		req.SetOption(gocoap.Accept, contentFormat)
+func WithAccept(contentFormat message.MediaType) OptionFunc {
+	return func(opts message.Options) message.Options {
+		buf := make([]byte, 4)
+		opts, _, _ = opts.SetUint32(buf, message.Accept, uint32(contentFormat))
+		return opts
 	}
 }
 
@@ -177,18 +215,19 @@ func (c *Client) UpdateResourceWithCodec(
 	if err != nil {
 		return fmt.Errorf("could not encode the query %s: %w", href, err)
 	}
-	req, err := c.conn.NewPostRequest(href, codec.ContentFormat(), bytes.NewReader(body))
+	opts := make(message.Options, 0, 4)
+	for _, o := range options {
+		opts = o(opts)
+	}
+
+	resp, err := c.conn.Post(ctx, href, codec.ContentFormat(), bytes.NewReader(body), opts...)
 	if err != nil {
 		return fmt.Errorf("could create request %s: %w", href, err)
 	}
-	for _, option := range options {
-		option(req)
-	}
-	resp, err := c.conn.ExchangeWithContext(ctx, req)
 	if err != nil {
 		return fmt.Errorf("could not query %s: %w", href, err)
 	}
-	if resp.Code() != codes.Changed && resp.Code() != codes.Valid {
+	if resp.Code != codes.Changed && resp.Code != codes.Valid {
 		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
@@ -213,18 +252,15 @@ func (c *Client) GetResourceWithCodec(
 	response interface{},
 	options ...OptionFunc,
 ) error {
-	req, err := c.conn.NewGetRequest(href)
-	if err != nil {
-		return fmt.Errorf("could create request %s: %w", href, err)
+	opts := make(message.Options, 0, 4)
+	for _, o := range options {
+		opts = o(opts)
 	}
-	for _, option := range options {
-		option(req)
-	}
-	resp, err := c.conn.ExchangeWithContext(ctx, req)
+	resp, err := c.conn.Get(ctx, href, opts...)
 	if err != nil {
 		return fmt.Errorf("could not query %s: %w", href, err)
 	}
-	if resp.Code() != codes.Content {
+	if resp.Code != codes.Content {
 		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
@@ -240,18 +276,15 @@ func (c *Client) DeleteResourceWithCodec(
 	response interface{},
 	options ...OptionFunc,
 ) error {
-	req, err := c.conn.NewDeleteRequest(href)
-	if err != nil {
-		return fmt.Errorf("could create request %s: %w", href, err)
+	opts := make(message.Options, 0, 4)
+	for _, o := range options {
+		opts = o(opts)
 	}
-	for _, option := range options {
-		option(req)
-	}
-	resp, err := c.conn.ExchangeWithContext(ctx, req)
+	resp, err := c.conn.Delete(ctx, href, opts...)
 	if err != nil {
 		return fmt.Errorf("could not query %s: %w", href, err)
 	}
-	if resp.Code() != codes.Deleted {
+	if resp.Code != codes.Deleted {
 		return status.Error(resp, fmt.Errorf("request failed: %s", codecOcf.Dump(resp)))
 	}
 	if err := codec.Decode(resp, response); err != nil {
@@ -278,7 +311,7 @@ type DecodeFunc func(interface{}) error
 
 // ObservationHandler receives notifications from the observation request.
 type ObservationHandler interface {
-	Handle(ctx context.Context, client *gocoap.ClientConn, body DecodeFunc)
+	Handle(client *Client, body DecodeFunc)
 	Error(err error)
 }
 
@@ -289,23 +322,27 @@ func (c *Client) Observe(
 	codec Codec,
 	handler ObservationHandler,
 	options ...OptionFunc,
-) (*gocoap.Observation, error) {
-	obs, err := c.conn.ObserveWithContext(ctx, href, observationHandler(codec, handler), options...)
+) (Observation, error) {
+	opts := make(message.Options, 0, 4)
+	for _, o := range options {
+		opts = o(opts)
+	}
+	obs, err := c.conn.Observe(ctx, href, observationHandler(c, codec, handler), opts...)
 	if err != nil {
 		return nil, fmt.Errorf("could not observe %s: %w", href, err)
 	}
 	return obs, nil
 }
 
-func observationHandler(codec Codec, handler ObservationHandler) func(*gocoap.Request) {
-	return func(req *gocoap.Request) {
-		handler.Handle(req.Ctx, req.Client, decodeObservation(codec, req.Msg))
+func observationHandler(c *Client, codec Codec, handler ObservationHandler) func(*message.Message) {
+	return func(msg *message.Message) {
+		handler.Handle(c, decodeObservation(codec, msg))
 	}
 }
 
-func decodeObservation(codec Codec, m gocoap.Message) DecodeFunc {
+func decodeObservation(codec Codec, m *message.Message) DecodeFunc {
 	return func(body interface{}) error {
-		if m.Code() != codes.Content {
+		if m.Code != codes.Content {
 			return status.Error(m, fmt.Errorf("observation failed: %s", codecOcf.Dump(m)))
 		}
 		if err := codec.Decode(m, body); err != nil {
@@ -313,14 +350,6 @@ func decodeObservation(codec Codec, m gocoap.Message) DecodeFunc {
 		}
 		return nil
 	}
-}
-
-func (c *Client) NewGetRequest(href string) (gocoap.Message, error) {
-	return c.conn.NewGetRequest(href)
-}
-
-func (c *Client) ExchangeWithContext(ctx context.Context, req gocoap.Message) (gocoap.Message, error) {
-	return c.conn.ExchangeWithContext(ctx, req)
 }
 
 func (c *Client) RemoteAddr() net.Addr {
@@ -388,23 +417,29 @@ func (c *ClientCloseHandler) UnregisterCloseHandler(closeHandlerID int) {
 	c.onClose.Remove(closeHandlerID)
 }
 
-func newClientCloseHandler(conn *gocoap.ClientConn, onClose *OnCloseHandler) *ClientCloseHandler {
+func newClientCloseHandler(conn ClientConn, onClose *OnCloseHandler) *ClientCloseHandler {
 	return &ClientCloseHandler{Client: NewClient(conn), onClose: onClose}
 }
 
-type DialOptionFunc func(gocoap.Client) gocoap.Client
+type dialOptions struct {
+	DisableTCPSignalMessageCSM      bool
+	DisablePeerTCPSignalMessageCSMs bool
+	KeepAlive                       *keepalive.KeepAlive
+}
+
+type DialOptionFunc func(dialOptions) dialOptions
 
 func WithDialDisableTCPSignalMessageCSM() DialOptionFunc {
 	// Iotivity 1.3 close connection when it gets signal messages,
 	// but Iotivity 2.0 requires them.
-	return func(c gocoap.Client) gocoap.Client {
+	return func(c dialOptions) dialOptions {
 		c.DisableTCPSignalMessageCSM = true
 		return c
 	}
 }
 
 func WithDialDisablePeerTCPSignalMessageCSMs() DialOptionFunc {
-	return func(c gocoap.Client) gocoap.Client {
+	return func(c dialOptions) dialOptions {
 		// Disable processes Capabilities and Settings Messages from client - iotivity sends max message size without blockwise.
 		c.DisablePeerTCPSignalMessageCSMs = true
 		return c
@@ -414,36 +449,57 @@ func WithDialDisablePeerTCPSignalMessageCSMs() DialOptionFunc {
 // WithKeepAlive sets a policy that detects dropped connections within the connTimeout limit
 // while attempting to make 3 pings during that period.
 func WithKeepAlive(connectionTimeout time.Duration) DialOptionFunc {
-	return func(c gocoap.Client) gocoap.Client {
-		c.KeepAlive = gocoap.MustMakeKeepAlive(connectionTimeout)
+	return func(c dialOptions) dialOptions {
+		c.KeepAlive = keepalive.New(keepalive.WithConfig(keepalive.MakeConfig(connectionTimeout)))
 		return c
 	}
 }
 
 func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	client := gocoap.Client{Net: "udp", NotifySessionEndFunc: h.OnClose}
+	var cfg dialOptions
 	for _, o := range opts {
-		client = o(client)
+		cfg = o(cfg)
 	}
-	c, err := client.DialWithContext(ctx, addr)
+	dopts := make([]udp.DialOption, 0, 4)
+	if cfg.KeepAlive != nil {
+		dopts = append(dopts, udp.WithKeepAlive(cfg.KeepAlive))
+	}
+	c, err := udp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
 	}
-	return newClientCloseHandler(c, h), nil
+	c.AddOnClose(func() {
+		h.OnClose(nil)
+	})
+	return newClientCloseHandler(c.Client(), h), nil
 }
 
 func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	client := gocoap.Client{Net: "tcp", NotifySessionEndFunc: h.OnClose}
+	var cfg dialOptions
 	for _, o := range opts {
-		client = o(client)
+		cfg = o(cfg)
 	}
-	c, err := client.DialWithContext(ctx, addr)
+	dopts := make([]tcp.DialOption, 0, 4)
+	if cfg.KeepAlive != nil {
+		dopts = append(dopts, tcp.WithKeepAlive(cfg.KeepAlive))
+	}
+	if cfg.DisablePeerTCPSignalMessageCSMs {
+		dopts = append(dopts, tcp.WithDisablePeerTCPSignalMessageCSMs())
+	}
+	if cfg.DisableTCPSignalMessageCSM {
+		dopts = append(dopts, tcp.WithDisableTCPSignalMessageCSM())
+	}
+
+	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
 	}
-	return newClientCloseHandler(c, h), nil
+	c.AddOnClose(func() {
+		h.OnClose(nil)
+	})
+	return newClientCloseHandler(c.Client(), h), nil
 }
 
 func NewVerifyPeerCertificate(rootCAs *x509.CertPool, verifyPeerCertificate func(verifyPeerCertificate *x509.Certificate) error) func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -484,30 +540,58 @@ func NewVerifyPeerCertificate(rootCAs *x509.CertPool, verifyPeerCertificate func
 
 func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	client := gocoap.Client{Net: "tcp-tls", NotifySessionEndFunc: h.OnClose,
-		TLSConfig: tlsCfg,
-	}
+	var cfg dialOptions
 	for _, o := range opts {
-		client = o(client)
+		cfg = o(cfg)
 	}
-	c, err := client.DialWithContext(ctx, addr)
+	dopts := make([]tcp.DialOption, 0, 4)
+	dopts = append(dopts, tcp.WithTLS(tlsCfg))
+	if cfg.KeepAlive != nil {
+		dopts = append(dopts, tcp.WithKeepAlive(cfg.KeepAlive))
+	}
+	if cfg.DisablePeerTCPSignalMessageCSMs {
+		dopts = append(dopts, tcp.WithDisablePeerTCPSignalMessageCSMs())
+	}
+	if cfg.DisableTCPSignalMessageCSM {
+		dopts = append(dopts, tcp.WithDisableTCPSignalMessageCSM())
+	}
+	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
 	}
-	return newClientCloseHandler(c, h), nil
+	c.AddOnClose(func() {
+		h.OnClose(nil)
+	})
+	return newClientCloseHandler(c.Client(), h), nil
 }
 
 func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *dtls.Config, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
-	client := gocoap.Client{Net: "udp-dtls", NotifySessionEndFunc: h.OnClose,
-		DTLSConfig: dtlsCfg,
+
+	tlsConfig := piondtls.Config{
+		InsecureSkipVerify:    true,
+		Certificates:          []tls.Certificate{cert},
+		VerifyPeerCertificate: dtlsCfg,
+		ConnectContextMaker: func() (context.Context, func()) {
+			return ctx, func() {}
+		},
 	}
+
+	var cfg dialOptions
 	for _, o := range opts {
-		client = o(client)
+		cfg = o(cfg)
 	}
-	c, err := client.DialWithContext(ctx, addr)
+	dopts := make([]dtls.DialOption, 0, 4)
+	if cfg.KeepAlive != nil {
+		dopts = append(dopts, dtls.WithKeepAlive(cfg.KeepAlive))
+	}
+
+	c, err := dtls.Dial(addr, &tlsConfig, dopts...)
 	if err != nil {
 		return nil, err
 	}
-	return newClientCloseHandler(c, h), nil
+	c.AddOnClose(func() {
+		h.OnClose(nil)
+	})
+	return newClientCloseHandler(c.Client(), h), nil
 }

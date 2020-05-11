@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	gocoap "github.com/go-ocf/go-coap"
 	"github.com/go-ocf/kit/net"
 	"github.com/go-ocf/kit/sync"
 	"github.com/stretchr/testify/assert"
@@ -79,5 +78,5 @@ func TestMissingFactory(t *testing.T) {
 
 var (
 	testAddr = net.MakeAddr("http", "host", 42).String()
-	testConn = gocoap.ClientConn{}
+	testConn = "textConn"
 )

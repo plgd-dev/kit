@@ -3,7 +3,7 @@ package coap
 import (
 	"fmt"
 
-	gocoap "github.com/go-ocf/go-coap"
+	"github.com/go-ocf/go-coap/v2/message"
 	"github.com/go-ocf/kit/codec/cbor"
 	"github.com/go-ocf/kit/codec/json"
 )
@@ -11,20 +11,20 @@ import (
 type EncodeFunc = func(v interface{}) ([]byte, error)
 
 // GetAccept returns expected content format by client
-func GetAccept(req gocoap.Message) gocoap.MediaType {
-	ct, ok := req.Option(gocoap.Accept).(gocoap.MediaType)
-	if !ok {
-		return gocoap.AppOcfCbor
+func GetAccept(req *message.Message) message.MediaType {
+	ct, err := req.Options.GetUint32(message.Accept)
+	if err != nil {
+		return message.AppOcfCbor
 	}
-	return ct
+	return message.MediaType(ct)
 }
 
 // GetEncoder returns encoder by accept
-func GetEncoder(accept gocoap.MediaType) (EncodeFunc, error) {
+func GetEncoder(accept message.MediaType) (EncodeFunc, error) {
 	switch accept {
-	case gocoap.AppJSON:
+	case message.AppJSON:
 		return json.Encode, nil
-	case gocoap.AppCBOR, gocoap.AppOcfCbor:
+	case message.AppCBOR, message.AppOcfCbor:
 		return cbor.Encode, nil
 	default:
 		return nil, fmt.Errorf("unsupported type (%v)", accept)

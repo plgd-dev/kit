@@ -2,14 +2,15 @@ package http
 
 import (
 	"fmt"
-	gocoap "github.com/go-ocf/go-coap"
-	coapCodes "github.com/go-ocf/go-coap/codes"
+	"net/http"
+	"testing"
+
+	"github.com/go-ocf/go-coap/v2/message"
+	coapCodes "github.com/go-ocf/go-coap/v2/message/codes"
 	coapStatus "github.com/go-ocf/kit/net/coap/status"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"net/http"
-	"testing"
 )
 
 func TestErrToStatus(t *testing.T) {
@@ -26,7 +27,7 @@ func TestErrToStatus(t *testing.T) {
 		{
 			name: "coap",
 			args: args{
-				err: coapStatus.Error(gocoap.NewTcpMessage(gocoap.MessageParams{Code: coapCodes.Forbidden}), fmt.Errorf("coap error")),
+				err: coapStatus.Error(&message.Message{Code: coapCodes.Forbidden}, fmt.Errorf("coap error")),
 			},
 			want: http.StatusForbidden,
 		},
