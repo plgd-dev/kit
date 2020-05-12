@@ -41,7 +41,8 @@ func (c *KeyCache) GetKey(token *jwt.Token) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return key.Materialize()
+	var v interface{}
+	return v, key.Raw(&v)
 }
 
 func (c *KeyCache) LookupKey(token *jwt.Token) (jwk.Key, error) {
