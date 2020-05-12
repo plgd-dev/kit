@@ -38,6 +38,7 @@ type ClientConn = interface {
 	Observe(ctx context.Context, path string, observeFunc func(notification *message.Message), opts ...message.Option) (Observation, error)
 	RemoteAddr() net.Addr
 	Close() error
+	Context() context.Context
 }
 
 type Client struct {
@@ -354,6 +355,10 @@ func decodeObservation(codec Codec, m *message.Message) DecodeFunc {
 
 func (c *Client) RemoteAddr() net.Addr {
 	return c.conn.RemoteAddr()
+}
+
+func (c *Client) Context() context.Context {
+	return c.conn.Context()
 }
 
 type CloseHandlerFunc = func(err error)

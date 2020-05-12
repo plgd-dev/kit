@@ -29,6 +29,8 @@ github.com/go-kit/kit v0.9.0/go.mod h1:xBxKIO96dXMWWy0MnWVtmwkA9/13aqxPnvrjFYMA2
 github.com/go-logfmt/logfmt v0.4.0/go.mod h1:3RMwSq7FuexP4Kalkev3ejPJsZTpXXBr9+V4qmtdjCk=
 github.com/go-ocf/go-coap/v2 v2.0.0-beta.3 h1:BVUuTPfkG7kNw6XmmjpgnUUtGVZS1ittDlYAA/wTF9Q=
 github.com/go-ocf/go-coap/v2 v2.0.0-beta.3/go.mod h1:X9wVKcaOSx7wBxKcvrWgMQq1R2DNeA7NBLW2osIb8TM=
+github.com/go-ocf/go-coap/v2 v2.0.0-beta.4 h1:9hMmOQgNiqkyv2CfksbvLxugonOC4jdPBS8LDuppQ6k=
+github.com/go-ocf/go-coap/v2 v2.0.0-beta.4/go.mod h1:X9wVKcaOSx7wBxKcvrWgMQq1R2DNeA7NBLW2osIb8TM=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/gofrs/uuid v3.3.0+incompatible h1:8K4tyRfvU1CYPgJsveYFQMhpFd/wXNM7iK6rR7UHz84=
 github.com/gofrs/uuid v3.3.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
