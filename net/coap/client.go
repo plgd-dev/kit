@@ -19,7 +19,7 @@ import (
 	"github.com/go-ocf/go-coap/v2/tcp"
 	"github.com/go-ocf/go-coap/v2/udp"
 	uuid "github.com/gofrs/uuid"
-	dtls "github.com/pion/dtls/v2"
+	piondtls "github.com/pion/dtls/v2"
 
 	"github.com/go-ocf/go-coap/v2/message"
 	"github.com/go-ocf/go-coap/v2/message/codes"
@@ -565,16 +565,13 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	return newClientCloseHandler(c.Client(), h), nil
 }
 
-func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *dtls.Config, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
+func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
 
-	tlsConfig := piondtls.Config{
-		InsecureSkipVerify:    true,
-		Certificates:          []tls.Certificate{cert},
-		VerifyPeerCertificate: dtlsCfg,
-		ConnectContextMaker: func() (context.Context, func()) {
+	if dtlsCfg.ConnectContextMaker == nil {
+		dtlsCfg.ConnectContextMaker = func() (context.Context, func()) {
 			return ctx, func() {}
-		},
+		}
 	}
 
 	var cfg dialOptions
@@ -586,7 +583,7 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *dtls.Config, opts 
 		dopts = append(dopts, dtls.WithKeepAlive(cfg.KeepAlive))
 	}
 
-	c, err := dtls.Dial(addr, &tlsConfig, dopts...)
+	c, err := dtls.Dial(addr, dtlsCfg, dopts...)
 	if err != nil {
 		return nil, err
 	}
