@@ -23,7 +23,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/ugorji/go/codec v1.1.7
 	github.com/valyala/fasthttp v1.7.1
-	go.uber.org/zap v1.13.0
+	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	golang.org/x/net v0.0.0-20200320220750-118fecf932d8
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
