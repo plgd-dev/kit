@@ -11,8 +11,8 @@ import (
 type EncodeFunc = func(v interface{}) ([]byte, error)
 
 // GetAccept returns expected content format by client
-func GetAccept(req *message.Message) message.MediaType {
-	ct, err := req.Options.GetUint32(message.Accept)
+func GetAccept(opts message.Options) message.MediaType {
+	ct, err := opts.GetUint32(message.Accept)
 	if err != nil {
 		return message.AppOcfCbor
 	}
