@@ -8,12 +8,16 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 
 	"github.com/go-ocf/kit/security/jwt"
 )
+
+var authorizationKey = "authorization"
+var userIDKey = "userid"
 
 type AuthInterceptors struct {
 	authFunc Interceptor
@@ -61,12 +65,44 @@ func ValidateJWT(jwksURL string, tls *tls.Config, claims ClaimsFunc) Interceptor
 	}
 }
 
+// CtxWithToken stores token to ctx of request.
 func CtxWithToken(ctx context.Context, token string) context.Context {
-	md := metadata.Pairs("authorization", fmt.Sprintf("%s %s", "bearer", token))
+	md := metadata.Pairs(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
 	return metautils.NiceMD(md).ToOutgoing(ctx)
 }
 
+// CtxWithUserID stores userID to ctx of request.
+func CtxWithUserID(ctx context.Context, userID string) context.Context {
+	md := metadata.Pairs(userIDKey, userID)
+	return metautils.NiceMD(md).ToOutgoing(ctx)
+}
+
+// CtxWithIncomingToken stores token to ctx of reponse.
 func CtxWithIncomingToken(ctx context.Context, token string) context.Context {
-	md := metadata.Pairs("authorization", fmt.Sprintf("%s %s", "bearer", token))
+	md := metadata.Pairs(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
 	return metautils.NiceMD(md).ToIncoming(ctx)
+}
+
+// CtxWithIncomingUserID stores userID to ctx of reponse.
+func CtxWithIncomingUserID(ctx context.Context, userID string) context.Context {
+	md := metadata.Pairs(userIDKey, userID)
+	return metautils.NiceMD(md).ToIncoming(ctx)
+}
+
+// UserIDFromMD is a helper function for extracting the :authorization header from the gRPC metadata of the request.
+func UserIDFromMD(ctx context.Context) (string, error) {
+	val := metautils.ExtractIncoming(ctx).Get(userIDKey)
+	if val == "" {
+		return "", status.Errorf(codes.InvalidArgument, "UserID not found in request")
+	}
+	return val, nil
+}
+
+// UserIDFromOutgoingMD extracts userID stored by CtxWithUserID.
+func UserIDFromOutgoingMD(ctx context.Context) (string, error) {
+	val := metautils.ExtractOutgoing(ctx).Get(userIDKey)
+	if val == "" {
+		return "", status.Errorf(codes.InvalidArgument, "UserID not found in request")
+	}
+	return val, nil
 }

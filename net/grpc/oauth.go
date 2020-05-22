@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc/credentials"
 )
@@ -24,7 +25,7 @@ func (oa oauthAccess) GetRequestMetadata(ctx context.Context, uri ...string) (ma
 		return nil, err
 	}
 	return map[string]string{
-		"authorization": token.Type() + " " + token.AccessToken,
+		authorizationKey: token.Type() + " " + token.AccessToken,
 	}, nil
 }
 

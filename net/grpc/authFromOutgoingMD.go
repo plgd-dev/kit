@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -13,8 +14,8 @@ var (
 	headerAuthorize = "authorization"
 )
 
-// CtxExtractOutgoingToken extracts context stored by CtxWithToken.
-func CtxExtractOutgoingToken(ctx context.Context) (string, error) {
+// TokenFromOutgoingMD extracts token stored by CtxWithToken.
+func TokenFromOutgoingMD(ctx context.Context) (string, error) {
 	expectedScheme := "bearer"
 	val := metautils.ExtractOutgoing(ctx).Get(headerAuthorize)
 	if val == "" {
@@ -29,4 +30,9 @@ func CtxExtractOutgoingToken(ctx context.Context) (string, error) {
 		return "", grpc.Errorf(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
 	}
 	return splits[1], nil
+}
+
+// TokenFromMD is a helper function for extracting the :authorization header from the gRPC metadata of the request.
+func TokenFromMD(ctx context.Context) (string, error) {
+	return grpc_auth.AuthFromMD(ctx, "bearer")
 }
