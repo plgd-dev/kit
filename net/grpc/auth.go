@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 
+	extJwt "github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -89,7 +90,7 @@ func CtxWithIncomingUserID(ctx context.Context, userID string) context.Context {
 	return metautils.NiceMD(md).ToIncoming(ctx)
 }
 
-// UserIDFromMD is a helper function for extracting the :authorization header from the gRPC metadata of the request.
+// UserIDFromMD is a helper function for extracting the :userid header from the gRPC metadata of the request.
 func UserIDFromMD(ctx context.Context) (string, error) {
 	val := metautils.ExtractIncoming(ctx).Get(userIDKey)
 	if val == "" {
@@ -105,4 +106,43 @@ func UserIDFromOutgoingMD(ctx context.Context) (string, error) {
 		return "", status.Errorf(codes.InvalidArgument, "UserID not found in request")
 	}
 	return val, nil
+}
+
+type claims struct {
+	Subject string `json:"sub,omitempty"`
+}
+
+func (c *claims) Valid() error {
+	return nil
+}
+
+func parseSubFromJwtToken(rawJwtToken string) (string, error) {
+	parser := &extJwt.Parser{
+		SkipClaimsValidation: true,
+	}
+
+	var claims claims
+	_, _, err := parser.ParseUnverified(rawJwtToken, &claims)
+	if err != nil {
+		return "", fmt.Errorf("cannot get subject from jwt token: %w", err)
+	}
+
+	if claims.Subject != "" {
+		return claims.Subject, nil
+	}
+
+	return "", fmt.Errorf("cannot get subject from jwt token: not found")
+}
+
+// UserIDFromTokenMD is a helper function for extracting the userID from the :authorization gRPC metadata of the request.
+func UserIDFromTokenMD(ctx context.Context) (string, error) {
+	accessToken, err := TokenFromMD(ctx)
+	if err != nil {
+		return "", err
+	}
+	userID, err := parseSubFromJwtToken(accessToken)
+	if err != nil {
+		return "", ForwardFromError(codes.InvalidArgument, err)
+	}
+	return userID, err
 }
