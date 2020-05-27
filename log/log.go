@@ -2,13 +2,12 @@ package log
 
 import (
 	"fmt"
-	"sync"
+	"sync/atomic"
 
 	"go.uber.org/zap"
 )
 
-var log *zap.SugaredLogger
-var logMutex sync.Mutex
+var log atomic.Value
 
 // Config configuration for setup logging.
 type Config struct {
@@ -21,7 +20,7 @@ func init() {
 	if err != nil {
 		panic("Unable to create logger")
 	}
-	log = logger.Sugar()
+	log.Store(logger.Sugar())
 }
 
 // Setup changes log configuration for the application.
@@ -34,8 +33,6 @@ func Setup(config Config) {
 
 // Build is a panic-free version of Setup.
 func Build(config Config) error {
-	logMutex.Lock()
-	defer logMutex.Unlock()
 	var cfg zap.Config
 	if config.Debug {
 		cfg = zap.NewDevelopmentConfig()
@@ -46,14 +43,12 @@ func Build(config Config) error {
 	if err != nil {
 		return fmt.Errorf("logger creation failed: %w", err)
 	}
-	log = logger.Sugar()
+	log.Store(logger.Sugar())
 	return nil
 }
 
 func getLog() *zap.SugaredLogger {
-	logMutex.Lock()
-	defer logMutex.Unlock()
-	return log
+	return log.Load().(*zap.SugaredLogger)
 }
 
 // Debug uses fmt.Sprint to construct and log a message.
