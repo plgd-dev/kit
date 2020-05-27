@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/go-ocf/go-coap/v2/dtls"
-	"github.com/go-ocf/go-coap/v2/keepalive"
+	"github.com/go-ocf/go-coap/v2/net/keepalive"
 	"github.com/go-ocf/go-coap/v2/tcp"
 	"github.com/go-ocf/go-coap/v2/udp"
 	uuid "github.com/gofrs/uuid"
