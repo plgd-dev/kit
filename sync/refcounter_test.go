@@ -26,14 +26,6 @@ func TestRefCounter_Acquire(t *testing.T) {
 			},
 		},
 		{
-			name: "invalid data",
-			fields: fields{
-				count: 1,
-				data:  nil,
-			},
-			wantPanic: true,
-		},
-		{
 			name: "invalid count",
 			fields: fields{
 				count: 0,

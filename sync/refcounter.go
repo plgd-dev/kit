@@ -16,7 +16,7 @@ type RefCounter struct {
 // Data returns data
 func (r *RefCounter) Data() interface{} {
 	v := atomic.LoadInt64(&r.count)
-	if v <= 0 || r.data == nil {
+	if v <= 0 {
 		panic("using RefCounter after data released")
 	}
 	return r.data
@@ -25,7 +25,7 @@ func (r *RefCounter) Data() interface{} {
 // Acquire increments counter
 func (r *RefCounter) Acquire() {
 	v := atomic.AddInt64(&r.count, 1)
-	if v <= 1 || r.data == nil {
+	if v <= 1 {
 		panic("using RefCounter after data released")
 	}
 }
@@ -38,14 +38,12 @@ func (r *RefCounter) Count() int64 {
 // Release decrements counter, when counter reach 0, releaseDataFunc will be called
 func (r *RefCounter) Release(ctx context.Context) error {
 	v := atomic.AddInt64(&r.count, -1)
-	if v < 0 || r.data == nil {
+	if v < 0 {
 		panic("using RefCounter after data released")
 	}
 	if v == 0 {
-		data := r.data
-		r.data = nil
 		if r.releaseDataFunc != nil {
-			return r.releaseDataFunc(ctx, data)
+			return r.releaseDataFunc(ctx, r.data)
 		}
 	}
 	return nil
