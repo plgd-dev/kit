@@ -10,6 +10,8 @@ import (
 func TestValidScope(t *testing.T) {
 	c := testScopeClaims("testScope")
 	require.NoError(t, c.Valid())
+	c1 := testScopeClaims()
+	require.NoError(t, c1.Valid())
 }
 
 func TestInvalidScope(t *testing.T) {
@@ -27,8 +29,8 @@ func TestExpiredScope(t *testing.T) {
 	require.Contains(t, err.Error(), "token is expired")
 }
 
-func testScopeClaims(scope string) *ScopeClaims {
-	c := NewScopeClaims(scope)
+func testScopeClaims(scope ...string) *ScopeClaims {
+	c := NewScopeClaims(scope...)
 	c.Claims = Claims{
 		ClientID: "testClientID",
 		Email:    "testEmail",
