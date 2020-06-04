@@ -19,15 +19,15 @@ func NewScopeClaims(scope ...string) *ScopeClaims {
 }
 
 func NewRegexpScopeClaims(scope ...*regexp.Regexp) *ScopeClaims {
-	if len(scope) == 0 {
-		panic("missing scope")
-	}
 	return &ScopeClaims{requiredScopes: scope}
 }
 
 func (c *ScopeClaims) Valid() error {
 	if err := c.Claims.Valid(); err != nil {
 		return err
+	}
+	if len(c.requiredScopes) == 0 {
+		return nil
 	}
 	notMatched := make(map[string]bool)
 	for _, reg := range c.requiredScopes {
