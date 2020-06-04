@@ -8,7 +8,6 @@ import (
 	extJwt "github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
@@ -68,26 +67,30 @@ func ValidateJWT(jwksURL string, tls *tls.Config, claims ClaimsFunc) Interceptor
 
 // CtxWithToken stores token to ctx of request.
 func CtxWithToken(ctx context.Context, token string) context.Context {
-	md := metadata.Pairs(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
-	return metautils.NiceMD(md).ToOutgoing(ctx)
+	niceMD := metautils.ExtractOutgoing(ctx)
+	niceMD.Set(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
+	return niceMD.ToOutgoing(ctx)
 }
 
 // CtxWithUserID stores userID to ctx of request.
 func CtxWithUserID(ctx context.Context, userID string) context.Context {
-	md := metadata.Pairs(userIDKey, userID)
-	return metautils.NiceMD(md).ToOutgoing(ctx)
+	niceMD := metautils.ExtractOutgoing(ctx)
+	niceMD.Set(userIDKey, userID)
+	return niceMD.ToOutgoing(ctx)
 }
 
 // CtxWithIncomingToken stores token to ctx of reponse.
 func CtxWithIncomingToken(ctx context.Context, token string) context.Context {
-	md := metadata.Pairs(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
-	return metautils.NiceMD(md).ToIncoming(ctx)
+	niceMD := metautils.ExtractIncoming(ctx)
+	niceMD.Set(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
+	return niceMD.ToIncoming(ctx)
 }
 
 // CtxWithIncomingUserID stores userID to ctx of reponse.
 func CtxWithIncomingUserID(ctx context.Context, userID string) context.Context {
-	md := metadata.Pairs(userIDKey, userID)
-	return metautils.NiceMD(md).ToIncoming(ctx)
+	niceMD := metautils.ExtractIncoming(ctx)
+	niceMD.Set(userIDKey, userID)
+	return niceMD.ToIncoming(ctx)
 }
 
 // UserIDFromMD is a helper function for extracting the :userid header from the gRPC metadata of the request.
