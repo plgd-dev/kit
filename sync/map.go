@@ -17,39 +17,69 @@ func NewMap() *Map {
 
 // Delete deletes the value for a key.
 func (m *Map) Delete(key interface{}) {
+	m.DeleteWithFunc(key, nil)
+}
+
+func (m *Map) DeleteWithFunc(key interface{}, onDeleteFunc func(value interface{})) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
+	value, ok := m.data[key]
 	delete(m.data, key)
+	if ok && onDeleteFunc != nil {
+		onDeleteFunc(value)
+	}
 }
 
 // Load returns the value stored in the map for a key, or nil if no value is present.
 // The ok result indicates whether value was found in the map.
 func (m *Map) Load(key interface{}) (value interface{}, ok bool) {
+	return m.LoadWithFunc(key, nil)
+}
+
+func (m *Map) LoadWithFunc(key interface{}, onLoadFunc func(value interface{}) interface{}) (value interface{}, ok bool) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	value, ok = m.data[key]
+	if ok && onLoadFunc != nil {
+		value = onLoadFunc(value)
+	}
 	return
 }
 
 // LoadOrStore returns the existing value for the key if present.
 // Otherwise, it stores and returns the given value. The loaded result is true if the value was loaded, false if stored.
 func (m *Map) LoadOrStore(key, value interface{}) (actual interface{}, loaded bool) {
+	return m.LoadOrStoreWithFunc(key, nil, func() interface{} { return value })
+}
+
+func (m *Map) LoadOrStoreWithFunc(key interface{}, onLoadFunc func(value interface{}) interface{}, createFunc func() interface{}) (actual interface{}, loaded bool) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	v, ok := m.data[key]
 	if ok {
+		if onLoadFunc != nil {
+			v = onLoadFunc(v)
+		}
 		return v, ok
 	}
-	m.data[key] = value
-	return value, ok
+	v = createFunc()
+	m.data[key] = v
+	return v, ok
 }
 
 // Replace replaces the existing value with a new value and returns old value for the key.
 func (m *Map) Replace(key, value interface{}) (oldValue interface{}, oldLoaded bool) {
+	return m.ReplaceWithFunc(key, nil, func() interface{} { return value })
+}
+
+func (m *Map) ReplaceWithFunc(key interface{}, onLoadFunc func(value interface{}) interface{}, createFunc func() interface{}) (oldValue interface{}, oldLoaded bool) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	v, ok := m.data[key]
-	m.data[key] = value
+	m.data[key] = createFunc()
+	if ok && onLoadFunc != nil {
+		v = onLoadFunc(v)
+	}
 	return v, ok
 }
 
@@ -67,17 +97,28 @@ func (m *Map) Range(f func(key, value interface{}) bool) {
 
 // Store sets the value for a key.
 func (m *Map) Store(key, value interface{}) {
+	m.StoreWithFunc(key, func() interface{} { return value })
+}
+
+func (m *Map) StoreWithFunc(key interface{}, createFunc func() interface{}) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
-	m.data[key] = value
+	m.data[key] = createFunc()
 }
 
 // PullOut loads and deletes the value for a key.
 func (m *Map) PullOut(key interface{}) (value interface{}, ok bool) {
+	return m.PullOutWithFunc(key, nil)
+}
+
+func (m *Map) PullOutWithFunc(key interface{}, onLoadFunc func(value interface{}) interface{}) (value interface{}, ok bool) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 	value, ok = m.data[key]
 	delete(m.data, key)
+	if ok && onLoadFunc != nil {
+		value = onLoadFunc(value)
+	}
 	return
 }
 
