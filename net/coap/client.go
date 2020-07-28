@@ -430,6 +430,7 @@ type dialOptions struct {
 	DisableTCPSignalMessageCSM      bool
 	DisablePeerTCPSignalMessageCSMs bool
 	KeepAlive                       *keepalive.KeepAlive
+	errors                          func(err error)
 }
 
 type DialOptionFunc func(dialOptions) dialOptions
@@ -460,6 +461,14 @@ func WithKeepAlive(connectionTimeout time.Duration) DialOptionFunc {
 	}
 }
 
+func WithErrors(errors func(err error)) DialOptionFunc {
+	return func(c dialOptions) dialOptions {
+		c.errors = errors
+		return c
+	}
+
+}
+
 func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
 	var cfg dialOptions
@@ -469,6 +478,9 @@ func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	dopts := make([]udp.DialOption, 0, 4)
 	if cfg.KeepAlive != nil {
 		dopts = append(dopts, udp.WithKeepAlive(cfg.KeepAlive))
+	}
+	if cfg.errors != nil {
+		dopts = append(dopts, udp.WithErrors(cfg.errors))
 	}
 	c, err := udp.Dial(addr, dopts...)
 	if err != nil {
@@ -495,6 +507,9 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	if cfg.DisableTCPSignalMessageCSM {
 		dopts = append(dopts, tcp.WithDisableTCPSignalMessageCSM())
+	}
+	if cfg.errors != nil {
+		dopts = append(dopts, tcp.WithErrors(cfg.errors))
 	}
 
 	c, err := tcp.Dial(addr, dopts...)
@@ -560,6 +575,10 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	if cfg.DisableTCPSignalMessageCSM {
 		dopts = append(dopts, tcp.WithDisableTCPSignalMessageCSM())
 	}
+	if cfg.errors != nil {
+		dopts = append(dopts, tcp.WithErrors(cfg.errors))
+	}
+
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
@@ -586,6 +605,9 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, o
 	dopts := make([]dtls.DialOption, 0, 4)
 	if cfg.KeepAlive != nil {
 		dopts = append(dopts, dtls.WithKeepAlive(cfg.KeepAlive))
+	}
+	if cfg.errors != nil {
+		dopts = append(dopts, dtls.WithErrors(cfg.errors))
 	}
 
 	c, err := dtls.Dial(addr, dtlsCfg, dopts...)
