@@ -431,6 +431,7 @@ type dialOptions struct {
 	DisablePeerTCPSignalMessageCSMs bool
 	KeepAlive                       *keepalive.KeepAlive
 	errors                          func(err error)
+	maxMessageSize                  int
 }
 
 type DialOptionFunc func(dialOptions) dialOptions
@@ -466,7 +467,13 @@ func WithErrors(errors func(err error)) DialOptionFunc {
 		c.errors = errors
 		return c
 	}
+}
 
+func WithMaxMessageSize(maxMessageSize int) DialOptionFunc {
+	return func(c dialOptions) dialOptions {
+		c.maxMessageSize = maxMessageSize
+		return c
+	}
 }
 
 func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
@@ -481,6 +488,9 @@ func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	if cfg.errors != nil {
 		dopts = append(dopts, udp.WithErrors(cfg.errors))
+	}
+	if cfg.maxMessageSize > 0 {
+		dopts = append(dopts, udp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
 	c, err := udp.Dial(addr, dopts...)
 	if err != nil {
@@ -511,7 +521,9 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	if cfg.errors != nil {
 		dopts = append(dopts, tcp.WithErrors(cfg.errors))
 	}
-
+	if cfg.maxMessageSize > 0 {
+		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
+	}
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
@@ -578,7 +590,9 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	if cfg.errors != nil {
 		dopts = append(dopts, tcp.WithErrors(cfg.errors))
 	}
-
+	if cfg.maxMessageSize > 0 {
+		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
+	}
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
@@ -608,6 +622,9 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, o
 	}
 	if cfg.errors != nil {
 		dopts = append(dopts, dtls.WithErrors(cfg.errors))
+	}
+	if cfg.maxMessageSize > 0 {
+		dopts = append(dopts, dtls.WithMaxMessageSize(cfg.maxMessageSize))
 	}
 
 	c, err := dtls.Dial(addr, dtlsCfg, dopts...)
