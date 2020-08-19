@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-ocf/go-coap/v2/message/codes"
-	"github.com/go-ocf/kit/security/jwt"
+	"github.com/plgd-dev/go-coap/v2/message/codes"
+	"github.com/plgd-dev/kit/security/jwt"
 )
 
 type Claims = interface{ Valid() error }

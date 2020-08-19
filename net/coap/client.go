@@ -14,17 +14,17 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-ocf/go-coap/v2/dtls"
-	"github.com/go-ocf/go-coap/v2/net/keepalive"
-	"github.com/go-ocf/go-coap/v2/tcp"
-	"github.com/go-ocf/go-coap/v2/udp"
+	"github.com/plgd-dev/go-coap/v2/dtls"
+	"github.com/plgd-dev/go-coap/v2/net/keepalive"
+	"github.com/plgd-dev/go-coap/v2/tcp"
+	"github.com/plgd-dev/go-coap/v2/udp"
 	uuid "github.com/gofrs/uuid"
 	piondtls "github.com/pion/dtls/v2"
 
-	"github.com/go-ocf/go-coap/v2/message"
-	"github.com/go-ocf/go-coap/v2/message/codes"
-	codecOcf "github.com/go-ocf/kit/codec/ocf"
-	"github.com/go-ocf/kit/net/coap/status"
+	"github.com/plgd-dev/go-coap/v2/message"
+	"github.com/plgd-dev/go-coap/v2/message/codes"
+	codecOcf "github.com/plgd-dev/kit/codec/ocf"
+	"github.com/plgd-dev/kit/net/coap/status"
 )
 
 type Observation = interface {

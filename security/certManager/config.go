@@ -4,9 +4,9 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"github.com/go-ocf/kit/security/certManager/acme"
-	"github.com/go-ocf/kit/security/certManager/acme/ocf"
-	"github.com/go-ocf/kit/security/certManager/file"
+	"github.com/plgd-dev/kit/security/certManager/acme"
+	"github.com/plgd-dev/kit/security/certManager/acme/ocf"
+	"github.com/plgd-dev/kit/security/certManager/file"
 )
 
 // AcmeType define acme type certificate manager

@@ -10,9 +10,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/go-ocf/kit/security/generateCertificate"
+	"github.com/plgd-dev/kit/security/generateCertificate"
 
-	"github.com/go-ocf/kit/security"
+	"github.com/plgd-dev/kit/security"
 	flags "github.com/jessevdk/go-flags"
 )
 

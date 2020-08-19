@@ -3,7 +3,7 @@ package grpc
 import (
 	"fmt"
 
-	"github.com/go-ocf/kit/security"
+	"github.com/plgd-dev/kit/security"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"

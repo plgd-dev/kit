@@ -9,10 +9,11 @@ import (
 	"crypto/x509/pkix"
 	"encoding/asn1"
 	"encoding/pem"
-	client2 "github.com/go-ocf/kit/security/certManager/acme/client"
+
+	client2 "github.com/plgd-dev/kit/security/certManager/acme/client"
 
 	"github.com/go-acme/lego/certificate"
-	"github.com/go-ocf/kit/security/generateCertificate"
+	"github.com/plgd-dev/kit/security/generateCertificate"
 	"golang.org/x/crypto/ocsp"
 )
 

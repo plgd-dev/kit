@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.com/go-ocf/kit.svg?branch=master)](https://travis-ci.com/go-ocf/kit)
-[![codecov](https://codecov.io/gh/go-ocf/kit/branch/master/graph/badge.svg)](https://codecov.io/gh/go-ocf/kit)
-[![Go Report](https://goreportcard.com/badge/github.com/go-ocf/kit)](https://goreportcard.com/report/github.com/go-ocf/kit)
+[![Build Status](https://travis-ci.com/plgd-dev/kit.svg?branch=master)](https://travis-ci.com/plgd-dev/kit)
+[![codecov](https://codecov.io/gh/plgd-dev/kit/branch/master/graph/badge.svg)](https://codecov.io/gh/plgd-dev/kit)
+[![Go Report](https://goreportcard.com/badge/github.com/plgd-dev/kit)](https://goreportcard.com/report/github.com/plgd-dev/kit)
 [![Gitter](https://badges.gitter.im/ocfcloud/Lobby.svg)](https://gitter.im/ocfcloud/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # kit

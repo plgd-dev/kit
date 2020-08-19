@@ -3,9 +3,9 @@ package coap
 import (
 	"fmt"
 
-	"github.com/go-ocf/go-coap/v2/message"
-	"github.com/go-ocf/kit/codec/cbor"
-	"github.com/go-ocf/kit/codec/json"
+	"github.com/plgd-dev/go-coap/v2/message"
+	"github.com/plgd-dev/kit/codec/cbor"
+	"github.com/plgd-dev/kit/codec/json"
 )
 
 type EncodeFunc = func(v interface{}) ([]byte, error)

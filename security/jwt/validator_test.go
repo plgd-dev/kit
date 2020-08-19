@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-ocf/kit/security/jwt"
+	"github.com/plgd-dev/kit/security/jwt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

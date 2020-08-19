@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-ocf/kit/net"
-	"github.com/go-ocf/kit/sync"
+	"github.com/plgd-dev/kit/net"
+	"github.com/plgd-dev/kit/sync"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

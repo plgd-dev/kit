@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	coapCodes "github.com/go-ocf/go-coap/v2/message/codes"
+	coapCodes "github.com/plgd-dev/go-coap/v2/message/codes"
 	"github.com/stretchr/testify/assert"
 )
 

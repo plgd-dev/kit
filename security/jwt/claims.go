@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-ocf/kit/strings"
+	"github.com/plgd-dev/kit/strings"
 )
 
 type Claims struct {

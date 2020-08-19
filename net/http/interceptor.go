@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-ocf/kit/security/jwt"
+	"github.com/plgd-dev/kit/security/jwt"
 )
 
 type Interceptor = func(ctx context.Context, method, uri string) (context.Context, error)
