@@ -13,7 +13,7 @@ import (
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 
-	"github.com/go-ocf/kit/security/jwt"
+	"github.com/plgd-dev/kit/security/jwt"
 )
 
 var authorizationKey = "authorization"

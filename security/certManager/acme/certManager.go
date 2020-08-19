@@ -19,8 +19,8 @@ import (
 	"github.com/go-acme/lego/challenge/http01"
 	"github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
-	"github.com/go-ocf/kit/log"
-	"github.com/go-ocf/kit/security"
+	"github.com/plgd-dev/kit/log"
+	"github.com/plgd-dev/kit/security"
 	"golang.org/x/net/http2"
 )
 

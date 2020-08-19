@@ -7,7 +7,7 @@ import (
 	netHttp "net/http"
 	"strings"
 
-	"github.com/go-ocf/kit/security/jwt"
+	"github.com/plgd-dev/kit/security/jwt"
 )
 
 type Claims = interface{ Valid() error }

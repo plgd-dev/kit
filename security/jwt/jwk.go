@@ -9,7 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/lestrrat-go/jwx/jwk"
 
-	transport "github.com/go-ocf/kit/net/http/transport"
+	transport "github.com/plgd-dev/kit/net/http/transport"
 )
 
 type KeyCache struct {

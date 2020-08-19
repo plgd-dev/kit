@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-ocf/kit/security/certManager/acme"
-	client2 "github.com/go-ocf/kit/security/certManager/acme/ocf/client"
+	"github.com/plgd-dev/kit/security/certManager/acme"
+	client2 "github.com/plgd-dev/kit/security/certManager/acme/ocf/client"
 
 	"github.com/go-acme/lego/certcrypto"
 	"github.com/go-acme/lego/challenge/http01"
 	origLego "github.com/go-acme/lego/lego"
 	"github.com/go-acme/lego/registration"
-	"github.com/go-ocf/kit/security"
+	"github.com/plgd-dev/kit/security"
 )
 
 // Config set configuration.

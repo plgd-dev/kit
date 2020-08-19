@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-ocf/kit/security"
+	"github.com/plgd-dev/kit/security"
 )
 
 // Config provides configuration of a file based Certificate manager

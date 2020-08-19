@@ -1,12 +1,13 @@
 package file_test
 
 import (
-	"github.com/go-ocf/kit/security/certManager/file"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/plgd-dev/kit/security/certManager/file"
+	"github.com/stretchr/testify/require"
 )
 
 var TestCaCrt = `-----BEGIN CERTIFICATE-----

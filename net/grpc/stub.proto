@@ -4,7 +4,7 @@ package ocf.cloud.test.pb;
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
-option go_package = "github.com/go-ocf/kit/net/grpc";
+option go_package = "github.com/plgd-dev/kit/net/grpc";
 
 service StubService {
   rpc TestCall(TestRequest) returns (TestResponse) {}

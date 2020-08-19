@@ -11,7 +11,7 @@ import (
 	"math/big"
 	"time"
 
-	kitNetCoap "github.com/go-ocf/kit/net/coap"
+	kitNetCoap "github.com/plgd-dev/kit/net/coap"
 )
 
 type IdentityCertificateSigner struct {

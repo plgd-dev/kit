@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/go-ocf/go-coap/v2/message"
-	coapCodes "github.com/go-ocf/go-coap/v2/message/codes"
-	coapStatus "github.com/go-ocf/kit/net/coap/status"
+	"github.com/plgd-dev/go-coap/v2/message"
+	coapCodes "github.com/plgd-dev/go-coap/v2/message/codes"
+	coapStatus "github.com/plgd-dev/kit/net/coap/status"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

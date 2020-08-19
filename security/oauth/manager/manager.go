@@ -9,8 +9,8 @@ import (
 
 	"golang.org/x/oauth2/clientcredentials"
 
-	"github.com/go-ocf/kit/log"
-	"github.com/go-ocf/kit/net/http/transport"
+	"github.com/plgd-dev/kit/log"
+	"github.com/plgd-dev/kit/net/http/transport"
 	"golang.org/x/oauth2"
 )
 

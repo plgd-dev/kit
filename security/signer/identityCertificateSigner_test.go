@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	kitNetCoap "github.com/go-ocf/kit/net/coap"
+	kitNetCoap "github.com/plgd-dev/kit/net/coap"
 	"github.com/stretchr/testify/require"
 )
 
