@@ -16,7 +16,7 @@ require (
 	github.com/lestrrat-go/jwx v1.0.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pion/dtls/v2 v2.0.1-0.20200503085337-8e86b3a7d585
-	github.com/plgd-dev/go-coap/v2 v2.0.4-0.20200819112225-8eb712b901bc
+	github.com/plgd-dev/go-coap/v2 v2.0.4-0.20200819114417-9bdc8a6450d1
 	github.com/stretchr/testify v1.5.1
 	github.com/ugorji/go/codec v1.1.7
 	github.com/valyala/fasthttp v1.12.0
