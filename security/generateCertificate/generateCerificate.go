@@ -92,6 +92,12 @@ func GenerateCert(cfg Configuration, privateKey *ecdsa.PrivateKey, signerCA []*x
 		return nil, err
 	}
 
-	s := ocfSigner.NewBasicCertificateSigner(signerCA, signerCAKey, cfg.ValidFor)
+	notBefore, err := cfg.ToValidFrom()
+	if err != nil {
+		return nil, err
+	}
+
+	notAfter := notBefore.Add(cfg.ValidFor)
+	s := ocfSigner.NewBasicCertificateSigner(signerCA, signerCAKey, notBefore, notAfter)
 	return s.Sign(context.Background(), csr)
 }

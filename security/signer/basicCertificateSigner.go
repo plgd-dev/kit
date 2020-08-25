@@ -13,13 +13,14 @@ import (
 )
 
 type BasicCertificateSigner struct {
-	caCert   []*x509.Certificate
-	caKey    crypto.PrivateKey
-	validFor time.Duration
+	caCert         []*x509.Certificate
+	caKey          crypto.PrivateKey
+	validNotBefore time.Time
+	validNotAfter  time.Time
 }
 
-func NewBasicCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validFor time.Duration) *BasicCertificateSigner {
-	return &BasicCertificateSigner{caCert: caCert, caKey: caKey, validFor: validFor}
+func NewBasicCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validNotBefore time.Time, validNotAfter time.Time) *BasicCertificateSigner {
+	return &BasicCertificateSigner{caCert: caCert, caKey: caKey, validNotBefore: validNotBefore, validNotAfter: validNotAfter}
 }
 
 func createPemChain(intermedateCAs []*x509.Certificate, cert []byte) ([]byte, error) {
@@ -64,8 +65,8 @@ func (s *BasicCertificateSigner) Sign(ctx context.Context, csr []byte) (signedCs
 		return nil, err
 	}
 
-	notBefore := time.Now()
-	notAfter := notBefore.Add(s.validFor)
+	notBefore := s.validNotBefore
+	notAfter := s.validNotAfter
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
