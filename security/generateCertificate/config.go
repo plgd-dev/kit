@@ -31,6 +31,7 @@ type Configuration struct {
 		Ignore     bool `long:"ignore"  description:"bool, don't set basic constraints"`
 		MaxPathLen int  `long:"maxPathLen" default:"-1"  description:"int, -1 means unlimited"`
 	} `group:"Basic Constraints" namespace:"basicConstraints"`
+	ValidFrom          string        `long:"validFrom" default:"now" description:"valid from time, format in RFC3339"`
 	ValidFor           time.Duration `long:"validFor" default:"8760h" description:"duration, format in NUMh"`
 	KeyUsages          []string      `long:"ku" default:"digitalSignature" default:"keyAgreement" description:"to set more values repeat option with parameter"`
 	ExtensionKeyUsages []string      `long:"eku" default:"client" default:"server" description:"to set more values repeat option with parameter"`
@@ -45,6 +46,17 @@ func (cfg Configuration) ToPkixName() pkix.Name {
 		Locality:           cfg.Subject.Locality,
 		Province:           cfg.Subject.PostalCode,
 	}
+}
+
+func (cfg Configuration) ToValidFrom() (time.Time, error) {
+	if cfg.ValidFrom == "" || strings.ToLower(cfg.ValidFrom) == "now" {
+		return time.Now(), nil
+	}
+	t, err := time.Parse(time.RFC3339, cfg.ValidFrom)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid validFrom(%v): %v", cfg.ValidFrom, err)
+	}
+	return t, nil
 }
 
 func reverseBitsInAByte(in byte) byte {

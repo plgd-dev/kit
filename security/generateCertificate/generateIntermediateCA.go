@@ -8,11 +8,13 @@ import (
 	"encoding/pem"
 	"fmt"
 	"math/big"
-	"time"
 )
 
 func newCert(cfg Configuration) (*x509.Certificate, error) {
-	notBefore := time.Now()
+	notBefore, err := cfg.ToValidFrom()
+	if err != nil {
+		return nil, err
+	}
 	notAfter := notBefore.Add(cfg.ValidFor)
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)

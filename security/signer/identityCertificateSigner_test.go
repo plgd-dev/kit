@@ -22,7 +22,7 @@ func newIdentitySigner(t *testing.T) *IdentityCertificateSigner {
 	require.NotEmpty(t, identityIntermediateCAKeyBlock)
 	identityIntermediateCAKey, err := x509.ParseECPrivateKey(identityIntermediateCAKeyBlock.Bytes)
 	require.NoError(t, err)
-	return NewIdentityCertificateSigner(identityIntermediateCA, identityIntermediateCAKey, time.Hour*86400)
+	return NewIdentityCertificateSigner(identityIntermediateCA, identityIntermediateCAKey, time.Now(), time.Now().Add(time.Hour*86400))
 }
 
 func TestIdentityCertificateSigner_Sign(t *testing.T) {

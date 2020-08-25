@@ -15,13 +15,14 @@ import (
 )
 
 type IdentityCertificateSigner struct {
-	caCert   []*x509.Certificate
-	caKey    crypto.PrivateKey
-	validFor time.Duration
+	caCert         []*x509.Certificate
+	caKey          crypto.PrivateKey
+	validNotBefore time.Time
+	validNotAfter  time.Time
 }
 
-func NewIdentityCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validFor time.Duration) *IdentityCertificateSigner {
-	return &IdentityCertificateSigner{caCert: caCert, caKey: caKey, validFor: validFor}
+func NewIdentityCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validNotBefore time.Time, validNotAfter time.Time) *IdentityCertificateSigner {
+	return &IdentityCertificateSigner{caCert: caCert, caKey: caKey, validNotBefore: validNotBefore, validNotAfter: validNotAfter}
 }
 
 func (s *IdentityCertificateSigner) Sign(ctx context.Context, csr []byte) (signedCsr []byte, err error) {
@@ -41,8 +42,8 @@ func (s *IdentityCertificateSigner) Sign(ctx context.Context, csr []byte) (signe
 		return
 	}
 
-	notBefore := time.Now()
-	notAfter := notBefore.Add(s.validFor)
+	notBefore := s.validNotBefore
+	notAfter := s.validNotAfter
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
 
