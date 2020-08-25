@@ -31,7 +31,7 @@ type Configuration struct {
 		Ignore     bool `long:"ignore"  description:"bool, don't set basic constraints"`
 		MaxPathLen int  `long:"maxPathLen" default:"-1"  description:"int, -1 means unlimited"`
 	} `group:"Basic Constraints" namespace:"basicConstraints"`
-	ValidFrom          string        `long:"validFrom" default:"now" description:"valid from time, format in RFC3339"`
+	ValidFrom          string        `long:"validFrom" default:"now" description:"valid from time, format in RFC3339 (eg:2014-11-12T11:45:00Z)"`
 	ValidFor           time.Duration `long:"validFor" default:"8760h" description:"duration, format in NUMh"`
 	KeyUsages          []string      `long:"ku" default:"digitalSignature" default:"keyAgreement" description:"to set more values repeat option with parameter"`
 	ExtensionKeyUsages []string      `long:"eku" default:"client" default:"server" description:"to set more values repeat option with parameter"`
