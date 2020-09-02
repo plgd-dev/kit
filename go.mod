@@ -6,7 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fxamacker/cbor/v2 v2.2.0
-	github.com/go-acme/lego v2.7.2+incompatible
+	github.com/go-acme/lego/v3 v3.9.0
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.1
