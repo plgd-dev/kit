@@ -54,9 +54,6 @@ func createPemChain(intermedateCAs []*x509.Certificate, cert []byte) ([]byte, er
 	}
 	// encode intermediates
 	for _, ca := range intermedateCAs {
-		if bytes.Equal(ca.RawIssuer, ca.RawSubject) {
-			continue
-		}
 		err := pem.Encode(buf, &pem.Block{
 			Type: "CERTIFICATE", Bytes: ca.Raw,
 		})
