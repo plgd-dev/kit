@@ -1,11 +1,9 @@
 package generateCertificate
 
 import (
-	"bytes"
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/x509"
-	"encoding/pem"
 	"fmt"
 	"math/big"
 )
@@ -42,41 +40,11 @@ func newCert(cfg Configuration) (*x509.Certificate, error) {
 	return &template, nil
 }
 
-func createPemChain(intermedateCAs []*x509.Certificate, cert []byte) ([]byte, error) {
-	buf := bytes.NewBuffer(make([]byte, 0, 2048))
-
-	// encode cert
-	err := pem.Encode(buf, &pem.Block{
-		Type: "CERTIFICATE", Bytes: cert,
-	})
-	if err != nil {
-		return nil, err
-	}
-	// encode intermediates
-	for _, ca := range intermedateCAs {
-		if bytes.Equal(ca.RawIssuer, ca.RawSubject) {
-			continue
-		}
-		err := pem.Encode(buf, &pem.Block{
-			Type: "CERTIFICATE", Bytes: ca.Raw,
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return buf.Bytes(), nil
-}
-
 func GenerateIntermediateCA(cfg Configuration, privateKey *ecdsa.PrivateKey, signerCA []*x509.Certificate, signerCAKey *ecdsa.PrivateKey) ([]byte, error) {
 	cacert, err := newCert(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	der, err := x509.CreateCertificate(rand.Reader, cacert, signerCA[0], &privateKey.PublicKey, signerCAKey)
-	if err != nil {
-		return nil, err
-	}
-	return createPemChain(signerCA, der)
-
+	return x509.CreateCertificate(rand.Reader, cacert, signerCA[0], &privateKey.PublicKey, signerCAKey)
 }
