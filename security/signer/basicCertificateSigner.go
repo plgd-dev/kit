@@ -1,7 +1,6 @@
 package signer
 
 import (
-	"bytes"
 	"context"
 	"crypto"
 	"crypto/rand"
@@ -10,6 +9,8 @@ import (
 	"fmt"
 	"math/big"
 	"time"
+
+	"github.com/plgd-dev/kit/security"
 )
 
 type BasicCertificateSigner struct {
@@ -21,31 +22,6 @@ type BasicCertificateSigner struct {
 
 func NewBasicCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validNotBefore time.Time, validNotAfter time.Time) *BasicCertificateSigner {
 	return &BasicCertificateSigner{caCert: caCert, caKey: caKey, validNotBefore: validNotBefore, validNotAfter: validNotAfter}
-}
-
-func createPemChain(intermedateCAs []*x509.Certificate, cert []byte) ([]byte, error) {
-	buf := bytes.NewBuffer(make([]byte, 0, 2048))
-
-	// encode cert
-	err := pem.Encode(buf, &pem.Block{
-		Type: "CERTIFICATE", Bytes: cert,
-	})
-	if err != nil {
-		return nil, err
-	}
-	// encode intermediates
-	for _, ca := range intermedateCAs {
-		if bytes.Equal(ca.RawIssuer, ca.RawSubject) {
-			continue
-		}
-		err := pem.Encode(buf, &pem.Block{
-			Type: "CERTIFICATE", Bytes: ca.Raw,
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return buf.Bytes(), nil
 }
 
 func (s *BasicCertificateSigner) Sign(ctx context.Context, csr []byte) (signedCsr []byte, err error) {
@@ -91,5 +67,5 @@ func (s *BasicCertificateSigner) Sign(ctx context.Context, csr []byte) (signedCs
 	if err != nil {
 		return nil, err
 	}
-	return createPemChain(s.caCert, signedCsr)
+	return security.CreatePemChain(s.caCert, signedCsr)
 }

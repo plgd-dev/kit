@@ -18,5 +18,4 @@ func GenerateRootCA(cfg Configuration, privateKey *ecdsa.PrivateKey) ([]byte, er
 		return nil, err
 	}
 	return pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}), nil
-
 }
