@@ -12,6 +12,7 @@ import (
 	"time"
 
 	kitNetCoap "github.com/plgd-dev/kit/net/coap"
+	"github.com/plgd-dev/kit/security"
 )
 
 type IdentityCertificateSigner struct {
@@ -66,5 +67,5 @@ func (s *IdentityCertificateSigner) Sign(ctx context.Context, csr []byte) (signe
 	if err != nil {
 		return
 	}
-	return createPemChain(s.caCert, signedCsr)
+	return security.CreatePemChain(s.caCert, signedCsr)
 }
