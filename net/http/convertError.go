@@ -7,11 +7,17 @@ import (
 	"github.com/plgd-dev/kit/coapconv"
 	"github.com/plgd-dev/kit/grpcconv"
 	coapStatus "github.com/plgd-dev/kit/net/coap/status"
+	grpcCodes "google.golang.org/grpc/codes"
 	grpcStatus "google.golang.org/grpc/status"
 )
 
 type grpcErr interface {
 	GRPCStatus() *grpcStatus.Status
+}
+
+type sdkErr interface {
+	GetCode() grpcCodes.Code
+	Unwrap() error
 }
 
 // ErrToStatusWithDef converts err with default http.Status(for unknown conversion) to http.Status.
@@ -26,6 +32,10 @@ func ErrToStatusWithDef(err error, def int) int {
 	var grpcErr grpcErr
 	if errors.As(err, &grpcErr) {
 		return grpcconv.ToHTTPCode(grpcErr.GRPCStatus().Code(), def)
+	}
+	var sdkErr sdkErr
+	if errors.As(err, &sdkErr) {
+		return grpcconv.ToHTTPCode(sdkErr.GetCode(), def)
 	}
 	return def
 }
