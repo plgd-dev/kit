@@ -13,6 +13,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type SdkError struct {
+	errorCode codes.Code
+}
+
+func (e SdkError) GetCode() codes.Code {
+	return e.errorCode
+}
+
+func (e SdkError) Error() string {
+	return fmt.Sprintf("Status code %v", e.errorCode)
+}
+
 func TestErrToStatus(t *testing.T) {
 	type args struct {
 		err error
@@ -32,6 +44,7 @@ func TestErrToStatus(t *testing.T) {
 			want: http.StatusForbidden,
 		},
 		{name: "grpc", args: args{err: fmt.Errorf("unknown error")}, want: http.StatusInternalServerError},
+		{name: "sdkError", args: args{err: SdkError{errorCode: codes.PermissionDenied}}, want: http.StatusForbidden},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
