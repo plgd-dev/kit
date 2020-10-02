@@ -17,7 +17,6 @@ type grpcErr interface {
 
 type sdkErr interface {
 	GetCode() grpcCodes.Code
-	Unwrap() error
 }
 
 // ErrToStatusWithDef converts err with default http.Status(for unknown conversion) to http.Status.
