@@ -31,6 +31,9 @@ func (VNDOCFCBORCodec) Decode(m *message.Message, v interface{}) error {
 	if mt != message.AppCBOR && mt != message.AppOcfCbor {
 		return fmt.Errorf("not a CBOR content format: %v", mt)
 	}
+	if m.Body == nil {
+		return fmt.Errorf("unexpected empty body")
+	}
 
 	if err := cbor.ReadFrom(m.Body, v); err != nil {
 		p, _ := m.Options.Path()
@@ -70,6 +73,9 @@ func (c RawVNDOCFCBORCodec) Decode(m *message.Message, v interface{}) error {
 	}
 	if mt != message.AppCBOR && mt != message.AppOcfCbor {
 		return fmt.Errorf("not a CBOR content format: %v", mt)
+	}
+	if m.Body == nil {
+		return fmt.Errorf("unexpected empty body")
 	}
 
 	p, ok := v.(*[]byte)
@@ -116,6 +122,9 @@ func (c NoCodec) Decode(m *message.Message, v interface{}) error {
 	if mt != c.ContentFormat() {
 		return fmt.Errorf("unexpected content format: %v", mt)
 	}
+	if m.Body == nil {
+		return fmt.Errorf("unexpected empty body")
+	}
 
 	p, ok := v.(*[]byte)
 	if !ok {
@@ -131,6 +140,9 @@ func (c NoCodec) Decode(m *message.Message, v interface{}) error {
 
 // DumpPayload dumps the COAP message payload to a string.
 func DumpPayload(m *message.Message) (string, error) {
+	if m.Body == nil {
+		return "nil", nil
+	}
 	mt, err := m.Options.ContentFormat()
 	if err != nil {
 		return "", fmt.Errorf("cannot get content format: %w", err)
