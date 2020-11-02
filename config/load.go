@@ -8,18 +8,17 @@ import (
 )
 
 type ConfigPath struct {
-	FromYAML   bool   `long:"fromYaml" env:"FROM_YAML" description:"load configuration from yaml file otherwise from ENV"`
-	ConfigPath string `long:"config" env:"CONFIG" default:"config.yaml" description:"yaml config file path"`
+	ConfigPath string `long:"config" env:"CONFIG" description:"yaml config file path"`
 }
 
 // Load loads config from ENV config or arguments config.
 func Load(config interface{}) error {
 	var c ConfigPath
-	_, err := flags.Parse(&c)
+	_, err := flags.NewParser(&c, flags.Default|flags.IgnoreUnknown).Parse()
 	if err != nil {
 		return err
 	}
-	if !c.FromYAML {
+	if c.ConfigPath == "" {
 		return envconfig.Process("", config)
 	}
 
