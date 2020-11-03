@@ -37,8 +37,8 @@ type CertificateManager struct {
 	newCaCertPoolFunc       func() *x509.CertPool
 }
 
-// NewCertificateManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewCertificateManagerFromConfiguration(config Config) (*CertificateManager, error) {
+// NewCertificateManager creates a new certificate manager which watches for certs in a filesystem
+func NewCertificateManager(config Config) (*CertificateManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)

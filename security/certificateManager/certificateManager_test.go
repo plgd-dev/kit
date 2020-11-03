@@ -44,7 +44,7 @@ AnQ1eTGKTGLdAZsV+NnZPL17nit1cbiN2g==
 -----END EC PRIVATE KEY-----
 `
 
-func TestNewCertificateManagerFromConfiguration(t *testing.T) {
+func TestNewCertificateManager(t *testing.T) {
 	//tmp dir
 	tmpDir, err := ioutil.TempDir("/tmp", "test")
 	defer deleteTmpDir(tmpDir)
@@ -57,7 +57,7 @@ func TestNewCertificateManagerFromConfiguration(t *testing.T) {
 	config := createTmpCertFiles(t, caFile.Name(), tmpDir)
 
 	//cert manager
-	mng, err := file.NewCertificateManagerFromConfiguration(config)
+	mng, err := file.NewCertificateManager(config)
 	require.NoError(t, err)
 
 	tlsConfig := mng.GetServerTLSConfig()
