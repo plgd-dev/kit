@@ -1,4 +1,4 @@
-package file
+package certificateManager
 
 import (
 	"crypto/tls"
@@ -14,16 +14,16 @@ import (
 
 // Config provides configuration of a file based Certificate manager
 type Config struct {
-	CAPool                         string `envconfig:"CA_POOL" long:"tls-file_ca-pool" description:"file path to the root certificate in PEM format"`
-	TLSKeyFileName                 string `envconfig:"CERT_KEY_NAME" long:"tls-file-cert-key-name" description:"file name of private key in PEM format"`
-	DirPath                        string `envconfig:"CERT_DIR_PATH" long:"tls-file-cert-dir-path" description:"dir path where cert/key pair are saved"`
-	TLSCertFileName                string `envconfig:"CERT_NAME" long:"tls-file-cert-name" description:"file name of certificate in PEM format"`
+	CAPool                         string `envconfig:"CA_POOL" long:"ca-pool" description:"file path to the root certificate in PEM format"`
+	TLSKeyFileName                 string `envconfig:"CERT_KEY_NAME" long:"cert-key-name" description:"file name of private key in PEM format"`
+	DirPath                        string `envconfig:"CERT_DIR_PATH" long:"cert-dir-path" description:"dir path where cert/key pair are saved"`
+	TLSCertFileName                string `envconfig:"CERT_NAME" long:"cert-name" description:"file name of certificate in PEM format"`
 	DisableVerifyClientCertificate bool   `envconfig:"DISABLE_VERIFY_CLIENT_CERTIFICATE" env:"DISABLE_VERIFY_CLIENT_CERTIFICATE" long:"disable-verify-client-certificate" description:"disable verify client ceritificate"`
 	UseSystemCertPool              bool   `envconfig:"USE_SYSTEM_CERTIFICATION_POOL" env:"USE_SYSTEM_CERTIFICATION_POOL"  long:"use-system-certification-pool" description:"use system certifcation pool"`
 }
 
-// CertManager holds certificates from filesystem watched for changes
-type CertManager struct {
+// CertificateManager holds certificates from filesystem watched for changes
+type CertificateManager struct {
 	mutex                   sync.Mutex
 	config                  Config
 	tlsKey                  []byte
@@ -37,8 +37,8 @@ type CertManager struct {
 	newCaCertPoolFunc       func() *x509.CertPool
 }
 
-// NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
+// NewCertificateManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
+func NewCertificateManagerFromConfiguration(config Config) (*CertificateManager, error) {
 	var cas []*x509.Certificate
 	if config.CAPool != "" {
 		certs, err := security.LoadX509(config.CAPool)
@@ -70,7 +70,7 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 		}
 	}
 
-	fileCertMgr := &CertManager{
+	fileCertMgr := &CertificateManager{
 		watcher:                 watcher,
 		config:                  config,
 		newCaCertPoolFunc:       newCaCertPool,
@@ -94,12 +94,12 @@ func NewCertManagerFromConfiguration(config Config) (*CertManager, error) {
 }
 
 // GetCertificateAuthorities returns certificates authorities
-func (a *CertManager) GetCertificateAuthorities() []*x509.Certificate {
+func (a *CertificateManager) GetCertificateAuthorities() []*x509.Certificate {
 	return a.certificateAuthorities
 }
 
 // GetClientTLSConfig returns tls configuration for clients
-func (a *CertManager) GetClientTLSConfig() *tls.Config {
+func (a *CertificateManager) GetClientTLSConfig() *tls.Config {
 	return &tls.Config{
 		RootCAs:                  a.newCaCertPoolFunc(),
 		GetClientCertificate:     a.getCertificate,
@@ -109,7 +109,7 @@ func (a *CertManager) GetClientTLSConfig() *tls.Config {
 }
 
 // GetServerTLSConfig returns tls configuration for servers
-func (a *CertManager) GetServerTLSConfig() *tls.Config {
+func (a *CertificateManager) GetServerTLSConfig() *tls.Config {
 	return &tls.Config{
 		ClientCAs:      a.newCaCertPoolFunc(),
 		GetCertificate: a.getCertificate2,
@@ -119,7 +119,7 @@ func (a *CertManager) GetServerTLSConfig() *tls.Config {
 }
 
 // Close ends watching certificates
-func (a *CertManager) Close() {
+func (a *CertificateManager) Close() {
 	if a.done != nil {
 		_ = a.watcher.Close()
 		close(a.done)
@@ -127,19 +127,19 @@ func (a *CertManager) Close() {
 	}
 }
 
-func (a *CertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+func (a *CertificateManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
-func (a *CertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+func (a *CertificateManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
-func (a *CertManager) loadCerts() error {
+func (a *CertificateManager) loadCerts() error {
 	if a.config.DirPath != "" && a.config.TLSKeyFileName != "" && a.config.TLSCertFileName != "" {
 		keyPath := a.config.DirPath + "/" + a.config.TLSKeyFileName
 		tlsKey, err := ioutil.ReadFile(keyPath)
@@ -160,13 +160,13 @@ func (a *CertManager) loadCerts() error {
 	return nil
 }
 
-func (a *CertManager) setTlsKeyPair(cert tls.Certificate) {
+func (a *CertificateManager) setTlsKeyPair(cert tls.Certificate) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	a.tlsKeyPair = cert
 }
 
-func (a *CertManager) watchFiles() {
+func (a *CertificateManager) watchFiles() {
 	defer a.doneWg.Done()
 	for {
 		select {

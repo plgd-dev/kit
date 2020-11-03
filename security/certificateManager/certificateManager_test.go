@@ -1,4 +1,4 @@
-package file_test
+package certificateManager_test
 
 import (
 	"io/ioutil"
@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/plgd-dev/kit/security/certManager/file"
+	file "github.com/plgd-dev/kit/security/certificateManager"
 	"github.com/stretchr/testify/require"
 )
 
@@ -44,7 +44,7 @@ AnQ1eTGKTGLdAZsV+NnZPL17nit1cbiN2g==
 -----END EC PRIVATE KEY-----
 `
 
-func TestNewCertManagerFromConfiguration(t *testing.T) {
+func TestNewCertificateManagerFromConfiguration(t *testing.T) {
 	//tmp dir
 	tmpDir, err := ioutil.TempDir("/tmp", "test")
 	defer deleteTmpDir(tmpDir)
@@ -57,7 +57,7 @@ func TestNewCertManagerFromConfiguration(t *testing.T) {
 	config := createTmpCertFiles(t, caFile.Name(), tmpDir)
 
 	//cert manager
-	mng, err := file.NewCertManagerFromConfiguration(config)
+	mng, err := file.NewCertificateManagerFromConfiguration(config)
 	require.NoError(t, err)
 
 	tlsConfig := mng.GetServerTLSConfig()
