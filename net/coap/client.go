@@ -14,12 +14,12 @@ import (
 	"sync"
 	"time"
 
+	uuid "github.com/gofrs/uuid"
+	piondtls "github.com/pion/dtls/v2"
 	"github.com/plgd-dev/go-coap/v2/dtls"
 	"github.com/plgd-dev/go-coap/v2/net/keepalive"
 	"github.com/plgd-dev/go-coap/v2/tcp"
 	"github.com/plgd-dev/go-coap/v2/udp"
-	uuid "github.com/gofrs/uuid"
-	piondtls "github.com/pion/dtls/v2"
 
 	"github.com/plgd-dev/go-coap/v2/message"
 	"github.com/plgd-dev/go-coap/v2/message/codes"
@@ -432,6 +432,7 @@ type dialOptions struct {
 	KeepAlive                       *keepalive.KeepAlive
 	errors                          func(err error)
 	maxMessageSize                  int
+	timeout                         time.Duration
 }
 
 type DialOptionFunc func(dialOptions) dialOptions
@@ -492,6 +493,12 @@ func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, udp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
+	deadline, ok := ctx.Deadline()
+	if ok {
+		dopts = append(dopts, udp.WithDialer(&net.Dialer{
+			Timeout: deadline.Sub(time.Now()),
+		}))
+	}
 	c, err := udp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
@@ -523,6 +530,12 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
+	}
+	deadline, ok := ctx.Deadline()
+	if ok {
+		dopts = append(dopts, tcp.WithDialer(&net.Dialer{
+			Timeout: deadline.Sub(time.Now()),
+		}))
 	}
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
@@ -593,6 +606,12 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
+	deadline, ok := ctx.Deadline()
+	if ok {
+		dopts = append(dopts, tcp.WithDialer(&net.Dialer{
+			Timeout: deadline.Sub(time.Now()),
+		}))
+	}
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
 		return nil, err
@@ -626,7 +645,12 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, o
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, dtls.WithMaxMessageSize(cfg.maxMessageSize))
 	}
-
+	deadline, ok := ctx.Deadline()
+	if ok {
+		dopts = append(dopts, dtls.WithDialer(&net.Dialer{
+			Timeout: deadline.Sub(time.Now()),
+		}))
+	}
 	c, err := dtls.Dial(addr, dtlsCfg, dopts...)
 	if err != nil {
 		return nil, err
