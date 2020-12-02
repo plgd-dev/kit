@@ -432,7 +432,7 @@ type dialOptions struct {
 	KeepAlive                       *keepalive.KeepAlive
 	errors                          func(err error)
 	maxMessageSize                  int
-	timeout                         time.Duration
+	dialer                          *net.Dialer
 }
 
 type DialOptionFunc func(dialOptions) dialOptions
@@ -477,6 +477,13 @@ func WithMaxMessageSize(maxMessageSize int) DialOptionFunc {
 	}
 }
 
+func WithDialer(dialer *net.Dialer) DialOptionFunc {
+	return func(c dialOptions) dialOptions {
+		c.dialer = dialer
+		return c
+	}
+}
+
 func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
 	var cfg dialOptions
@@ -493,11 +500,15 @@ func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, udp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
-	deadline, ok := ctx.Deadline()
-	if ok {
-		dopts = append(dopts, udp.WithDialer(&net.Dialer{
-			Timeout: deadline.Sub(time.Now()),
-		}))
+	if cfg.dialer != nil {
+		dopts = append(dopts, udp.WithDialer(cfg.dialer))
+	} else {
+		deadline, ok := ctx.Deadline()
+		if ok {
+			dopts = append(dopts, udp.WithDialer(&net.Dialer{
+				Timeout: deadline.Sub(time.Now()),
+			}))
+		}
 	}
 	c, err := udp.Dial(addr, dopts...)
 	if err != nil {
@@ -531,11 +542,15 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
-	deadline, ok := ctx.Deadline()
-	if ok {
-		dopts = append(dopts, tcp.WithDialer(&net.Dialer{
-			Timeout: deadline.Sub(time.Now()),
-		}))
+	if cfg.dialer != nil {
+		dopts = append(dopts, tcp.WithDialer(cfg.dialer))
+	} else {
+		deadline, ok := ctx.Deadline()
+		if ok {
+			dopts = append(dopts, tcp.WithDialer(&net.Dialer{
+				Timeout: deadline.Sub(time.Now()),
+			}))
+		}
 	}
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
@@ -606,11 +621,15 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
-	deadline, ok := ctx.Deadline()
-	if ok {
-		dopts = append(dopts, tcp.WithDialer(&net.Dialer{
-			Timeout: deadline.Sub(time.Now()),
-		}))
+	if cfg.dialer != nil {
+		dopts = append(dopts, tcp.WithDialer(cfg.dialer))
+	} else {
+		deadline, ok := ctx.Deadline()
+		if ok {
+			dopts = append(dopts, tcp.WithDialer(&net.Dialer{
+				Timeout: deadline.Sub(time.Now()),
+			}))
+		}
 	}
 	c, err := tcp.Dial(addr, dopts...)
 	if err != nil {
@@ -645,11 +664,15 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, o
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, dtls.WithMaxMessageSize(cfg.maxMessageSize))
 	}
-	deadline, ok := ctx.Deadline()
-	if ok {
-		dopts = append(dopts, dtls.WithDialer(&net.Dialer{
-			Timeout: deadline.Sub(time.Now()),
-		}))
+	if cfg.dialer != nil {
+		dopts = append(dopts, dtls.WithDialer(cfg.dialer))
+	} else {
+		deadline, ok := ctx.Deadline()
+		if ok {
+			dopts = append(dopts, dtls.WithDialer(&net.Dialer{
+				Timeout: deadline.Sub(time.Now()),
+			}))
+		}
 	}
 	c, err := dtls.Dial(addr, dtlsCfg, dopts...)
 	if err != nil {
