@@ -31,19 +31,29 @@ func Setup(config Config) {
 	}
 }
 
-// Build is a panic-free version of Setup.
-func Build(config Config) error {
+// Set logger for global log fuctions
+func Set(logger *zap.Logger) {
+	log.Store(logger.Sugar())
+}
+
+// NewLogger creates logger
+func NewLogger(config Config) (*zap.Logger, error) {
 	var cfg zap.Config
 	if config.Debug {
 		cfg = zap.NewDevelopmentConfig()
 	} else {
 		cfg = zap.NewProductionConfig()
 	}
-	logger, err := cfg.Build()
+	return cfg.Build()
+}
+
+// Build is a panic-free version of Setup.
+func Build(config Config) error {
+	logger, err := NewLogger(config)
 	if err != nil {
 		return fmt.Errorf("logger creation failed: %w", err)
 	}
-	log.Store(logger.Sugar())
+	Set(logger)
 	return nil
 }
 
