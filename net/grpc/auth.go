@@ -40,10 +40,10 @@ func MakeJWTInterceptors(jwksURL string, tls *tls.Config, claims ClaimsFunc, whi
 	return MakeAuthInterceptors(ValidateJWT(jwksURL, tls, claims), whiteListedMethods...)
 }
 
-func (f AuthInterceptors) Unary() grpc.ServerOption {
+func (f AuthInterceptors) Unary() grpc.UnaryServerInterceptor {
 	return UnaryServerInterceptor(f.authFunc)
 }
-func (f AuthInterceptors) Stream() grpc.ServerOption {
+func (f AuthInterceptors) Stream() grpc.StreamServerInterceptor {
 	return StreamServerInterceptor(f.authFunc)
 }
 
