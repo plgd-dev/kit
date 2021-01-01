@@ -7,7 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/fxamacker/cbor/v2 v2.2.0
 	github.com/go-acme/lego v2.7.2+incompatible
-	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/gofrs/uuid/v4 v4.0.0
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.1
 	github.com/gorilla/mux v1.7.4
