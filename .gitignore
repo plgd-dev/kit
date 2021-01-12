@@ -19,3 +19,7 @@ coverage.txt
 .idea/
 
 vendor/
+certs/
+cert-tool
+make-certificates.sh
+
