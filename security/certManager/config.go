@@ -2,17 +2,18 @@ package certManager
 
 import (
 	"crypto/tls"
-	tls2 "github.com/plgd-dev/kit/security/certManager/tls"
+	"fmt"
 )
 
-// Config provides configuration of a file/acme based Certificate manager
+// Config provides configuration of a file based Certificate manager
 type Config struct {
-	tls tls2.Config		`envconfig:"TLS"`
-}
-
-// OcfConfig provides configuration of a file/acme based Certificate manager
-type OcfConfig struct {
-	tls tls2.Config		`envconfig:"TLS"`
+	Enabled                   	bool 	`envconfig:"ENABLED" long:"enabled" default:"true"`
+	CAFile                    	string 	`envconfig:"CA_POOL" long:"ca-file" description:"file path to the root certificate in PEM format"`
+	KeyFile                   	string 	`envconfig:"CERT_KEY_NAME" long:"key-file" description:"file name of private key in PEM format"`
+	DirPath                   	string 	`envconfig:"CERT_DIR_PATH" long:"dir-path" description:"dir path where cert/key pair are saved"`
+	CertFile                  	string 	`envconfig:"CERT_NAME" long:"cert-file" description:"file name of certificate in PEM format"`
+	ClientCertificateRequired 	bool   	`envconfig:"CLIENT_CERTIFICATE_REQUIRED" env:"CLIENT_CERTIFICATE_REQUIRED" long:"client-certificate-required" description:"require client ceritificate"`
+	UseSystemCAPool           	bool   	`envconfig:"USE_SYSTEM_CA_POOL" env:"USE_SYSTEM_CA_POOL"  long:"use-system-ca-pool" description:"use system certifcation pool"`
 }
 
 // CertManager represent general CertManager in use
@@ -24,12 +25,16 @@ type CertManager interface {
 
 // NewCertManager create new CertManager
 func NewCertManager(config Config) (CertManager, error) {
-
-	return tls2.NewCertManagerFromConfiguration(config.tls)
+	if(config.Enabled) {
+		return NewCertManagerFromConfiguration(config)
+	}
+	return nil, fmt.Errorf("cannot create cert manager : tls enabled = %v", config.Enabled)
 }
 
 // NewOcfCertManager create new CertManager
-func NewOcfCertManager(config OcfConfig) (CertManager, error) {
-
-	return tls2.NewCertManagerFromConfiguration(config.tls)
+func NewOcfCertManager(config Config) (CertManager, error) {
+	if(config.Enabled) {
+		return NewCertManagerFromConfiguration(config)
+	}
+	return nil, fmt.Errorf("cannot create cert manager : tls enabled = %v", config.Enabled)
 }
