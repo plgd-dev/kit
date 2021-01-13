@@ -31,3 +31,5 @@ require (
 )
 
 replace gopkg.in/yaml.v2 v2.2.8 => github.com/cizmazia/yaml v0.0.0-20200220134304-2008791f5454
+
+//replace github.com/plgd-dev/go-coap/v2 => ../go-coap
