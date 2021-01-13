@@ -8,7 +8,7 @@ import (
 )
 
 type ConfigPath struct {
-	ConfigPath string `long:"config" env:"CONFIG" description:"yaml config file path"`
+	ConfigPath string `long:"config" description:"yaml config file path"`
 }
 
 // Load loads config from ENV config or arguments config.

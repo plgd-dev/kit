@@ -8,16 +8,16 @@ import (
 )
 
 type Endpoint struct {
-	TokenURL string `long:"token-url" json:"token-url"`
+	TokenURL string `yaml:"token-url" json:"token-url"`
 }
 
 type Config struct {
-	ClientID       string        `long:"client-id" json:"client-id"`
-	ClientSecret   string        `long:"client-secret" json:"client-secret"`
-	Scopes         []string      `long:"scopes" json:"scopes"`
-	Endpoint       Endpoint      `long:"endpoint" json:"endpoint"`
-	Audience       string        `long:"audience" json:"audience"`
-	RequestTimeout time.Duration `long:"request-timeout" json:"request-timeout" default:"10s"`
+	ClientID       string        `yaml:"client-id" json:"client-id"`
+	ClientSecret   string        `yaml:"client-secret" json:"client-secret"`
+	Scopes         []string      `yaml:"scopes" json:"scopes"`
+	Endpoint       Endpoint      `yaml:"endpoint" json:"endpoint"`
+	Audience       string        `yaml:"audience" json:"audience"`
+	RequestTimeout time.Duration `yaml:"request-timeout" json:"request-timeout" default:"10s"`
 }
 
 // ToClientCrendtials converts to clientcredentials.Config
