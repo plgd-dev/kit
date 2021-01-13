@@ -22,4 +22,6 @@ vendor/
 certs/
 cert-tool
 make-certificates.sh
+go.mod
+go.sum
 

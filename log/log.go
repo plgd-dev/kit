@@ -11,7 +11,7 @@ var log atomic.Value
 
 // Config configuration for setup logging.
 type Config struct {
-	Debug bool `json:"debug" envconfig:"ENABLE_DEBUG" env:"ENABLE_DEBUG" description:"enable debug logs"`
+	Debug bool `long:"debug" json:"debug" description:"enable debug logs"`
 }
 
 func init() {
