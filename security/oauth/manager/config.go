@@ -7,15 +7,11 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-type Endpoint struct {
-	TokenURL string `yaml:"tokenUrl" json:"tokenUrl"`
-}
-
 type Config struct {
 	ClientID       string        `yaml:"clientID" json:"clientID"`
 	ClientSecret   string        `yaml:"clientSecret" json:"clientSecret"`
 	Scopes         []string      `yaml:"scopes" json:"scopes"`
-	Endpoint       Endpoint      `yaml:"endpoint" json:"endpoint"`
+	TokenURL       string        `yaml:"tokenUrl" json:"tokenUrl"`
 	Audience       string        `yaml:"audience" json:"audience"`
 	RequestTimeout time.Duration `yaml:"timeout" json:"timeout" default:"10s"`
 }
@@ -31,7 +27,7 @@ func (c Config) ToClientCrendtials() clientcredentials.Config {
 		ClientID:       c.ClientID,
 		ClientSecret:   c.ClientSecret,
 		Scopes:         c.Scopes,
-		TokenURL:       c.Endpoint.TokenURL,
+		TokenURL:       c.TokenURL,
 		EndpointParams: v,
 	}
 }

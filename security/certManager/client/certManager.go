@@ -1,4 +1,4 @@
-package certManager
+package client
 
 import (
 	"crypto/tls"
@@ -11,12 +11,13 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/plgd-dev/kit/security"
+	"github.com/plgd-dev/kit/security/certManager"
 )
 
 // CertManager holds certificates from filesystem watched for changes
 type FileCertManager struct {
 	mutex                   sync.Mutex
-	config                  Config
+	config                  certManager.ClientConfig
 	tlsKey                  []byte
 	tlsCert                 []byte
 	tlsKeyPair              tls.Certificate
@@ -24,12 +25,11 @@ type FileCertManager struct {
 	watcher                 *fsnotify.Watcher
 	doneWg                  sync.WaitGroup
 	done                    chan struct{}
-	verifyClientCertificate tls.ClientAuthType
 	newCaCertPoolFunc       func() *x509.CertPool
 }
 
 // NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewCertManagerFromConfiguration(config Config) (*FileCertManager, error) {
+func NewCertManagerFromConfiguration(config certManager.ClientConfig) (*FileCertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAFile != "" {
 		certs, err := security.LoadX509(config.CAFile)
@@ -41,11 +41,6 @@ func NewCertManagerFromConfiguration(config Config) (*FileCertManager, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
-	}
-
-	verifyClientCertificate := tls.RequireAndVerifyClientCert
-	if !config.ClientCertificateRequired {
-		verifyClientCertificate = tls.NoClientCert
 	}
 
 	newCaCertPool := func() *x509.CertPool {
@@ -65,7 +60,6 @@ func NewCertManagerFromConfiguration(config Config) (*FileCertManager, error) {
 		watcher:                 watcher,
 		config:                  config,
 		newCaCertPoolFunc:       newCaCertPool,
-		verifyClientCertificate: verifyClientCertificate,
 		certificateAuthorities:  cas,
 	}
 	err = fileCertMgr.loadCerts()
@@ -73,6 +67,9 @@ func NewCertManagerFromConfiguration(config Config) (*FileCertManager, error) {
 		return nil, err
 	}
 
+	if err := fileCertMgr.watcher.Add(filepath.Dir(config.CAFile)); err != nil {
+		return nil, err
+	}
 	if err := fileCertMgr.watcher.Add(filepath.Dir(config.CertFile)); err != nil {
 		return nil, err
 	}
@@ -103,16 +100,6 @@ func (a *FileCertManager) GetClientTLSConfig() *tls.Config {
 	}
 }
 
-// GetServerTLSConfig returns tls configuration for servers
-func (a *FileCertManager) GetServerTLSConfig() *tls.Config {
-	return &tls.Config{
-		ClientCAs:      a.newCaCertPoolFunc(),
-		GetCertificate: a.getCertificate2,
-		MinVersion:     tls.VersionTLS12,
-		ClientAuth:     a.verifyClientCertificate,
-	}
-}
-
 // Close ends watching certificates
 func (a *FileCertManager) Close() {
 	if a.done != nil {
@@ -123,12 +110,6 @@ func (a *FileCertManager) Close() {
 }
 
 func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
-	a.mutex.Lock()
-	defer a.mutex.Unlock()
-	return &a.tlsKeyPair, nil
-}
-
-func (a *FileCertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
@@ -179,6 +160,10 @@ func (a *FileCertManager) watchFiles() {
 					a.tlsCert, _ = ioutil.ReadFile(a.config.CertFile)
 				}
 
+				if strings.Contains(event.Name, a.config.CAFile) {
+					a.certificateAuthorities, _ = security.LoadX509(a.config.CAFile)
+				}
+
 			case fsnotify.Remove:
 				if strings.Contains(event.Name, a.config.KeyFile) {
 					a.tlsKey = nil
@@ -186,6 +171,10 @@ func (a *FileCertManager) watchFiles() {
 
 				if strings.Contains(event.Name, a.config.CertFile) {
 					a.tlsCert = nil
+				}
+
+				if strings.Contains(event.Name, a.config.CAFile) {
+					a.certificateAuthorities = nil
 				}
 			}
 
