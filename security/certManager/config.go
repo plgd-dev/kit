@@ -20,14 +20,14 @@ type ClientCertManager interface {
 }
 
 // NewCertManager create new CertManager
-func NewServerCertManager(config ServerConfig) (ServerCertManager, error) {
+func NewServerCertManager(config server.ServerConfig) (ServerCertManager, error) {
 	if(config.Enabled) {
 		return server.NewCertManagerFromConfiguration(config)
 	}
 	return nil, fmt.Errorf("cannot create cert manager : tls enabled = %v", config.Enabled)
 }
 
-func NewClientCertManager(config ClientConfig) (ClientCertManager, error) {
+func NewClientCertManager(config client.ClientConfig) (ClientCertManager, error) {
 	if(config.Enabled) {
 		return client.NewCertManagerFromConfiguration(config)
 	}
