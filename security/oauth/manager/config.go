@@ -8,16 +8,16 @@ import (
 )
 
 type Endpoint struct {
-	TokenURL string `yaml:"token-url" json:"token-url"`
+	TokenURL string `yaml:"tokenUrl" json:"tokenUrl"`
 }
 
 type Config struct {
-	ClientID       string        `yaml:"client-id" json:"client-id"`
-	ClientSecret   string        `yaml:"client-secret" json:"client-secret"`
+	ClientID       string        `yaml:"clientID" json:"clientID"`
+	ClientSecret   string        `yaml:"clientSecret" json:"clientSecret"`
 	Scopes         []string      `yaml:"scopes" json:"scopes"`
 	Endpoint       Endpoint      `yaml:"endpoint" json:"endpoint"`
 	Audience       string        `yaml:"audience" json:"audience"`
-	RequestTimeout time.Duration `yaml:"request-timeout" json:"request-timeout" default:"10s"`
+	RequestTimeout time.Duration `yaml:"timeout" json:"timeout" default:"10s"`
 }
 
 // ToClientCrendtials converts to clientcredentials.Config
