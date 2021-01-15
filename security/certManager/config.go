@@ -7,23 +7,6 @@ import (
 	"github.com/plgd-dev/kit/security/certManager/client"
 )
 
-// Config provides configuration of a file based Server Certificate manager
-type ServerConfig struct {
-	Enabled                   	bool 	`yaml:"enabled" json:"enabled" default:"true"`
-	CAFile                    	string 	`yaml:"caFile" json:"caFile" description:"file path to the root certificate in PEM format"`
-	KeyFile                   	string 	`yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
-	CertFile                  	string 	`yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
-	ClientCertificateRequired 	bool   	`yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client ceritificate"`
-}
-
-// Config provides configuration of a file based Client Certificate manager
-type ClientConfig struct {
-	Enabled                   	bool 	`yaml:"enabled" json:"enabled" default:"true"`
-	CAFile                    	string 	`yaml:"caFile" json:"caFile" description:"file path to the root certificate in PEM format"`
-	KeyFile                   	string 	`yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
-	CertFile                  	string 	`yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
-	UseSystemCAPool           	bool   	`yaml:"useSystemCAPool" json:"useSystemCAPool" description:"use system certification pool"`
-}
 
 // CertManager represent general CertManager in use
 type ServerCertManager interface {

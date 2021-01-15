@@ -11,13 +11,21 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/plgd-dev/kit/security"
-	"github.com/plgd-dev/kit/security/certManager"
 )
+
+// Config provides configuration of a file based Client Certificate manager
+type ClientConfig struct {
+	Enabled                   	bool 	`yaml:"enabled" json:"enabled" default:"true"`
+	CAFile                    	string 	`yaml:"caFile" json:"caFile" description:"file path to the root certificate in PEM format"`
+	KeyFile                   	string 	`yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
+	CertFile                  	string 	`yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
+	UseSystemCAPool           	bool   	`yaml:"useSystemCAPool" json:"useSystemCAPool" description:"use system certification pool"`
+}
 
 // CertManager holds certificates from filesystem watched for changes
 type ClientCertManager struct {
 	mutex                   sync.Mutex
-	config                  certManager.ClientConfig
+	config                  ClientConfig
 	tlsKey                  []byte
 	tlsCert                 []byte
 	tlsKeyPair              tls.Certificate
@@ -29,7 +37,7 @@ type ClientCertManager struct {
 }
 
 // NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewCertManagerFromConfiguration(config certManager.ClientConfig) (*ClientCertManager, error) {
+func NewCertManagerFromConfiguration(config ClientConfig) (*ClientCertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAFile != "" {
 		certs, err := security.LoadX509(config.CAFile)
