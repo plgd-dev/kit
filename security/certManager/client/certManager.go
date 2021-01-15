@@ -15,7 +15,7 @@ import (
 )
 
 // CertManager holds certificates from filesystem watched for changes
-type FileCertManager struct {
+type ClientCertManager struct {
 	mutex                   sync.Mutex
 	config                  certManager.ClientConfig
 	tlsKey                  []byte
@@ -29,7 +29,7 @@ type FileCertManager struct {
 }
 
 // NewCertManagerFromConfiguration creates a new certificate manager which watches for certs in a filesystem
-func NewCertManagerFromConfiguration(config certManager.ClientConfig) (*FileCertManager, error) {
+func NewCertManagerFromConfiguration(config certManager.ClientConfig) (*ClientCertManager, error) {
 	var cas []*x509.Certificate
 	if config.CAFile != "" {
 		certs, err := security.LoadX509(config.CAFile)
@@ -56,7 +56,7 @@ func NewCertManagerFromConfiguration(config certManager.ClientConfig) (*FileCert
 		}
 	}
 
-	fileCertMgr := &FileCertManager{
+	fileCertMgr := &ClientCertManager{
 		watcher:                 watcher,
 		config:                  config,
 		newCaCertPoolFunc:       newCaCertPool,
@@ -86,12 +86,12 @@ func NewCertManagerFromConfiguration(config certManager.ClientConfig) (*FileCert
 }
 
 // GetCertificateAuthorities returns certificates authorities
-func (a *FileCertManager) GetCertificateAuthorities() []*x509.Certificate {
+func (a *ClientCertManager) GetCertificateAuthorities() []*x509.Certificate {
 	return a.certificateAuthorities
 }
 
 // GetClientTLSConfig returns tls configuration for clients
-func (a *FileCertManager) GetClientTLSConfig() *tls.Config {
+func (a *ClientCertManager) GetClientTLSConfig() *tls.Config {
 	return &tls.Config{
 		RootCAs:                  a.newCaCertPoolFunc(),
 		GetClientCertificate:     a.getCertificate,
@@ -101,7 +101,7 @@ func (a *FileCertManager) GetClientTLSConfig() *tls.Config {
 }
 
 // Close ends watching certificates
-func (a *FileCertManager) Close() {
+func (a *ClientCertManager) Close() {
 	if a.done != nil {
 		_ = a.watcher.Close()
 		close(a.done)
@@ -109,13 +109,13 @@ func (a *FileCertManager) Close() {
 	}
 }
 
-func (a *FileCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+func (a *ClientCertManager) getCertificate(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	return &a.tlsKeyPair, nil
 }
 
-func (a *FileCertManager) loadCerts() error {
+func (a *ClientCertManager) loadCerts() error {
 	if a.config.KeyFile!= "" && a.config.CertFile != "" {
 		keyPath := a.config.KeyFile
 		tlsKey, err := ioutil.ReadFile(keyPath)
@@ -136,13 +136,13 @@ func (a *FileCertManager) loadCerts() error {
 	return nil
 }
 
-func (a *FileCertManager) setTlsKeyPair(cert tls.Certificate) {
+func (a *ClientCertManager) setTlsKeyPair(cert tls.Certificate) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 	a.tlsKeyPair = cert
 }
 
-func (a *FileCertManager) watchFiles() {
+func (a *ClientCertManager) watchFiles() {
 	defer a.doneWg.Done()
 	for {
 		select {
