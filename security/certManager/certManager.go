@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -71,7 +72,11 @@ func NewCertManagerFromConfiguration(config Config) (*FileCertManager, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := fileCertMgr.watcher.Add(config.DirPath); err != nil {
+
+	if err := fileCertMgr.watcher.Add(filepath.Dir(config.CertFile)); err != nil {
+		return nil, err
+	}
+	if err := fileCertMgr.watcher.Add(filepath.Dir(config.KeyFile)); err != nil {
 		return nil, err
 	}
 
@@ -130,13 +135,13 @@ func (a *FileCertManager) getCertificate2(hello *tls.ClientHelloInfo) (*tls.Cert
 }
 
 func (a *FileCertManager) loadCerts() error {
-	if a.config.DirPath != "" && a.config.KeyFile!= "" && a.config.CertFile != "" {
-		keyPath := a.config.DirPath + "/" + a.config.KeyFile
+	if a.config.KeyFile!= "" && a.config.CertFile != "" {
+		keyPath := a.config.KeyFile
 		tlsKey, err := ioutil.ReadFile(keyPath)
 		if err != nil {
 			return fmt.Errorf("cannot load certificate key from '%v': %w", keyPath, err)
 		}
-		certPath := a.config.DirPath + "/" + a.config.CertFile
+		certPath := a.config.CertFile
 		tlsCert, err := ioutil.ReadFile(certPath)
 		if err != nil {
 			return fmt.Errorf("cannot load certificate from '%v': %w", certPath, err)
@@ -167,11 +172,11 @@ func (a *FileCertManager) watchFiles() {
 			switch event.Op {
 			case fsnotify.Create:
 				if strings.Contains(event.Name, a.config.KeyFile) {
-					a.tlsKey, _ = ioutil.ReadFile(a.config.DirPath + "/" + a.config.KeyFile)
+					a.tlsKey, _ = ioutil.ReadFile(a.config.KeyFile)
 				}
 
 				if strings.Contains(event.Name, a.config.CertFile) {
-					a.tlsCert, _ = ioutil.ReadFile(a.config.DirPath + "/" + a.config.CertFile)
+					a.tlsCert, _ = ioutil.ReadFile(a.config.CertFile)
 				}
 
 			case fsnotify.Remove:
