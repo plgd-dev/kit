@@ -19,7 +19,7 @@ type Config struct {
 	CAFile                    string `yaml:"caFile" json:"caFile" description:"file path to the root certificate in PEM format"`
 	KeyFile                   string `yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
 	CertFile                  string `yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
-	ClientCertificateRequired bool   `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client ceritificate"`
+	ClientCertificateRequired bool   `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client certificate"`
 	UseSystemCAPool           bool   `yaml:"useSystemCAPool" json:"useSystemCAPool" description:"use system certification pool"`
 }
 
@@ -35,7 +35,7 @@ type CertManager struct {
 
 	mutex      sync.Mutex
 	tlsKeyPair tls.Certificate
-	tlsCApool  *x509.CertPool
+	tlsCAPool  *x509.CertPool
 }
 
 // New creates a new certificate manager which watches for certs in a filesystem
@@ -86,7 +86,7 @@ func New(config Config, logger *zap.Logger) (*CertManager, error) {
 func (a *CertManager) GetCertificateAuthorities() *x509.CertPool {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
-	return a.tlsCApool
+	return a.tlsCAPool
 }
 
 // GetServerTLSConfig returns tls configuration for servers
@@ -180,7 +180,7 @@ func (a *CertManager) setTLSKeyPair(cert tls.Certificate) {
 func (a *CertManager) setCAPool(capool *x509.CertPool) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
-	a.tlsCApool = capool
+	a.tlsCAPool = capool
 }
 
 func (a *CertManager) watchFiles() {

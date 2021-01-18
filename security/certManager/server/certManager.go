@@ -12,7 +12,7 @@ type Config struct {
 	CAFile                    string `yaml:"caFile" json:"caFile" description:"file path to the root certificate in PEM format"`
 	KeyFile                   string `yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
 	CertFile                  string `yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
-	ClientCertificateRequired *bool  `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client ceritificate"`
+	ClientCertificateRequired *bool  `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client certificate"`
 }
 
 // CertManager holds certificates from filesystem watched for changes
