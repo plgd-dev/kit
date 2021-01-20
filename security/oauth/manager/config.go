@@ -11,7 +11,7 @@ type Config struct {
 	ClientID       string        `yaml:"clientID" json:"clientID"`
 	ClientSecret   string        `yaml:"clientSecret" json:"clientSecret"`
 	Scopes         []string      `yaml:"scopes" json:"scopes"`
-	TokenURL       string        `yaml:"tokenUrl" json:"tokenUrl"`
+	TokenURL       string        `yaml:"tokenURL" json:"tokenURL"`
 	Audience       string        `yaml:"audience" json:"audience"`
 	RequestTimeout time.Duration `yaml:"timeout" json:"timeout" default:"10s"`
 }

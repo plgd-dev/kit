@@ -16,7 +16,7 @@ type Server struct {
 
 // Config holds service's settings.
 type Config struct {
-	Addr string `envconfig:"ADDRESS" env:"ADDRESS" long:"address" default:"0.0.0.0:9100"`
+	Addr string `yaml:"address" json:"address" default:"0.0.0.0:9100"`
 }
 
 // NewServer instantiates a gRPC server.
