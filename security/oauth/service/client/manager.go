@@ -1,4 +1,4 @@
-package manager
+package client
 
 import (
 	"context"
@@ -26,7 +26,7 @@ type Manager struct {
 	done           chan struct{}
 }
 
-// NewManagerFromConfiguration creates a new oauth manager which refreshing token.
+// NewManagerFromConfiguration creates a new oauth service which refreshing token.
 func NewManagerFromConfiguration(config Config, tlsCfg *tls.Config) (*Manager, error) {
 	cfg := config.ToClientCrendtials()
 	token, err := getToken(cfg, tlsCfg, config.RequestTimeout)

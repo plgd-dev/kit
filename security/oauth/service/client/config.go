@@ -1,4 +1,4 @@
-package manager
+package client
 
 import (
 	"net/url"
