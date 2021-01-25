@@ -2,9 +2,11 @@ package grpc
 
 import (
 	"fmt"
+	"github.com/plgd-dev/kit/security/certManager/server"
 	"net"
 
 	"google.golang.org/grpc"
+
 )
 
 // Server handles gRPC requests to the service.
@@ -16,7 +18,8 @@ type Server struct {
 
 // Config holds service's settings.
 type Config struct {
-	Addr string `yaml:"address" json:"address" default:"0.0.0.0:9100"`
+	Addr          string           `yaml:"address" json:"address" default:"0.0.0.0:9100"`
+	TLSConfig     server.Config    `yaml:"tls" json:"tls"`
 }
 
 // NewServer instantiates a gRPC server.
