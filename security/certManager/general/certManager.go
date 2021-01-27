@@ -106,7 +106,6 @@ func (a *CertManager) GetClientTLSConfig() *tls.Config {
 		GetClientCertificate:     a.getClientCertificate,
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
-		InsecureSkipVerify:       true,   // To skip verifying private certificate of server, it should be true
 	}
 }
 
