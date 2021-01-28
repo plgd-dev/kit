@@ -19,8 +19,9 @@ type TaskQueue struct {
 }
 
 // New creates task queue which is processed by number of workers. Number of task is limited by limit.
-func New(numWorkers, limit int) (*TaskQueue, error) {
-	p, err := ants.NewPool(numWorkers, ants.WithPreAlloc(true), ants.WithNonblocking(true))
+func New(numWorkers, limit int, options ...ants.Option) (*TaskQueue, error) {
+	options = append(options, ants.WithNonblocking(true))
+	p, err := ants.NewPool(numWorkers, options...)
 	if err != nil {
 		return nil, err
 	}
