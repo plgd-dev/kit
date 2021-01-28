@@ -3,15 +3,22 @@ package queue_test
 import (
 	"testing"
 
-	"github.com/panjf2000/ants/v2"
 	"github.com/plgd-dev/kit/task/queue"
 	"github.com/stretchr/testify/require"
 )
 
 func TestTaskQueue_Submit(t *testing.T) {
-	_, err := queue.New(-1, 10, ants.WithPreAlloc(true))
+	_, err := queue.New(queue.Config{
+		NumWorkers: -1,
+		Size:       10,
+		PreAlloc:   true,
+	})
 	require.Error(t, err)
-	q, err := queue.New(1, 2)
+	q, err := queue.New(queue.Config{
+		NumWorkers: 1,
+		Size:       2,
+		PreAlloc:   true,
+	})
 	require.NoError(t, err)
 	err = q.Submit(func() {}, func() {}, func() {})
 	require.Error(t, err)

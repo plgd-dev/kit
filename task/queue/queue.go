@@ -8,32 +8,32 @@ import (
 	"github.com/panjf2000/ants/v2"
 )
 
-// TaskQueue representation of task queue.
-type TaskQueue struct {
-	goPool             *ants.Pool
-	limit              int
-	numParallelRequest int
+// Queue representation of task queue.
+type Queue struct {
+	goPool *ants.Pool
+	limit  int
 
 	mutex sync.Mutex
 	queue *list.List
 }
 
 // New creates task queue which is processed by number of workers. Number of task is limited by limit.
-func New(numWorkers, limit int, options ...ants.Option) (*TaskQueue, error) {
-	options = append(options, ants.WithNonblocking(true))
-	p, err := ants.NewPool(numWorkers, options...)
+func New(cfg Config) (*Queue, error) {
+	if cfg.Size <= 0 {
+		return nil, fmt.Errorf("invalid value of Size")
+	}
+	p, err := ants.NewPool(cfg.NumWorkers, ants.WithPreAlloc(cfg.PreAlloc), ants.WithExpiryDuration(cfg.MaxIdleTime), ants.WithNonblocking(true))
 	if err != nil {
 		return nil, err
 	}
-	return &TaskQueue{
-		queue:              list.New(),
-		goPool:             p,
-		limit:              limit,
-		numParallelRequest: numWorkers,
+	return &Queue{
+		queue:  list.New(),
+		goPool: p,
+		limit:  cfg.Size,
 	}, nil
 }
 
-func (q *TaskQueue) appendQueue(tasks []func()) error {
+func (q *Queue) appendQueue(tasks []func()) error {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 	if q.queue.Len()+len(tasks) > q.limit {
@@ -45,7 +45,7 @@ func (q *TaskQueue) appendQueue(tasks []func()) error {
 	return nil
 }
 
-func (q *TaskQueue) popQueue() func() {
+func (q *Queue) popQueue() func() {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 	if q.queue.Len() == 0 {
@@ -54,8 +54,8 @@ func (q *TaskQueue) popQueue() func() {
 	return q.queue.Remove(q.queue.Front()).(func())
 }
 
-// Submit appends and execute task by taskQueue.
-func (q *TaskQueue) Submit(tasks ...func()) error {
+// Submit appends and execute task by Queue.
+func (q *Queue) Submit(tasks ...func()) error {
 	err := q.appendQueue(tasks)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (q *TaskQueue) Submit(tasks ...func()) error {
 }
 
 // Release closes queue and release it.
-func (q *TaskQueue) Release() {
+func (q *Queue) Release() {
 	q.goPool.Release()
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
