@@ -15,6 +15,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lestrrat-go/jwx v1.0.2
+	github.com/panjf2000/ants/v2 v2.4.3
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pion/dtls/v2 v2.0.1-0.20200503085337-8e86b3a7d585
 	github.com/plgd-dev/go-coap/v2 v2.1.4-0.20201201213140-b8c428d8fccf
