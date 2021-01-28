@@ -186,7 +186,7 @@ func (a *CertManager) setCAPool(capool *x509.CertPool) {
 func (a *CertManager) watchFiles() {
 	defer a.doneWg.Done()
 	for {
-		var updateKey, updateCAs bool
+		var updateCert, updateKey, updateCAs bool
 		select {
 		case <-a.done:
 			return
@@ -199,7 +199,7 @@ func (a *CertManager) watchFiles() {
 				}
 
 				if strings.Contains(event.Name, a.config.CertFile) {
-					updateKey = true
+					updateCert = true
 				}
 
 				if strings.Contains(event.Name, a.config.CAFile) {
@@ -207,7 +207,7 @@ func (a *CertManager) watchFiles() {
 				}
 			}
 		}
-		if updateKey {
+		if updateCert && updateKey {
 			err := a.loadCerts()
 			if err != nil {
 				a.logger.Error(err.Error())
