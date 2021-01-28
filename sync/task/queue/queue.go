@@ -17,12 +17,12 @@ type Queue struct {
 	queue *list.List
 }
 
-// New creates task queue which is processed by number of workers. Number of task is limited by limit.
+// New creates task queue which is processed by goroutines.
 func New(cfg Config) (*Queue, error) {
 	if cfg.Size <= 0 {
 		return nil, fmt.Errorf("invalid value of Size")
 	}
-	p, err := ants.NewPool(cfg.NumWorkers, ants.WithPreAlloc(cfg.PreAlloc), ants.WithExpiryDuration(cfg.MaxIdleTime), ants.WithNonblocking(true))
+	p, err := ants.NewPool(cfg.GoroutinePoolSize, ants.WithPreAlloc(true), ants.WithExpiryDuration(cfg.MaxIdleTime), ants.WithNonblocking(true))
 	if err != nil {
 		return nil, err
 	}
