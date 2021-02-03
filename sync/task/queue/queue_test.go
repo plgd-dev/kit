@@ -9,15 +9,13 @@ import (
 
 func TestTaskQueue_Submit(t *testing.T) {
 	_, err := queue.New(queue.Config{
-		NumWorkers: -1,
-		Size:       10,
-		PreAlloc:   true,
+		GoroutinePoolSize: -1,
+		Size:              10,
 	})
 	require.Error(t, err)
 	q, err := queue.New(queue.Config{
-		NumWorkers: 1,
-		Size:       2,
-		PreAlloc:   true,
+		GoroutinePoolSize: 1,
+		Size:              2,
 	})
 	require.NoError(t, err)
 	err = q.Submit(func() {}, func() {}, func() {})
