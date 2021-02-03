@@ -12,7 +12,7 @@ type Config struct {
 	CAFile                    string `yaml:"caFile" json:"caFile" description:"file path to the root certificate in PEM format"`
 	KeyFile                   string `yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
 	CertFile                  string `yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
-	ClientCertificateRequired *bool  `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client certificate"`
+	ClientCertificateRequired bool   `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client certificate"`
 }
 
 // CertManager holds certificates from filesystem watched for changes
@@ -32,15 +32,12 @@ func (c *CertManager) Close() {
 
 // New creates a new certificate manager which watches for certs in a filesystem
 func New(config Config, logger *zap.Logger) (*CertManager, error) {
-	clientCertificateRequired := true
-	if config.ClientCertificateRequired != nil && *config.ClientCertificateRequired == false {
-		clientCertificateRequired = false
-	}
+
 	c, err := general.New(general.Config{
 		CAFile:                    config.CAFile,
 		KeyFile:                   config.KeyFile,
 		CertFile:                  config.CertFile,
-		ClientCertificateRequired: clientCertificateRequired,
+		ClientCertificateRequired: config.ClientCertificateRequired,
 		UseSystemCAPool:           false,
 	}, logger)
 	if err != nil {
