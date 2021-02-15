@@ -433,6 +433,7 @@ type dialOptions struct {
 	errors                          func(err error)
 	maxMessageSize                  int
 	dialer                          *net.Dialer
+	heartBeat                       time.Duration
 }
 
 type DialOptionFunc func(dialOptions) dialOptions
@@ -484,6 +485,13 @@ func WithDialer(dialer *net.Dialer) DialOptionFunc {
 	}
 }
 
+func WithHeartBeat(heartBeat time.Duration) DialOptionFunc {
+	return func(c dialOptions) dialOptions {
+		c.heartBeat = heartBeat
+		return c
+	}
+}
+
 func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientCloseHandler, error) {
 	h := NewOnCloseHandler()
 	var cfg dialOptions
@@ -499,6 +507,9 @@ func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, udp.WithMaxMessageSize(cfg.maxMessageSize))
+	}
+	if cfg.heartBeat > 0 {
+		dopts = append(dopts, udp.WithHeartBeat(cfg.heartBeat))
 	}
 	if cfg.dialer != nil {
 		dopts = append(dopts, udp.WithDialer(cfg.dialer))
@@ -541,6 +552,9 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
+	}
+	if cfg.heartBeat > 0 {
+		dopts = append(dopts, tcp.WithHeartBeat(cfg.heartBeat))
 	}
 	if cfg.dialer != nil {
 		dopts = append(dopts, tcp.WithDialer(cfg.dialer))
@@ -621,6 +635,9 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, tcp.WithMaxMessageSize(cfg.maxMessageSize))
 	}
+	if cfg.heartBeat > 0 {
+		dopts = append(dopts, tcp.WithHeartBeat(cfg.heartBeat))
+	}
 	if cfg.dialer != nil {
 		dopts = append(dopts, tcp.WithDialer(cfg.dialer))
 	} else {
@@ -663,6 +680,9 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, o
 	}
 	if cfg.maxMessageSize > 0 {
 		dopts = append(dopts, dtls.WithMaxMessageSize(cfg.maxMessageSize))
+	}
+	if cfg.heartBeat > 0 {
+		dopts = append(dopts, dtls.WithHeartBeat(cfg.heartBeat))
 	}
 	if cfg.dialer != nil {
 		dopts = append(dopts, dtls.WithDialer(cfg.dialer))
