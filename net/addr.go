@@ -94,3 +94,14 @@ func (a Addr) RemoveScheme() Addr {
 func (a Addr) GetScheme() string {
 	return a.scheme
 }
+
+// GetHostname returns the hostname
+func (a Addr) GetHostname() string {
+	return a.hostname
+}
+
+// SetHostname sets hostname
+func (a Addr) SetHostname(hostname string) Addr {
+	a.hostname = hostname
+	return a
+}
