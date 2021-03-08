@@ -114,7 +114,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		WriteCertOut(opts, cert)
+		WritePrivateKey(opts, priv)
 		WriteCsrOut(opts, csr)
 	default:
 		fmt.Println("invalid command")
