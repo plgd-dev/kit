@@ -60,11 +60,7 @@ func (a Addr) String() string {
 
 // URL formats the scheme with address and with the optional port.
 func (a Addr) URL() string {
-	u := url.URL{
-		Scheme: a.scheme,
-		Host:   a.String(),
-	}
-	return u.String()
+	return a.scheme + "://" + a.String()
 }
 
 // RemovePort sets the zero value.
@@ -97,4 +93,15 @@ func (a Addr) RemoveScheme() Addr {
 // GetScheme returns the scheme.
 func (a Addr) GetScheme() string {
 	return a.scheme
+}
+
+// GetHostname returns the hostname
+func (a Addr) GetHostname() string {
+	return a.hostname
+}
+
+// SetHostname sets hostname
+func (a Addr) SetHostname(hostname string) Addr {
+	a.hostname = hostname
+	return a
 }

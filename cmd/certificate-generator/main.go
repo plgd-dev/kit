@@ -12,8 +12,8 @@ import (
 
 	"github.com/plgd-dev/kit/security/generateCertificate"
 
-	"github.com/plgd-dev/kit/security"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/plgd-dev/kit/security"
 )
 
 type Options struct {
@@ -22,10 +22,12 @@ type Options struct {
 		GenerateIntermediateCA bool   `long:"generateIntermediateCA"`
 		GenerateCert           bool   `long:"generateCertificate"`
 		GenerateIdentity       string `long:"generateIdentityCertificate" description:"deviceID"`
+		GenerateIdentityCsr    string `long:"generateIdentityCsr" description:"deviceID"`
 	} `group:"Command" namespace:"cmd"`
 	Certificate generateCertificate.Configuration `group:"Certificate" namespace:"cert"`
 	OutCert     string                            `long:"outCert" default:"cert.pem"`
 	OutKey      string                            `long:"outKey" default:"cert.key"`
+	OutCsr      string                            `long:"outCsr" default:"req.csr"`
 	SignerCert  string                            `long:"signerCert"`
 	SignerKey   string                            `long:"signerKey"`
 }
@@ -60,6 +62,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		WriteCertOut(opts, cert)
+		WritePrivateKey(opts, priv)
 	case opts.Command.GenerateIntermediateCA:
 		signerCert, err := security.LoadX509(opts.SignerCert)
 		if err != nil {
@@ -73,6 +77,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		WriteCertOut(opts, cert)
+		WritePrivateKey(opts, priv)
 	case opts.Command.GenerateCert:
 		signerCert, err := security.LoadX509(opts.SignerCert)
 		if err != nil {
@@ -86,6 +92,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		WriteCertOut(opts, cert)
+		WritePrivateKey(opts, priv)
 	case opts.Command.GenerateIdentity != "":
 		signerCert, err := security.LoadX509(opts.SignerCert)
 		if err != nil {
@@ -99,12 +107,23 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		WriteCertOut(opts, cert)
+		WritePrivateKey(opts, priv)
+	case opts.Command.GenerateIdentityCsr != "":
+		csr, err := generateCertificate.GenerateIdentityCSR(opts.Certificate, opts.Command.GenerateIdentityCsr, priv)
+		if err != nil {
+			log.Fatal(err)
+		}
+		WritePrivateKey(opts, priv)
+		WriteCsrOut(opts, csr)
 	default:
 		fmt.Println("invalid command")
 		parser.WriteHelp(os.Stdout)
 		os.Exit(2)
 	}
+}
 
+func WriteCertOut(opts Options, cert []byte) {
 	certOut, err := os.Create(opts.OutCert)
 	if err != nil {
 		log.Fatalf("failed to open %v for writing: %s", opts.OutCert, err)
@@ -116,7 +135,23 @@ func main() {
 	if err := certOut.Close(); err != nil {
 		log.Fatalf("error closing %v: %s", opts.OutCert, err)
 	}
+}
 
+func WriteCsrOut(opts Options, csr []byte) {
+	csrOut, err := os.Create(opts.OutCsr)
+	if err != nil {
+		log.Fatalf("failed to open %v for writing: %s", opts.OutCsr, err)
+	}
+	_, err = csrOut.Write(csr)
+	if err != nil {
+		log.Fatalf("failed to write %v: %s", opts.OutCsr, err)
+	}
+	if err := csrOut.Close(); err != nil {
+		log.Fatalf("error closing %v: %s", opts.OutCert, err)
+	}
+}
+
+func WritePrivateKey(opts Options, priv *ecdsa.PrivateKey) {
 	privBlock, err := pemBlockForKey(priv)
 	if err != nil {
 		log.Fatalf("failed to encode priv key %v for writing: %v", opts.OutKey, err)
@@ -134,3 +169,4 @@ func main() {
 		log.Fatalf("error closing %v: %s", opts.OutKey, err)
 	}
 }
+
