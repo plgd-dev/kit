@@ -2,6 +2,7 @@ package server
 
 import (
 	"crypto/tls"
+	"fmt"
 
 	"github.com/plgd-dev/kit/security/certManager/general"
 	"go.uber.org/zap"
@@ -13,6 +14,23 @@ type Config struct {
 	KeyFile                   string `yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
 	CertFile                  string `yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
 	ClientCertificateRequired bool   `yaml:"clientCertificateRequired" json:"clientCertificateRequired" description:"require client certificate"`
+}
+
+func (c Config) Validate() error {
+	if c.CAFile == "" {
+		return fmt.Errorf("invalid caFile")
+	}
+	if c.CertFile == "" {
+		return fmt.Errorf("invalid certFile")
+	}
+	if c.KeyFile == "" {
+		return fmt.Errorf("invalid keyFile")
+	}
+	return nil
+}
+
+func (c *Config) SetDefaults() {
+	c.ClientCertificateRequired = true
 }
 
 // CertManager holds certificates from filesystem watched for changes

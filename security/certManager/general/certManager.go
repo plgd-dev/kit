@@ -23,6 +23,23 @@ type Config struct {
 	UseSystemCAPool           bool   `yaml:"useSystemCAPool" json:"useSystemCAPool" description:"use system certification pool"`
 }
 
+func (c Config) Validate() error {
+	if c.CAFile == "" {
+		return fmt.Errorf("invalid caFile")
+	}
+	if c.CertFile == "" {
+		return fmt.Errorf("invalid certFile")
+	}
+	if c.KeyFile == "" {
+		return fmt.Errorf("invalid keyFile")
+	}
+	return nil
+}
+
+func (c *Config) SetDefaults() {
+	c.ClientCertificateRequired = true
+}
+
 // CertManager holds certificates from filesystem watched for changes
 type CertManager struct {
 	config Config

@@ -2,6 +2,7 @@ package client
 
 import (
 	"crypto/tls"
+	"fmt"
 
 	"github.com/plgd-dev/kit/security/certManager/general"
 	"go.uber.org/zap"
@@ -13,6 +14,22 @@ type Config struct {
 	KeyFile         string `yaml:"keyFile" json:"keyFile" description:"file name of private key in PEM format"`
 	CertFile        string `yaml:"certFile" json:"certFile" description:"file name of certificate in PEM format"`
 	UseSystemCAPool bool   `yaml:"useSystemCAPool" json:"useSystemCAPool" description:"use system certification pool"`
+}
+
+func (c Config) Validate() error {
+	if c.CAFile == "" {
+		return fmt.Errorf("invalid caFile")
+	}
+	if c.CertFile == "" {
+		return fmt.Errorf("invalid certFile")
+	}
+	if c.KeyFile == "" {
+		return fmt.Errorf("invalid keyFile")
+	}
+	return nil
+}
+
+func (c *Config) SetDefaults() {
 }
 
 // CertManager holds certificates from filesystem watched for changes
