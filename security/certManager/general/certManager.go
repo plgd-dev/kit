@@ -24,7 +24,7 @@ type Config struct {
 }
 
 func (c Config) Validate() error {
-	if c.CAFile == "" {
+	if c.CAFile == "" && !c.UseSystemCAPool {
 		return fmt.Errorf("invalid caFile")
 	}
 	if c.CertFile == "" {
