@@ -18,6 +18,7 @@ type Config struct {
 	Endpoint       Endpoint      `envconfig:"ENDPOINT" env:"ENDPOINT"`
 	Audience       string        `envconfig:"AUDIENCE" env:"AUDIENCE"`
 	RequestTimeout time.Duration `envconfig:"REQUEST_TIMEOUT" env:"REQUEST_TIMEOUT" default:"10s"`
+	TickFrequency  time.Duration `envconfig:"TICK_FREQUENCY" env:"TICK_FREQUENCY" long:"tick-frequency" description:"how frequently we should check whether our token needs renewal" default:"15s"`
 }
 
 // ToClientCrendtials converts to clientcredentials.Config
