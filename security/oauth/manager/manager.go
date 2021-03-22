@@ -77,7 +77,7 @@ func (a *Manager) Close() {
 	}
 }
 
-func (a *Manager) wantToRefresh() bool {
+func (a *Manager) shouldRefresh() bool {
 	return time.Now().After(a.startRefreshToken)
 }
 
@@ -118,7 +118,7 @@ func (a *Manager) watchToken() {
 		case <-a.done:
 			return
 		case <-t.C:
-			if a.wantToRefresh() {
+			if a.shouldRefresh() {
 				a.refreshToken()
 			}
 		}
