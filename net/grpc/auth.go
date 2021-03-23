@@ -17,7 +17,7 @@ import (
 )
 
 var authorizationKey = "authorization"
-var userIDKey = "userid"
+var ownerKey = "owner"
 
 type AuthInterceptors struct {
 	authFunc Interceptor
@@ -59,7 +59,7 @@ func ValidateJWT(jwksURL string, tls *tls.Config, claims ClaimsFunc) Interceptor
 		}
 		err = validator.ParseWithClaims(token, claims(ctx, method))
 		if err != nil {
-			return nil, grpc.Errorf(codes.Unauthenticated, "invalid token: %v", err)
+			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
 		}
 		return ctx, nil
 	}
@@ -72,54 +72,52 @@ func CtxWithToken(ctx context.Context, token string) context.Context {
 	return niceMD.ToOutgoing(ctx)
 }
 
-// CtxWithUserID stores userID to ctx of request.
-func CtxWithUserID(ctx context.Context, userID string) context.Context {
+// CtxWithOwner stores owner to ctx of request.
+func CtxWithOwner(ctx context.Context, owner string) context.Context {
 	niceMD := metautils.ExtractOutgoing(ctx)
-	niceMD.Set(userIDKey, userID)
+	niceMD.Set(ownerKey, owner)
 	return niceMD.ToOutgoing(ctx)
 }
 
-// CtxWithIncomingToken stores token to ctx of reponse.
+// CtxWithIncomingToken stores token to ctx of response.
 func CtxWithIncomingToken(ctx context.Context, token string) context.Context {
 	niceMD := metautils.ExtractIncoming(ctx)
 	niceMD.Set(authorizationKey, fmt.Sprintf("%s %s", "bearer", token))
 	return niceMD.ToIncoming(ctx)
 }
 
-// CtxWithIncomingUserID stores userID to ctx of reponse.
-func CtxWithIncomingUserID(ctx context.Context, userID string) context.Context {
+// CtxWithIncomingOwner stores owner to ctx of response.
+func CtxWithIncomingOwner(ctx context.Context, owner string) context.Context {
 	niceMD := metautils.ExtractIncoming(ctx)
-	niceMD.Set(userIDKey, userID)
+	niceMD.Set(ownerKey, owner)
 	return niceMD.ToIncoming(ctx)
 }
 
-// UserIDFromMD is a helper function for extracting the :userid header from the gRPC metadata of the request.
-func UserIDFromMD(ctx context.Context) (string, error) {
-	val := metautils.ExtractIncoming(ctx).Get(userIDKey)
+// OwnerFromMD is a helper function for extracting the :userid header from the gRPC metadata of the request.
+func OwnerFromMD(ctx context.Context) (string, error) {
+	val := metautils.ExtractIncoming(ctx).Get(ownerKey)
 	if val == "" {
-		return "", status.Errorf(codes.InvalidArgument, "UserID not found in request")
+		return "", status.Errorf(codes.InvalidArgument, "owner not found in request")
 	}
 	return val, nil
 }
 
-// UserIDFromOutgoingMD extracts userID stored by CtxWithUserID.
-func UserIDFromOutgoingMD(ctx context.Context) (string, error) {
-	val := metautils.ExtractOutgoing(ctx).Get(userIDKey)
+// OwnerFromOutgoingMD extracts owner stored by CtxWithOwner.
+func OwnerFromOutgoingMD(ctx context.Context) (string, error) {
+	val := metautils.ExtractOutgoing(ctx).Get(ownerKey)
 	if val == "" {
-		return "", status.Errorf(codes.InvalidArgument, "UserID not found in request")
+		return "", status.Errorf(codes.InvalidArgument, "owner not found in request")
 	}
 	return val, nil
 }
 
-type claims struct {
-	Subject string `json:"sub,omitempty"`
-}
+type claims map[string]interface{}
 
 func (c *claims) Valid() error {
 	return nil
 }
 
-func parseSubFromJwtToken(rawJwtToken string) (string, error) {
+func ParseOwnerFromJwtToken(ownerClaim, rawJwtToken string) (string, error) {
 	parser := &extJwt.Parser{
 		SkipClaimsValidation: true,
 	}
@@ -127,25 +125,28 @@ func parseSubFromJwtToken(rawJwtToken string) (string, error) {
 	var claims claims
 	_, _, err := parser.ParseUnverified(rawJwtToken, &claims)
 	if err != nil {
-		return "", fmt.Errorf("cannot get subject from jwt token: %w", err)
+		return "", err
 	}
 
-	if claims.Subject != "" {
-		return claims.Subject, nil
+	ownerI, ok := claims[ownerClaim]
+	if ok {
+		if owner, ok := ownerI.(string); ok {
+			return owner, nil
+		}
 	}
 
-	return "", fmt.Errorf("cannot get subject from jwt token: not found")
+	return "", fmt.Errorf("claim '%v' was not found", ownerClaim)
 }
 
-// UserIDFromTokenMD is a helper function for extracting the userID from the :authorization gRPC metadata of the request.
-func UserIDFromTokenMD(ctx context.Context) (string, error) {
+// OwnerFromTokenMD is a helper function for extracting the ownerClaim from the :authorization gRPC metadata of the request.
+func OwnerFromTokenMD(ctx context.Context, ownerClaim string) (string, error) {
 	accessToken, err := TokenFromMD(ctx)
 	if err != nil {
 		return "", err
 	}
-	userID, err := parseSubFromJwtToken(accessToken)
+	owner, err := ParseOwnerFromJwtToken(ownerClaim, accessToken)
 	if err != nil {
 		return "", ForwardFromError(codes.InvalidArgument, err)
 	}
-	return userID, err
+	return owner, err
 }

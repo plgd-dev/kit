@@ -14,16 +14,16 @@ func TestAuthFromOutgoingMD(t *testing.T) {
 	require.Equal(t, token, got)
 }
 
-func TestUserIDFromOutgoingMD(t *testing.T) {
+func TestOwnerFromOutgoingMD(t *testing.T) {
 	token := "token"
-	got, err := UserIDFromOutgoingMD(CtxWithUserID(context.Background(), token))
+	got, err := OwnerFromOutgoingMD(CtxWithOwner(context.Background(), token))
 	require.NoError(t, err)
 	require.Equal(t, token, got)
 }
 
-func TestUserIDFromMD(t *testing.T) {
+func TestOwnerFromMD(t *testing.T) {
 	token := "token"
-	got, err := UserIDFromMD(CtxWithIncomingUserID(context.Background(), token))
+	got, err := OwnerFromMD(CtxWithIncomingOwner(context.Background(), token))
 	require.NoError(t, err)
 	require.Equal(t, token, got)
 }
