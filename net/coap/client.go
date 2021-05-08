@@ -17,12 +17,12 @@ import (
 	uuid "github.com/gofrs/uuid"
 	piondtls "github.com/pion/dtls/v2"
 	"github.com/plgd-dev/go-coap/v2/dtls"
-	"github.com/plgd-dev/go-coap/v2/net/keepalive"
 	"github.com/plgd-dev/go-coap/v2/tcp"
 	"github.com/plgd-dev/go-coap/v2/udp"
 
 	"github.com/plgd-dev/go-coap/v2/message"
 	"github.com/plgd-dev/go-coap/v2/message/codes"
+	"github.com/plgd-dev/go-coap/v2/net/monitor/inactivity"
 	codecOcf "github.com/plgd-dev/kit/codec/ocf"
 	"github.com/plgd-dev/kit/net/coap/status"
 )
@@ -426,10 +426,17 @@ func newClientCloseHandler(conn ClientConn, onClose *OnCloseHandler) *ClientClos
 	return &ClientCloseHandler{Client: NewClient(conn), onClose: onClose}
 }
 
+// KeepAliveOpt keepalive option.
+type KeepAliveOpt struct {
+	maxRetries uint32
+	timeout    time.Duration
+	onInactive inactivity.OnInactiveFunc
+}
+
 type dialOptions struct {
 	DisableTCPSignalMessageCSM      bool
 	DisablePeerTCPSignalMessageCSMs bool
-	KeepAlive                       *keepalive.KeepAlive
+	KeepAlive                       *KeepAliveOpt
 	errors                          func(err error)
 	maxMessageSize                  int
 	dialer                          *net.Dialer
@@ -457,9 +464,13 @@ func WithDialDisablePeerTCPSignalMessageCSMs() DialOptionFunc {
 
 // WithKeepAlive sets a policy that detects dropped connections within the connTimeout limit
 // while attempting to make 3 pings during that period.
-func WithKeepAlive(connectionTimeout time.Duration) DialOptionFunc {
+func WithKeepAlive(maxRetries uint32, timeout time.Duration, onInactive inactivity.OnInactiveFunc) DialOptionFunc {
 	return func(c dialOptions) dialOptions {
-		c.KeepAlive = keepalive.New(keepalive.WithConfig(keepalive.MakeConfig(connectionTimeout)))
+		c.KeepAlive = &KeepAliveOpt{
+			maxRetries: maxRetries,
+			timeout:    timeout,
+			onInactive: onInactive,
+		}
 		return c
 	}
 }
@@ -500,7 +511,7 @@ func DialUDP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	dopts := make([]udp.DialOption, 0, 4)
 	if cfg.KeepAlive != nil {
-		dopts = append(dopts, udp.WithKeepAlive(cfg.KeepAlive))
+		dopts = append(dopts, udp.WithKeepAlive(cfg.KeepAlive.maxRetries, cfg.KeepAlive.timeout, cfg.KeepAlive.onInactive))
 	}
 	if cfg.errors != nil {
 		dopts = append(dopts, udp.WithErrors(cfg.errors))
@@ -539,7 +550,7 @@ func DialTCP(ctx context.Context, addr string, opts ...DialOptionFunc) (*ClientC
 	}
 	dopts := make([]tcp.DialOption, 0, 4)
 	if cfg.KeepAlive != nil {
-		dopts = append(dopts, tcp.WithKeepAlive(cfg.KeepAlive))
+		dopts = append(dopts, tcp.WithKeepAlive(cfg.KeepAlive.maxRetries, cfg.KeepAlive.timeout, cfg.KeepAlive.onInactive))
 	}
 	if cfg.DisablePeerTCPSignalMessageCSMs {
 		dopts = append(dopts, tcp.WithDisablePeerTCPSignalMessageCSMs())
@@ -621,7 +632,7 @@ func DialTCPSecure(ctx context.Context, addr string, tlsCfg *tls.Config, opts ..
 	dopts := make([]tcp.DialOption, 0, 4)
 	dopts = append(dopts, tcp.WithTLS(tlsCfg))
 	if cfg.KeepAlive != nil {
-		dopts = append(dopts, tcp.WithKeepAlive(cfg.KeepAlive))
+		dopts = append(dopts, tcp.WithKeepAlive(cfg.KeepAlive.maxRetries, cfg.KeepAlive.timeout, cfg.KeepAlive.onInactive))
 	}
 	if cfg.DisablePeerTCPSignalMessageCSMs {
 		dopts = append(dopts, tcp.WithDisablePeerTCPSignalMessageCSMs())
@@ -673,7 +684,7 @@ func DialUDPSecure(ctx context.Context, addr string, dtlsCfg *piondtls.Config, o
 	}
 	dopts := make([]dtls.DialOption, 0, 4)
 	if cfg.KeepAlive != nil {
-		dopts = append(dopts, dtls.WithKeepAlive(cfg.KeepAlive))
+		dopts = append(dopts, dtls.WithKeepAlive(cfg.KeepAlive.maxRetries, cfg.KeepAlive.timeout, cfg.KeepAlive.onInactive))
 	}
 	if cfg.errors != nil {
 		dopts = append(dopts, dtls.WithErrors(cfg.errors))
