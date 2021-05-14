@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	kitNetCoap "github.com/plgd-dev/kit/net/coap"
 	"github.com/stretchr/testify/require"
 )
 
@@ -54,7 +53,7 @@ func TestIdentityCertificateSigner_Sign(t *testing.T) {
 						x509.ExtKeyUsageClientAuth,
 						x509.ExtKeyUsageServerAuth,
 					},
-					UnknownExtKeyUsage: []asn1.ObjectIdentifier{kitNetCoap.ExtendedKeyUsage_IDENTITY_CERTIFICATE},
+					UnknownExtKeyUsage: []asn1.ObjectIdentifier{ExtendedKeyUsage_IDENTITY_CERTIFICATE},
 				},
 				{
 					Subject: pkix.Name{
