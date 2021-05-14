@@ -11,7 +11,6 @@ import (
 	"math/big"
 	"time"
 
-	kitNetCoap "github.com/plgd-dev/kit/net/coap"
 	"github.com/plgd-dev/kit/security"
 )
 
@@ -25,6 +24,8 @@ type IdentityCertificateSigner struct {
 func NewIdentityCertificateSigner(caCert []*x509.Certificate, caKey crypto.PrivateKey, validNotBefore time.Time, validNotAfter time.Time) *IdentityCertificateSigner {
 	return &IdentityCertificateSigner{caCert: caCert, caKey: caKey, validNotBefore: validNotBefore, validNotAfter: validNotAfter}
 }
+
+var ExtendedKeyUsage_IDENTITY_CERTIFICATE = asn1.ObjectIdentifier{1, 3, 6, 1, 4, 1, 44924, 1, 6}
 
 func (s *IdentityCertificateSigner) Sign(ctx context.Context, csr []byte) (signedCsr []byte, err error) {
 	csrBlock, _ := pem.Decode(csr)
@@ -57,7 +58,7 @@ func (s *IdentityCertificateSigner) Sign(ctx context.Context, csr []byte) (signe
 		PublicKey:          certificateRequest.PublicKey,
 		SignatureAlgorithm: s.caCert[0].SignatureAlgorithm,
 		KeyUsage:           x509.KeyUsageDigitalSignature | x509.KeyUsageKeyAgreement,
-		UnknownExtKeyUsage: []asn1.ObjectIdentifier{kitNetCoap.ExtendedKeyUsage_IDENTITY_CERTIFICATE},
+		UnknownExtKeyUsage: []asn1.ObjectIdentifier{ExtendedKeyUsage_IDENTITY_CERTIFICATE},
 		ExtKeyUsage:        []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 	}
 	if len(s.caCert) == 0 {
