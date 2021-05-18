@@ -9,7 +9,7 @@ require (
 	github.com/go-acme/lego v2.7.2+incompatible
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/protobuf v1.4.1
+	github.com/golang/protobuf v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/jessevdk/go-flags v1.4.0
@@ -22,11 +22,11 @@ require (
 	github.com/ugorji/go/codec v1.1.7
 	github.com/valyala/fasthttp v1.12.0
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
-	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/genproto v0.0.0-20200511104702-f5ebc3bea380
-	google.golang.org/grpc v1.29.1
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
+	google.golang.org/genproto v0.0.0-20200825200019-8632dd797987
+	google.golang.org/grpc v1.31.0
 	gopkg.in/yaml.v2 v2.2.8
 )
 
