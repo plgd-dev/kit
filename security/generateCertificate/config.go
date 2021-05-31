@@ -13,28 +13,28 @@ import (
 
 type Configuration struct {
 	Subject struct {
-		Country            []string `long:"c" description:"to set more values repeat option with parameter"`
-		Organization       []string `long:"o" description:"to set more values repeat option with parameter"`
-		OrganizationalUnit []string `long:"ou" description:"to set more values repeat option with parameter"`
-		Locality           []string `long:"l" description:"to set more values repeat option with parameter"`
-		CommonName         string   `long:"cn"`
-		Province           []string `long:"p" description:"to set more values repeat option with parameter"`
-		StreetAddress      []string `long:"sa" description:"to set more values repeat option with parameter"`
-		PostalCode         []string `long:"pc" description:"to set more values repeat option with parameter"`
-		SerialNumber       string   `long:"sn"`
-	} `group:"Subject" namespace:"subject"`
+		Country            []string `yaml:"country" long:"c" description:"to set more values repeat option with parameter"`
+		Organization       []string `yaml:"organization" long:"o" description:"to set more values repeat option with parameter"`
+		OrganizationalUnit []string `yaml:"organizationUnit" long:"ou" description:"to set more values repeat option with parameter"`
+		Locality           []string `yaml:"locality" long:"l" description:"to set more values repeat option with parameter"`
+		CommonName         string   `yaml:"commonName" long:"cn"`
+		Province           []string `yaml:"province" long:"p" description:"to set more values repeat option with parameter"`
+		StreetAddress      []string `yaml:"streetAddress" long:"sa" description:"to set more values repeat option with parameter"`
+		PostalCode         []string `yaml:"postalCode" long:"pc" description:"to set more values repeat option with parameter"`
+		SerialNumber       string   `yaml:"serialNumber" long:"sn"`
+	} `yaml:"subject" group:"Subject" namespace:"subject"`
 	SubjectAlternativeName struct {
-		DNSNames    []string `long:"domain" description:"to set more values repeat option with parameter"`
-		IPAddresses []string `long:"ip" description:"to set more values repeat option with parameter"`
-	} `group:"Subject Alternative Name" namespace:"san"`
+		DNSNames    []string `yaml:"dnsNames" long:"domain" description:"to set more values repeat option with parameter"`
+		IPAddresses []string `yaml:"ipAddresses" long:"ip" description:"to set more values repeat option with parameter"`
+	} `yaml:"subjectAlternativeName" group:"Subject Alternative Name" namespace:"san"`
 	BasicConstraints struct {
-		Ignore     bool `long:"ignore"  description:"bool, don't set basic constraints"`
-		MaxPathLen int  `long:"maxPathLen" default:"-1"  description:"int, -1 means unlimited"`
-	} `group:"Basic Constraints" namespace:"basicConstraints"`
-	ValidFrom          string        `long:"validFrom" default:"now" description:"valid from time, format in RFC3339 (eg:2014-11-12T11:45:00Z)"`
-	ValidFor           time.Duration `long:"validFor" default:"8760h" description:"duration, format in NUMh"`
-	KeyUsages          []string      `long:"ku" default:"digitalSignature" default:"keyAgreement" description:"to set more values repeat option with parameter"`
-	ExtensionKeyUsages []string      `long:"eku" default:"client" default:"server" description:"to set more values repeat option with parameter"`
+		Ignore     bool `yaml:"ignore" long:"ignore"  description:"bool, don't set basic constraints"`
+		MaxPathLen int  `yaml:"maxPathLen" long:"maxPathLen" default:"-1"  description:"int, -1 means unlimited"`
+	} `yaml:"basicConstraints" group:"Basic Constraints" namespace:"basicConstraints"`
+	ValidFrom          string        `yaml:"validFrom" long:"validFrom" default:"now" description:"valid from time, format in RFC3339 (eg:2014-11-12T11:45:00Z)"`
+	ValidFor           time.Duration `yaml:"validFor" long:"validFor" default:"8760h" description:"duration, format in NUMh"`
+	KeyUsages          []string      `yaml:"keyUsages" long:"ku" default:"digitalSignature" default:"keyAgreement" description:"to set more values repeat option with parameter"`
+	ExtensionKeyUsages []string      `yaml:"extensionKeyUsages" long:"eku" default:"client" default:"server" description:"to set more values repeat option with parameter"`
 }
 
 func (cfg Configuration) ToPkixName() pkix.Name {
