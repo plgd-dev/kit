@@ -9,7 +9,7 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 
-	ocfSigner "github.com/plgd-dev/kit/security/signer"
+	ocfSigner "github.com/plgd-dev/kit/v2/security/signer"
 )
 
 // GenerateCSR creates CSR according to configuration.

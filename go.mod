@@ -1,4 +1,4 @@
-module github.com/plgd-dev/kit
+module github.com/plgd-dev/kit/v2
 
 go 1.13
 

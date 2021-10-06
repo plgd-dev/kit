@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/plgd-dev/kit/security/certManager/file"
+	"github.com/plgd-dev/kit/v2/security/certManager/file"
 	"github.com/stretchr/testify/require"
 )
 

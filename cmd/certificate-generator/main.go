@@ -10,10 +10,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/plgd-dev/kit/security/generateCertificate"
+	"github.com/plgd-dev/kit/v2/security/generateCertificate"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/plgd-dev/kit/security"
+	"github.com/plgd-dev/kit/v2/security"
 )
 
 type Options struct {
@@ -169,4 +169,3 @@ func WritePrivateKey(opts Options, priv *ecdsa.PrivateKey) {
 		log.Fatalf("error closing %v: %s", opts.OutKey, err)
 	}
 }
-

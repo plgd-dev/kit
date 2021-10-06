@@ -11,7 +11,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/plgd-dev/kit/security"
+	"github.com/plgd-dev/kit/v2/security"
 )
 
 type IdentityCertificateSigner struct {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/plgd-dev/kit/net"
-	"github.com/plgd-dev/kit/sync"
+	"github.com/plgd-dev/kit/v2/net"
+	"github.com/plgd-dev/kit/v2/sync"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
