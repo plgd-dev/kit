@@ -3,7 +3,7 @@ package queue_test
 import (
 	"testing"
 
-	"github.com/plgd-dev/kit/sync/task/queue"
+	"github.com/plgd-dev/kit/v2/sync/task/queue"
 	"github.com/stretchr/testify/require"
 )
 

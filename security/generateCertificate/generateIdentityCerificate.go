@@ -10,7 +10,7 @@ import (
 	"encoding/pem"
 	"fmt"
 
-	ocfSigner "github.com/plgd-dev/kit/security/signer"
+	ocfSigner "github.com/plgd-dev/kit/v2/security/signer"
 )
 
 type basicConstraints struct {

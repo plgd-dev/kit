@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/plgd-dev/kit/security"
+	"github.com/plgd-dev/kit/v2/security"
 )
 
 func newCert(cfg Configuration) (*x509.Certificate, error) {

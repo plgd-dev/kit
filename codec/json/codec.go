@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/plgd-dev/kit/codec/cbor"
+	"github.com/plgd-dev/kit/v2/codec/cbor"
 
 	"github.com/ugorji/go/codec"
 )

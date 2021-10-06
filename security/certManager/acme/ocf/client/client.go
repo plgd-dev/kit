@@ -3,7 +3,7 @@ package client
 import (
 	"fmt"
 
-	"github.com/plgd-dev/kit/security/certManager/acme/client"
+	"github.com/plgd-dev/kit/v2/security/certManager/acme/client"
 
 	"github.com/go-acme/lego/challenge/resolver"
 	"github.com/go-acme/lego/lego"
