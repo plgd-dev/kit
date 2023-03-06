@@ -13,8 +13,8 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go/codec v1.1.7
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
-	golang.org/x/net v0.0.0-20210502030024-e5908800b52b
+	golang.org/x/crypto v0.1.0
+	golang.org/x/net v0.1.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/yaml.v2 v2.4.0
 )
