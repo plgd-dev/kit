@@ -10,11 +10,11 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/panjf2000/ants/v2 v2.4.3
 	github.com/plgd-dev/go-coap/v2 v2.4.1-0.20210517130748-95c37ac8e1fa
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.1
 	github.com/ugorji/go/codec v1.1.7
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
-	golang.org/x/net v0.0.0-20210502030024-e5908800b52b
-	google.golang.org/grpc v1.29.1
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	golang.org/x/net v0.5.0
+	google.golang.org/grpc v1.53.0
 	gopkg.in/yaml.v2 v2.4.0
 )
